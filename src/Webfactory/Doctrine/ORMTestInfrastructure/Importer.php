@@ -149,7 +149,7 @@ class Importer
     /**
      * Uses the provided callback to import entities.
      *
-     * @param mixed $callback
+     * @param callable $callback
      */
     protected function importFromCallback($callback)
     {
