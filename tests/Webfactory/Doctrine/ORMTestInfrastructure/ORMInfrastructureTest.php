@@ -89,10 +89,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testImportAddsEntities()
     {
         $entity = new TestEntity();
-        $entity->name = 'unit-test';
-        $repository = $this->infrastructure->getRepository(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
-        );
+        $repository = $this->infrastructure->getRepository($entity);
 
         $entities = $repository->findAll();
         $this->assertCount(0, $entities);
@@ -109,7 +106,6 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testEntityIdIsAvailableAfterImport()
     {
         $entity = new TestEntity();
-        $entity->name = 'unit-test';
 
         $this->infrastructure->import($entity);
 
@@ -123,10 +119,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testImportedEntitiesAreReloadedFromDatabase()
     {
         $entity = new TestEntity();
-        $entity->name = 'unit-test';
-        $repository = $this->infrastructure->getRepository(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
-        );
+        $repository = $this->infrastructure->getRepository($entity);
 
         $this->infrastructure->import($entity);
 
@@ -157,13 +150,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testDifferentInfrastructureInstancesUseSeparatedDatabases()
     {
         $entity = new TestEntity();
-        $entity->name = 'unit-test';
         $anotherInfrastructure = new ORMInfrastructure(array(
             'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
         ));
-        $repository = $anotherInfrastructure->getRepository(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
-        );
+        $repository = $anotherInfrastructure->getRepository($entity);
 
         $this->infrastructure->import($entity);
 
