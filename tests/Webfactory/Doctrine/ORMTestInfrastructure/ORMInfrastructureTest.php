@@ -127,7 +127,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
     {
+        $infrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity'
+        ), array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestAnnotation'
+        ));
 
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager();
     }
 
     /**
