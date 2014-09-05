@@ -1,0 +1,25 @@
+{
+    "name": "webfactory/doctrine-entity-test-infrastructure",
+    "description": "Provides utils to create a test infrastructure for Doctrine 2 entities.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "webfactory GmbH",
+            "email": "info@webfactory.de",
+            "homepage": "http://www.webfactory.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "doctrine/orm": "~2.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7"
+    },
+
+    "autoload": {
+        "psr-0": {
+            "Webfactory\\Doctrine": "src/"
+        }
+    }
+}
