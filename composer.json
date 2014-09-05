@@ -1,5 +1,5 @@
 {
-    "name": "webfactory/doctrine-entity-test-infrastructure",
+    "name": "webfactory/doctrine-orm-test-infrastructure",
     "description": "Provides utils to create a test infrastructure for Doctrine 2 entities.",
     "license": "MIT",
     "authors": [
