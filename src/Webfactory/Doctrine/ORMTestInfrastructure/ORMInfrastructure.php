@@ -217,6 +217,17 @@ class ORMInfrastructure
      */
     public function __destruct()
     {
+        $this->removeAnnotationLoaderFromRegistry();
+    }
+
+    /**
+     * Removes the loader that has been added to Doctrine's AnnotationRegistry.
+     *
+     * This requires some ugly reflection as the registry data is static and the loaders
+     * are not publicly accessible.
+     */
+    protected function removeAnnotationLoaderFromRegistry()
+    {
         $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
         $annotationLoaderProperty = $reflection->getProperty('loaders');
         $annotationLoaderProperty->setAccessible(true);
