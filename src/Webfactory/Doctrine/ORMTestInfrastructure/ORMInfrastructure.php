@@ -99,7 +99,7 @@ class ORMInfrastructure
             // Use class_exists() to trigger the configured autoloader.
             return class_exists($annotationClass, true);
         };
-        AnnotationRegistry::registerLoader($this->annotationLoader);
+        $this->addAnnotationLoaderToRegistry();
     }
 
     /**
@@ -221,6 +221,14 @@ class ORMInfrastructure
     }
 
     /**
+     * Adds the custom annotation loader to Doctrine's AnnotationRegistry.
+     */
+    protected function addAnnotationLoaderToRegistry()
+    {
+        AnnotationRegistry::registerLoader($this->annotationLoader);
+    }
+
+    /**
      * Removes the loader that has been added to Doctrine's AnnotationRegistry.
      *
      * This requires some ugly reflection as the registry data is static and the loaders
@@ -240,6 +248,5 @@ class ORMInfrastructure
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
     }
-
 
 }
