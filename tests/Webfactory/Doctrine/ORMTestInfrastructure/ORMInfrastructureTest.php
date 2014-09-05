@@ -142,7 +142,20 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testDifferentInfrastructureInstancesUseSeparatedDatabases()
     {
+        $entity = new TestEntity();
+        $entity->name = 'unit-test';
+        $anotherInfrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
+        $repository = $anotherInfrastructure->getRepository(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
 
+        $this->infrastructure->import($entity);
+
+        // Entity must not be visible in the scope of another infrastructure.
+        $entities = $repository->findAll();
+        $this->assertCount(0, $entities);
     }
 
 }
