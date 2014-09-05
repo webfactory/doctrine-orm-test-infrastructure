@@ -1,6 +1,7 @@
 <?php
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
+
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
 
 /**
