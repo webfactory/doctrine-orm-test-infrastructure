@@ -13,7 +13,12 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetEntityManagerReturnsDoctrineEntityManager()
     {
+        $infrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
+        $entityManager = $infrastructure->getEntityManager();
 
+        $this->assertInstanceOf('Doctrine\ORM\EntityManager', $entityManager);
     }
 
     /**
@@ -34,6 +39,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      * @see \Webfactory\Doctrine\ORMTestInfrastructure\ImporterTest
      */
     public function testImportAddsEntities()
+    {
+
+    }
+
+    /**
+     * Checks if an imported entity receives a generated ID.
+     */
+    public function testEntityIdIsAvailableAfterImport()
     {
 
     }
