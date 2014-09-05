@@ -78,22 +78,28 @@ class ORMInfrastructure
     protected $entityManager = null;
 
     /**
+     * Callback that is used to load non-Doctrine annotations.
+     *
+     * @var \Closure
+     */
+    protected $annotationLoader = null;
+
+    /**
      * Creates an entity helper that provides a database infrastructure
      * for the provided entities.
      *
      * Foreach entity the fully qualified class name must be provided.
      *
      * @param array(string) $entityClasses
-     * @param array $nonDoctrineAnnotationClasses If you use non-Doctrine annotations, provide an array with their fully
-     * qualified class names.
      */
-    public function __construct(array $entityClasses, array $nonDoctrineAnnotationClasses = array())
+    public function __construct(array $entityClasses)
     {
         $this->entityClasses = $entityClasses;
-
-        foreach ($nonDoctrineAnnotationClasses as $className) {
-            AnnotationRegistry::registerAutoloadNamespace($className, $this->getFilePathForClassName($className));
-        }
+        $this->annotationLoader = function ($annotationClass) {
+            // Use class_exists() to trigger the configured autoloader.
+            return class_exists($annotationClass, true);
+        };
+        AnnotationRegistry::registerLoader($this->annotationLoader);
     }
 
     /**
@@ -205,5 +211,24 @@ class ORMInfrastructure
         }
         return $metadata;
     }
+
+    /**
+     * Restores the state of the annotation registry.
+     */
+    public function __destruct()
+    {
+        $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
+        $annotationLoaderProperty = $reflection->getProperty('loaders');
+        $annotationLoaderProperty->setAccessible(true);
+        $activeLoaders = $annotationLoaderProperty->getValue();
+        foreach ($activeLoaders as $index => $loader) {
+            /* @var $loader callable */
+            if ($loader === $this->annotationLoader) {
+                unset($activeLoaders[$index]);
+            }
+        }
+        $annotationLoaderProperty->setValue(array_values($activeLoaders));
+    }
+
 
 }
