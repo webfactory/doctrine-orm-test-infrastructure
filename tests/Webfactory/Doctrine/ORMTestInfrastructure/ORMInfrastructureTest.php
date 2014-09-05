@@ -9,14 +9,38 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
+     * System under test.
+     *
+     * @var \Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure
+     */
+    protected $infrastructure = null;
+
+    /**
+     * Initializes the test environment.
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->infrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
+    }
+
+    /**
+     * Cleans up the test environment.
+     */
+    protected function tearDown()
+    {
+        $this->infrastructure = null;
+        parent::tearDown();
+    }
+
+    /**
      * Checks if getEntityManager() returns the Doctrine entity manager,
      */
     public function testGetEntityManagerReturnsDoctrineEntityManager()
     {
-        $infrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
-        ));
-        $entityManager = $infrastructure->getEntityManager();
+        $entityManager = $this->infrastructure->getEntityManager();
 
         $this->assertInstanceOf('Doctrine\ORM\EntityManager', $entityManager);
     }
@@ -27,7 +51,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRepositoryReturnsRepositoryThatBelongsToEntity()
     {
+        $repository = $this->infrastructure->getRepository(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
 
+        $this->assertInstanceOf(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityRepository',
+            $repository
+        );
     }
 
     /**

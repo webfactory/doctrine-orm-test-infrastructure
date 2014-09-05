@@ -7,9 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Doctrine entity that is used for testing.
  *
- * # repositoryClass=""
- *
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="TestEntityRepository")
  * @ORM\Table(name="test_entity")
  */
 class TestEntity
