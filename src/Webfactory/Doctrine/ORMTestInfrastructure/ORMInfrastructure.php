@@ -248,6 +248,8 @@ class ORMInfrastructure
      *
      * This requires some ugly reflection as the registry data is static and the loaders
      * are not publicly accessible.
+     * Loaders are compared by identity, therefore, this will only work correctly with
+     * \Closure instances.
      *
      * @param callable $loader The loader that will be removed.
      */
