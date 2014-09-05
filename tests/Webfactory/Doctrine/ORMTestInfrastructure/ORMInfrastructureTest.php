@@ -1,6 +1,7 @@
 <?php
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
 
 /**
  * Tests the infrastructure.
@@ -71,7 +72,19 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testImportAddsEntities()
     {
+        $entity = new TestEntity();
+        $entity->name = 'unit-test';
+        $repository = $this->infrastructure->getRepository(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
 
+        $entities = $repository->findAll();
+        $this->assertCount(0, $entities);
+
+        $this->infrastructure->import($entity);
+
+        $entities = $repository->findAll();
+        $this->assertCount(1, $entities);
     }
 
     /**
@@ -79,7 +92,34 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testEntityIdIsAvailableAfterImport()
     {
+        $entity = new TestEntity();
+        $entity->name = 'unit-test';
 
+        $this->infrastructure->import($entity);
+
+        $this->assertNotNull($entity->id);
+    }
+
+    /**
+     * Ensures that imported entities are really loaded from the database and
+     * not provided from identity map.
+     */
+    public function testImportedEntitiesAreReloadedFromDatabase()
+    {
+        $entity = new TestEntity();
+        $entity->name = 'unit-test';
+        $repository = $this->infrastructure->getRepository(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
+
+        $this->infrastructure->import($entity);
+
+        $loadedEntity = $repository->find($entity->id);
+        $this->assertInstanceOf(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            $loadedEntity
+        );
+        $this->assertNotSame($entity, $loadedEntity);
     }
 
     /**
