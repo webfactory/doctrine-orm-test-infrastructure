@@ -175,9 +175,12 @@ class ORMInfrastructure
     {
         $config = Setup::createAnnotationMetadataConfiguration(
             $this->getFilePathsForArrayOfClassNames($this->entityClasses),
-            true,             // Activate development mode.
-            null,             // Store proxies in the default temp directory.
-            new ArrayCache(), // Avoid Doctrine auto-detection of cache and use an isolated cache.
+            // Activate development mode.
+            true,
+            // Store proxies in the default temp directory.
+            null,
+            // Avoid Doctrine auto-detection of cache and use an isolated cache.
+            new ArrayCache(),
             false
         );
         return EntityManager::create($this->defaultConnectionParams, $config);
