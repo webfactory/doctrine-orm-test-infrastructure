@@ -224,7 +224,7 @@ class ORMInfrastructure
      * This ensures that all loadable annotation classes can be used and avoid
      * dealing with annotation class white lists.
      *
-     * @return callable
+     * @return \Closure
      */
     protected function createAnnotationLoader()
     {
@@ -236,9 +236,9 @@ class ORMInfrastructure
     /**
      * Adds a custom annotation loader to Doctrine's AnnotationRegistry.
      *
-     * @param callable $loader
+     * @param \Closure $loader
      */
-    protected function addAnnotationLoaderToRegistry($loader)
+    protected function addAnnotationLoaderToRegistry(\Closure $loader)
     {
         AnnotationRegistry::registerLoader($loader);
     }
@@ -251,9 +251,9 @@ class ORMInfrastructure
      * Loaders are compared by identity, therefore, this will only work correctly with
      * \Closure instances.
      *
-     * @param callable $loader The loader that will be removed.
+     * @param \Closure $loader The loader that will be removed.
      */
-    protected function removeAnnotationLoaderFromRegistry($loader)
+    protected function removeAnnotationLoaderFromRegistry(\Closure $loader)
     {
         $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
         $annotationLoaderProperty = $reflection->getProperty('loaders');
