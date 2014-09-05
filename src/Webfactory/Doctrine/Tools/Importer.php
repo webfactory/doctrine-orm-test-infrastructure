@@ -136,8 +136,8 @@ class Importer
     protected function importFromFile($path)
     {
         $entities = null;
+        /* @noinspection PhpUnusedParameterInspection $objectManager should be in the scope of the included file. */
         $this->importFromCallback(function (ObjectManager $objectManager) use ($path, &$entities) {
-            // Include the PHP file, which then has access to the $objectManager.
             $entities = include $path;
         });
         if (is_array($entities)) {
