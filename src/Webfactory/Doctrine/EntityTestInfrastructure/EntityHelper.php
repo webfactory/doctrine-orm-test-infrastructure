@@ -72,33 +72,6 @@ class EntityHelper
     }
 
     /**
-     * Returns a list of file paths for the provided class names.
-     *
-     * @param array(string) $classNames
-     * @return array(string)
-     */
-    protected function getFilePathsForArrayOfClassNames(array $classNames)
-    {
-        $paths = array();
-        foreach ($classNames as $className) {
-            $paths[] = $this->getFilePathForClassName($className);
-        }
-        return array_unique($paths);
-    }
-
-    /**
-     * Returns the file path for the provided class name
-     *
-     * @param string $className
-     * @return string
-     */
-    protected function getFilePathForClassName($className)
-    {
-        $info = new \ReflectionClass($className);
-        return dirname($info->getFileName());
-    }
-
-    /**
      * Returns the repository for the provided entity class.
      *
      * @param string $forClassName Class name of the entity.
@@ -157,6 +130,33 @@ class EntityHelper
             $this->createSchemaForSupportedEntities($this->entityManager);
         }
         return $this->entityManager;
+    }
+
+    /**
+     * Returns a list of file paths for the provided class names.
+     *
+     * @param array(string) $classNames
+     * @return array(string)
+     */
+    protected function getFilePathsForArrayOfClassNames(array $classNames)
+    {
+        $paths = array();
+        foreach ($classNames as $className) {
+            $paths[] = $this->getFilePathForClassName($className);
+        }
+        return array_unique($paths);
+    }
+
+    /**
+     * Returns the file path for the provided class name
+     *
+     * @param string $className
+     * @return string
+     */
+    protected function getFilePathForClassName($className)
+    {
+        $info = new \ReflectionClass($className);
+        return dirname($info->getFileName());
     }
 
     /**
