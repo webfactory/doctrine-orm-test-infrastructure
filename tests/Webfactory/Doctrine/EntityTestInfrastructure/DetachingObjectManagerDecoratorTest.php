@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Doctrine\Tools;
+namespace Webfactory\Doctrine\EntityTestInfrastructure;
 
 /**
  * Tests the object manager decorator that detaches entities after persisting.
@@ -11,7 +11,7 @@ class DetachingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
     /**
      * System under test.
      *
-     * @var \Webfactory\Doctrine\Tools\DetachingObjectManagerDecorator
+     * @var \Webfactory\Doctrine\EntityTestInfrastructure\DetachingObjectManagerDecorator
      */
     protected $decorator = null;
 

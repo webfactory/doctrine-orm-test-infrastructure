@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Doctrine\Tools;
+namespace Webfactory\Doctrine\EntityTestInfrastructure;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\ObjectRepository;
@@ -134,10 +134,10 @@ class EntityHelper
     /**
      * Imports entities from the provided data source.
      *
-     * The supported data sources are documented at \Webfactory\Doctrine\Tools\Importer::import().
+     * The supported data sources are documented at \Webfactory\Doctrine\EntityTestInfrastructure\Importer::import().
      *
      * @param mixed $dataSource
-     * @see \Webfactory\Doctrine\Tools\Importer::import()
+     * @see \Webfactory\Doctrine\EntityTestInfrastructure\Importer::import()
      */
     public function import($dataSource)
     {

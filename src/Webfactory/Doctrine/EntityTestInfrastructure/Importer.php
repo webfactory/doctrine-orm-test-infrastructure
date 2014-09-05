@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Doctrine\Tools;
+namespace Webfactory\Doctrine\EntityTestInfrastructure;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
