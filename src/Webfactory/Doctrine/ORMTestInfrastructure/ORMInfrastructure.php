@@ -100,14 +100,15 @@ class ORMInfrastructure
     }
 
     /**
-     * Returns the repository for the provided entity class.
+     * Returns the repository for the provided entity.
      *
-     * @param string $forClassName Class name of the entity.
+     * @param string|object $classNameOrEntity Class name of an entity or entity instance.
      * @return ObjectRepository
      */
-    public function getRepository($forClassName)
+    public function getRepository($classNameOrEntity)
     {
-        return $this->getEntityManager()->getRepository($forClassName);
+        $className = is_object($classNameOrEntity) ? get_class($classNameOrEntity) : $classNameOrEntity;
+        return $this->getEntityManager()->getRepository($className);
     }
 
     /**
