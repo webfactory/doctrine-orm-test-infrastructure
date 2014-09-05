@@ -83,33 +83,11 @@ class EntityHelper
     }
 
     /**
-     * Uses the provided callback function to add entities to the database.
-     *
-     * The callback function retrieves the object manager as argument.
-     * The object manager is used to persist new entities.
-     *
-     * Example:
-     *
-     *     $helper->load(function (\Doctrine\Common\Persistence\ObjectManager $manager) {
-     *         $entity = new \My\Managed\Entity();
-     *         $entity->setName('Max Power');
-     *         $manager->persist($entity);
-     *     });
-     *
-     * @param callable $callback
-     * @deprecated Use import() to add entities.
-     */
-    public function load($callback)
-    {
-        $this->import($callback);
-    }
-
-    /**
      * Imports entities from the provided data source.
      *
      * The supported data sources are documented at \Webfactory\Doctrine\EntityTestInfrastructure\Importer::import().
      *
-     * @param mixed $dataSource
+     * @param mixed $dataSource Callback, single entity, array of entities or file path.
      * @see \Webfactory\Doctrine\EntityTestInfrastructure\Importer::import()
      */
     public function import($dataSource)
