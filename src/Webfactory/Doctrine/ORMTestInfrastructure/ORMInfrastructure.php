@@ -33,7 +33,7 @@ use Doctrine\ORM\Tools\Setup;
  * The entity manager can be used as usual. It operates on an in-memory database that contains
  * the schema for all entities that have been mentioned in the infrastructure constructor.
  *
- * ## Test Data ##
+ * ## Import Test Data ##
  *
  * Additionally, the infrastructure provides means to import entities:
  *
