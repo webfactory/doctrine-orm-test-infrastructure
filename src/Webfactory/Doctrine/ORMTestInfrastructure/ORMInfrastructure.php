@@ -96,7 +96,7 @@ class ORMInfrastructure
     {
         $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
-        $this->addAnnotationLoaderToRegistry();
+        $this->addAnnotationLoaderToRegistry($this->annotationLoader);
     }
 
     /**
@@ -214,7 +214,7 @@ class ORMInfrastructure
      */
     public function __destruct()
     {
-        $this->removeAnnotationLoaderFromRegistry();
+        $this->removeAnnotationLoaderFromRegistry($this->annotationLoader);
     }
 
     /**
@@ -234,11 +234,13 @@ class ORMInfrastructure
     }
 
     /**
-     * Adds the custom annotation loader to Doctrine's AnnotationRegistry.
+     * Adds a custom annotation loader to Doctrine's AnnotationRegistry.
+     *
+     * @param callable $loader
      */
-    protected function addAnnotationLoaderToRegistry()
+    protected function addAnnotationLoaderToRegistry($loader)
     {
-        AnnotationRegistry::registerLoader($this->annotationLoader);
+        AnnotationRegistry::registerLoader($loader);
     }
 
     /**
@@ -246,16 +248,18 @@ class ORMInfrastructure
      *
      * This requires some ugly reflection as the registry data is static and the loaders
      * are not publicly accessible.
+     *
+     * @param callable $loader The loader that will be removed.
      */
-    protected function removeAnnotationLoaderFromRegistry()
+    protected function removeAnnotationLoaderFromRegistry($loader)
     {
         $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
         $annotationLoaderProperty = $reflection->getProperty('loaders');
         $annotationLoaderProperty->setAccessible(true);
         $activeLoaders = $annotationLoaderProperty->getValue();
-        foreach ($activeLoaders as $index => $loader) {
+        foreach ($activeLoaders as $index => $activeLoader) {
             /* @var $loader callable */
-            if ($loader === $this->annotationLoader) {
+            if ($activeLoader === $loader) {
                 unset($activeLoaders[$index]);
             }
         }
