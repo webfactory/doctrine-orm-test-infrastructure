@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Doctrine\EntityTestInfrastructure;
+namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\ObjectRepository;
@@ -85,10 +85,10 @@ class ORMInfrastructure
     /**
      * Imports entities from the provided data source.
      *
-     * The supported data sources are documented at \Webfactory\Doctrine\EntityTestInfrastructure\Importer::import().
+     * The supported data sources are documented at \Webfactory\Doctrine\ORMTestInfrastructure\Importer::import().
      *
      * @param mixed $dataSource Callback, single entity, array of entities or file path.
-     * @see \Webfactory\Doctrine\EntityTestInfrastructure\Importer::import()
+     * @see \Webfactory\Doctrine\ORMTestInfrastructure\Importer::import()
      */
     public function import($dataSource)
     {

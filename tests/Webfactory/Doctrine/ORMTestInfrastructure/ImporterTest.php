@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Doctrine\EntityTestInfrastructure;
+namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Persistence\ObjectManager;
 
@@ -13,7 +13,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     /**
      * System under test.
      *
-     * @var \Webfactory\Doctrine\EntityTestInfrastructure\Importer
+     * @var \Webfactory\Doctrine\ORMTestInfrastructure\Importer
      */
     protected $importer = null;
 
