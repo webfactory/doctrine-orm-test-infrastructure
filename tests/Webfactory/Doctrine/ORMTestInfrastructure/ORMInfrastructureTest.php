@@ -51,11 +51,26 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      * Ensures that getRepository() returns the Doctrine repository that belongs
      * to the given entity class.
      */
-    public function testGetRepositoryReturnsRepositoryThatBelongsToEntity()
+    public function testGetRepositoryReturnsRepositoryThatBelongsToEntityClass()
     {
         $repository = $this->infrastructure->getRepository(
             'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
         );
+
+        $this->assertInstanceOf(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityRepository',
+            $repository
+        );
+    }
+
+    /**
+     * Ensures that getRepository() returns the Doctrine repository that belongs
+     * to the given entity object.
+     */
+    public function testGetRepositoryReturnsRepositoryThatBelongsToEntityObject()
+    {
+        $entity = new TestEntity();
+        $repository = $this->infrastructure->getRepository($entity);
 
         $this->assertInstanceOf(
             'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityRepository',
