@@ -18,7 +18,7 @@ use Doctrine\ORM\Tools\Setup;
  * This provides full isolation and allows testing repositories and
  * entities against a real database.
  */
-class EntityHelper
+class ORMInfrastructure
 {
 
     /**
