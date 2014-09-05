@@ -161,5 +161,4 @@ class Importer
         };
         $this->entityManager->transactional($import);
     }
-
 }

@@ -9,6 +9,4 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
  */
 class TestAnnotation
 {
-
 }
- 

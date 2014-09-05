@@ -20,7 +20,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     /**
      * The (mocked) entity manager.
      *
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \Doctrine\ORM\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $entityManager = null;
 
@@ -160,7 +160,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     /**
      * Creates a mocked entity manager.
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Doctrine\ORM\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function createEntityManager()
     {
@@ -177,5 +177,4 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
              ->will($this->returnCallback($transactional));
         return $mock;
     }
-
 }

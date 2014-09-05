@@ -64,5 +64,4 @@ class DetachingObjectManagerDecorator extends ObjectManagerDecorator
         }
         $this->entitiesToDetach = array();
     }
-
 }

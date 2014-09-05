@@ -23,6 +23,4 @@ class AnnotatedTestEntity
      * @ORM\GeneratedValue
      */
     public $id = null;
-
 }
- 

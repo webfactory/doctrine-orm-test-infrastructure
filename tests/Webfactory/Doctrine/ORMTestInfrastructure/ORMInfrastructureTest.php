@@ -161,6 +161,4 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $entities = $repository->findAll();
         $this->assertCount(0, $entities);
     }
-
 }
- 

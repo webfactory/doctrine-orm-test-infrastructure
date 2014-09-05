@@ -18,7 +18,7 @@ class DetachingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
     /**
      * The (mocked) inner object manager.
      *
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\Common\Persistence\ObjectManagerDecorator
      */
     protected $objectManager = null;
 
@@ -84,5 +84,4 @@ class DetachingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
         $this->decorator->flush();
         $this->decorator->flush();
     }
-
 }

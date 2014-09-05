@@ -30,6 +30,4 @@ class TestEntity
      * @ORM\Column(type="string", name="name", nullable=true)
      */
     public $name = null;
-
 }
- 

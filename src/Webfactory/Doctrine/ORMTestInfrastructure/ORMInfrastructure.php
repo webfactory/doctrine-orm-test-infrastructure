@@ -268,5 +268,4 @@ class ORMInfrastructure
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
     }
-
 }
