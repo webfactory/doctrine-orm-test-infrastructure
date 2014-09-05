@@ -11,12 +11,37 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 
 /**
- * Helper class that creates the database infrastructure for a defined
- * set of entity classes.
+ * Helper class that creates the database infrastructure for a defined set of entity classes.
  *
- * Per default the required database is created in memory (via SQLite).
- * This provides full isolation and allows testing repositories and
- * entities against a real database.
+ * The required database is created in memory (via SQLite). This provides full isolation
+ * and allows testing repositories and entities against a real database.
+ *
+ * # Example #
+ *
+ * ## Setup ##
+ *
+ * Create the infrastructure for a set of entities:
+ *
+ *     $infrastructure = new ORMInfrastructure(array(
+ *        'My\Entity\ClassName'
+ *     ));
+ *
+ * Use the infrastructure to retrieve the entity manager:
+ *
+ *     $entityManager = $infrastructure->getEntityManager();
+ *
+ * The entity manager can be used as usual. It operates on an in-memory database that contains
+ * the schema for all entities that have been mentioned in the infrastructure constructor.
+ *
+ * ## Tests Data ##
+ *
+ * Additionally, the infrastructure provides means to import entities:
+ *
+ *     $myEntity = new \My\Entity\ClassName();
+ *     $infrastructure->import($myEntity);
+ *
+ * The import ensures that the imported entities are loaded from the database when requested via repository. This
+ * circumvents Doctrine's caching via identity map and thereby leads to a more realistic test environment.
  */
 class ORMInfrastructure
 {
