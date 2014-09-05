@@ -94,11 +94,8 @@ class ORMInfrastructure
      */
     public function __construct(array $entityClasses)
     {
-        $this->entityClasses = $entityClasses;
-        $this->annotationLoader = function ($annotationClass) {
-            // Use class_exists() to trigger the configured autoloader.
-            return class_exists($annotationClass, true);
-        };
+        $this->entityClasses    = $entityClasses;
+        $this->annotationLoader = $this->createAnnotationLoader();
         $this->addAnnotationLoaderToRegistry();
     }
 
@@ -218,6 +215,22 @@ class ORMInfrastructure
     public function __destruct()
     {
         $this->removeAnnotationLoaderFromRegistry();
+    }
+
+    /**
+     * Creates an annotation loader.
+     *
+     * The loader uses class_exists() to trigger the configured class loader.
+     * This ensures that all loadable annotation classes can be used and avoid
+     * dealing with annotation class white lists.
+     *
+     * @return callable
+     */
+    protected function createAnnotationLoader()
+    {
+        return function ($annotationClass) {
+            return class_exists($annotationClass, true);
+        };
     }
 
     /**
