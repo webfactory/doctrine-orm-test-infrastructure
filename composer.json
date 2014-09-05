@@ -22,5 +22,10 @@
         "psr-0": {
             "Webfactory\\Doctrine": "src/"
         }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/"
+        ]
     }
 }
