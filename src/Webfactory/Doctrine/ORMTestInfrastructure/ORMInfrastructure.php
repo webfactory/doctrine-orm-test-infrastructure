@@ -40,7 +40,7 @@ use Doctrine\ORM\Tools\Setup;
  * The entity manager can be used as usual. It operates on an in-memory database that contains
  * the schema for all entities that have been mentioned in the infrastructure constructor.
  *
- * ## Tests Data ##
+ * ## Import Test Data ##
  *
  * Additionally, the infrastructure provides means to import entities:
  *
@@ -182,9 +182,12 @@ class ORMInfrastructure
     {
         $config = Setup::createAnnotationMetadataConfiguration(
             $this->getFilePathsForArrayOfClassNames($this->entityClasses),
-            true,             // Activate development mode.
-            null,             // Store proxies in the default temp directory.
-            new ArrayCache(), // Avoid Doctrine auto-detection of cache and use an isolated cache.
+            // Activate development mode.
+            true,
+            // Store proxies in the default temp directory.
+            null,
+            // Avoid Doctrine auto-detection of cache and use an isolated cache.
+            new ArrayCache(),
             false
         );
         return EntityManager::create($this->defaultConnectionParams, $config);
