@@ -3,6 +3,7 @@ doctrine-orm-test-infrastructure
 
 [![Build Status](https://travis-ci.org/webfactory/doctrine-orm-test-infrastructure.svg?branch=master)](https://travis-ci.org/webfactory/doctrine-orm-test-infrastructure)
 [![Coverage Status](https://img.shields.io/coveralls/webfactory/doctrine-orm-test-infrastructure.svg)](https://coveralls.io/r/webfactory/doctrine-orm-test-infrastructure?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/webfactory/doctrine-orm-test-infrastructure/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/webfactory/doctrine-orm-test-infrastructure/?branch=master)
 
 This library provides some infrastructure for tests of Doctrine ORM entities, featuring:
 
