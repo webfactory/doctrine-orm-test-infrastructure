@@ -107,6 +107,13 @@ need local changes.
 Happy testing!
 
 
+Known Issues
+------------
+
+Please note that apart from any [open issues in this library](/webfactory/doctrine-orm-test-infrastructure/issues), you
+may stumble upon any Doctrine issues. Especially take care of it's [known sqlite issues](http://doctrine-dbal.readthedocs.org/en/latest/reference/known-vendor-issues.html#sqlite).
+
+
 Credits, Copyright and License
 ------------------------------
 
