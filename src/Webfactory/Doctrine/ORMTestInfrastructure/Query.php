@@ -25,6 +25,8 @@ class Query
     }
 
     /**
+     * Returns the SQL of the query.
+     *
      * @return string
      */
     public function getSql()
@@ -33,6 +35,8 @@ class Query
     }
 
     /**
+     * Returns a list of parameters that have been assigned to the statement.
+     *
      * @return mixed[]
      */
     public function getParams()
@@ -41,9 +45,21 @@ class Query
     }
 
     /**
+     * Returns the execution time of the query in seconds.
+     *
      * @return double
      */
     public function getExecutionTimeInSeconds()
+    {
+
+    }
+
+    /**
+     * Returns a string representation of the query and its params.
+     *
+     * @return string
+     */
+    public function __toString()
     {
 
     }
