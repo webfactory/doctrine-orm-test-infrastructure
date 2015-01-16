@@ -119,6 +119,16 @@ class ORMInfrastructure
     }
 
     /**
+     * Returns the queries that have been executed so far.
+     *
+     * @return Query[]
+     */
+    public function getQueries()
+    {
+
+    }
+
+    /**
      * Imports entities from the provided data source.
      *
      * The supported data sources are documented at \Webfactory\Doctrine\ORMTestInfrastructure\Importer::import().
