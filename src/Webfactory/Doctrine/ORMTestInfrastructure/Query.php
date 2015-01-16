@@ -11,17 +11,38 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
  */
 class Query
 {
-    // ('sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0
+    /**
+     * Currently not used:
+     * - types
+     *
+     * @param string $sql - sql
+     * @param mixed[] $params - params
+     * @param double $executionTimeInSeconds - executionMS
+     */
+    public function __construct($sql, array $params, $executionTimeInSeconds)
+    {
+
+    }
+
+    /**
+     * @return string
+     */
     public function getSql()
     {
 
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getParams()
     {
 
     }
 
+    /**
+     * @return double
+     */
     public function getExecutionTimeInSeconds()
     {
 
