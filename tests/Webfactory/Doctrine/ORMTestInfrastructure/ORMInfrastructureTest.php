@@ -168,4 +168,35 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $entities = $repository->findAll();
         $this->assertCount(0, $entities);
     }
+
+    /**
+     * Ensures that the query list that is provided by getQueries() is initially empty.
+     */
+    public function testGetQueriesReturnsInitiallyEmptyList()
+    {
+    }
+
+    /**
+     * Ensures that getQueries() returns the logged SQL queries as objects.
+     */
+    public function testGetQueriesReturnsQueryObjects()
+    {
+
+    }
+
+    /**
+     * Checks if the queries that are executed with the entity manager are logged.
+     */
+    public function testInfrastructureLogsExecutedQueries()
+    {
+
+    }
+
+    /**
+     * Ensures that the queries that are issued during data import are not logged.
+     */
+    public function testInfrastructureDoesNotLogImportQueries()
+    {
+
+    }
 }
