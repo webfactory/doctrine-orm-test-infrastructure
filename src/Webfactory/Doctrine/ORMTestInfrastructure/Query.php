@@ -12,6 +12,27 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 class Query
 {
     /**
+     * The SQL query.
+     *
+     * @var string
+     */
+    protected $sql = null;
+
+    /**
+     * The assigned parameters.
+     *
+     * @var mixed[]
+     */
+    protected $params = null;
+
+    /**
+     * The execution time of the query in seconds.
+     *
+     * @var double
+     */
+    protected $executionTimeInSeconds = null;
+
+    /**
      * Currently not used:
      * - types
      *
@@ -21,7 +42,9 @@ class Query
      */
     public function __construct($sql, array $params, $executionTimeInSeconds)
     {
-
+        $this->sql = $sql;
+        $this->params = $params;
+        $this->executionTimeInSeconds = $executionTimeInSeconds;
     }
 
     /**
@@ -31,7 +54,7 @@ class Query
      */
     public function getSql()
     {
-
+        return $this->sql;
     }
 
     /**
@@ -41,7 +64,7 @@ class Query
      */
     public function getParams()
     {
-
+        return $this->params;
     }
 
     /**
@@ -51,7 +74,7 @@ class Query
      */
     public function getExecutionTimeInSeconds()
     {
-
+        return $this->executionTimeInSeconds;
     }
 
     /**
@@ -61,6 +84,7 @@ class Query
      */
     public function __toString()
     {
-
+        $template = '"%s" with parameters [%s]';
+        return sprintf($template, $this->getSql(), implode(', ', $this->getParams()));
     }
 }
