@@ -12,6 +12,7 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -52,7 +53,6 @@ use Doctrine\ORM\Tools\Setup;
  */
 class ORMInfrastructure
 {
-
     /**
      * The connection parameters that are used per default.
      *
@@ -85,6 +85,13 @@ class ORMInfrastructure
     protected $entityManager = null;
 
     /**
+     * The query logger that is used.
+     *
+     * @var DebugStack
+     */
+    protected $queryLogger = null;
+
+    /**
      * Callback that is used to load non-Doctrine annotations.
      *
      * @var \Closure
@@ -103,6 +110,7 @@ class ORMInfrastructure
     {
         $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
+        $this->queryLogger      = new DebugStack();
         $this->addAnnotationLoaderToRegistry($this->annotationLoader);
     }
 
@@ -125,7 +133,13 @@ class ORMInfrastructure
      */
     public function getQueries()
     {
-
+        return array_map(function (array $queryData) {
+            return new Query(
+                $queryData['sql'],
+                (isset($queryData['params']) ? $queryData['params'] : array()),
+                $queryData['executionMS']
+            );
+        }, $this->queryLogger->queries);
     }
 
     /**
@@ -138,8 +152,11 @@ class ORMInfrastructure
      */
     public function import($dataSource)
     {
+        $loggerWasEnabled = $this->queryLogger->enabled;
+        $this->queryLogger->enabled = false;
         $importer = new Importer($this->getEntityManager());
         $importer->import($dataSource);
+        $this->queryLogger->enabled = $loggerWasEnabled;
     }
 
     /**
@@ -150,8 +167,11 @@ class ORMInfrastructure
     public function getEntityManager()
     {
         if ($this->entityManager === null) {
+            $loggerWasEnabled = $this->queryLogger->enabled;
+            $this->queryLogger->enabled = false;
             $this->entityManager = $this->createEntityManager();
             $this->createSchemaForSupportedEntities($this->entityManager);
+            $this->queryLogger->enabled = $loggerWasEnabled;
         }
         return $this->entityManager;
     }
@@ -200,6 +220,7 @@ class ORMInfrastructure
             new ArrayCache(),
             false
         );
+        $config->setSQLLogger($this->queryLogger);
         return EntityManager::create($this->defaultConnectionParams, $config);
     }
 
