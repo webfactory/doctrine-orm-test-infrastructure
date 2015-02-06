@@ -223,4 +223,20 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $queries);
         $this->assertCount(0, $queries);
     }
+
+    /**
+     * Ensures that the infrastructure logs queries, which are executed after an import.
+     */
+    public function testInfrastructureLogsQueriesThatAreExecutedAfterImport()
+    {
+        $entity = new TestEntity();
+        $this->infrastructure->import($entity);
+        $repository = $this->infrastructure->getRepository($entity);
+        $repository->find(42);
+
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(1, $queries);
+    }
 }
