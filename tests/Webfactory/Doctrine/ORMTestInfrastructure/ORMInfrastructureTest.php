@@ -174,6 +174,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetQueriesReturnsInitiallyEmptyList()
     {
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(0, $queries);
     }
 
     /**
@@ -181,7 +185,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetQueriesReturnsQueryObjects()
     {
+        $entity = new TestEntity();
+        $repository = $this->infrastructure->getRepository($entity);
+        $repository->find(42);
 
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertContainsOnly('\Webfactory\Doctrine\ORMTestInfrastructure\Query', $queries);
     }
 
     /**
@@ -189,7 +200,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testInfrastructureLogsExecutedQueries()
     {
+        $entity = new TestEntity();
+        $repository = $this->infrastructure->getRepository($entity);
+        $repository->find(42);
 
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(1, $queries);
     }
 
     /**
@@ -197,6 +215,12 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testInfrastructureDoesNotLogImportQueries()
     {
+        $entity = new TestEntity();
+        $this->infrastructure->import($entity);
 
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(0, $queries);
     }
 }
