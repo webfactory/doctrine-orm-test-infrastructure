@@ -168,4 +168,75 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $entities = $repository->findAll();
         $this->assertCount(0, $entities);
     }
+
+    /**
+     * Ensures that the query list that is provided by getQueries() is initially empty.
+     */
+    public function testGetQueriesReturnsInitiallyEmptyList()
+    {
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(0, $queries);
+    }
+
+    /**
+     * Ensures that getQueries() returns the logged SQL queries as objects.
+     */
+    public function testGetQueriesReturnsQueryObjects()
+    {
+        $entity = new TestEntity();
+        $repository = $this->infrastructure->getRepository($entity);
+        $repository->find(42);
+
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertContainsOnly('\Webfactory\Doctrine\ORMTestInfrastructure\Query', $queries);
+    }
+
+    /**
+     * Checks if the queries that are executed with the entity manager are logged.
+     */
+    public function testInfrastructureLogsExecutedQueries()
+    {
+        $entity = new TestEntity();
+        $repository = $this->infrastructure->getRepository($entity);
+        $repository->find(42);
+
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(1, $queries);
+    }
+
+    /**
+     * Ensures that the queries that are issued during data import are not logged.
+     */
+    public function testInfrastructureDoesNotLogImportQueries()
+    {
+        $entity = new TestEntity();
+        $this->infrastructure->import($entity);
+
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(0, $queries);
+    }
+
+    /**
+     * Ensures that the infrastructure logs queries, which are executed after an import.
+     */
+    public function testInfrastructureLogsQueriesThatAreExecutedAfterImport()
+    {
+        $entity = new TestEntity();
+        $this->infrastructure->import($entity);
+        $repository = $this->infrastructure->getRepository($entity);
+        $repository->find(42);
+
+        $queries = $this->infrastructure->getQueries();
+
+        $this->assertInternalType('array', $queries);
+        $this->assertCount(1, $queries);
+    }
 }
