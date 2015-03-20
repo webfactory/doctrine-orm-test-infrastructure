@@ -10,7 +10,7 @@ php:
 
 before_script:
     - travis_retry curl -s http://getcomposer.org/installer | php
-    - travis_retry php composer.phar install --dev
+    - travis_retry php composer.phar install
     - mkdir -p build/logs
 
 script:
