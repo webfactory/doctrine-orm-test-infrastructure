@@ -28,7 +28,7 @@ class TestEntityWithDependency
      *
      * @var ReferencedEntity
      * @ORM\OneToOne(targetEntity="ReferencedEntity")
-     * @ORM\Column(nullable=false)
+     * @ORM\JoinColumn(nullable=false)
      */
     protected $dependency = null;
 
