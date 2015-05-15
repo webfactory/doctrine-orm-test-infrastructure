@@ -14,7 +14,29 @@ use Doctrine\ORM\Mapping as ORM;
 class TestEntityWithDependency
 {
     /**
+     * A unique ID.
+     *
+     * @var integer|null
+     * @ORM\Id
+     * @ORM\Column(type="integer", name="id")
+     * @ORM\GeneratedValue
+     */
+    public $id = null;
+
+    /**
+     * Required reference to another entity.
+     *
      * @var ReferencedEntity
+     * @ORM\OneToOne(targetEntity="ReferencedEntity")
+     * @ORM\Column(nullable=false)
      */
     protected $dependency = null;
+
+    /**
+     * Automatically creates a referenced
+     */
+    public function __construct()
+    {
+        $this->dependency = new ReferencedEntity();
+    }
 }

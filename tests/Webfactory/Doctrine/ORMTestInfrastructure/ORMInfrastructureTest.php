@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency;
 
 /**
  * Tests the infrastructure.
@@ -238,5 +239,23 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInternalType('array', $queries);
         $this->assertCount(1, $queries);
+    }
+
+    /**
+     * Ensures that referenced sub-entities are automatically prepared if the infrastructure is
+     * requested to handle such cases.
+     */
+    public function testInfrastructureAutomaticallyPerformsDependencySetupIfRequested()
+    {
+        $infrastructure = new ORMInfrastructure(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency'
+        ), true);
+
+        $entityWithDependency = new TestEntityWithDependency();
+
+        // Saving without prepared sub-entity would fail.
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager()->persist($entityWithDependency);
+        $infrastructure->getEntityManager()->flush();
     }
 }

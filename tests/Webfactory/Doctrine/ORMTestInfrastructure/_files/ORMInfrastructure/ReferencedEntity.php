@@ -12,5 +12,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ReferencedEntity
 {
-
+    /**
+     * A unique ID.
+     *
+     * @var integer|null
+     * @ORM\Id
+     * @ORM\Column(type="integer", name="id")
+     * @ORM\GeneratedValue
+     */
+    public $id = null;
 }

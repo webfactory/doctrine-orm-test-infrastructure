@@ -12,7 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TestEntity
 {
-
     /**
      * A unique ID.
      *
