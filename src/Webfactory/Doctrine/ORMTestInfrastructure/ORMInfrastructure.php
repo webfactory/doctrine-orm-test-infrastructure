@@ -13,7 +13,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
@@ -76,6 +78,14 @@ class ORMInfrastructure
     protected $entityClasses;
 
     /**
+     * Determines if entities, that are referenced by the explicitly mentioned
+     * test entities, are set up automatically.
+     *
+     * @var boolean
+     */
+    protected $automaticallySetupDependencies;
+
+    /**
      * The entity manager that is used to perform entity operations.
      *
      * Contains null if the entity manager has not been created yet.
@@ -105,10 +115,12 @@ class ORMInfrastructure
      * Foreach entity the fully qualified class name must be provided.
      *
      * @param array(string) $entityClasses
+     * @param boolean $automaticallySetupDependencies Determines if associated entities are handled automatically.
      */
-    public function __construct(array $entityClasses)
+    public function __construct(array $entityClasses, $automaticallySetupDependencies = false)
     {
         $this->entityClasses    = $entityClasses;
+        $this->automaticallySetupDependencies = $automaticallySetupDependencies;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
         $this->addAnnotationLoaderToRegistry($this->annotationLoader);
@@ -210,16 +222,14 @@ class ORMInfrastructure
      */
     protected function createEntityManager()
     {
-        $config = Setup::createAnnotationMetadataConfiguration(
-            $this->getFilePathsForArrayOfClassNames($this->entityClasses),
-            // Activate development mode.
-            true,
-            // Store proxies in the default temp directory.
-            null,
-            // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache(),
-            false
-        );
+        $config = $this->createConfigFor($this->entityClasses);
+        if ($this->automaticallySetupDependencies) {
+            $entityClasses = $this->entityClasses;
+            while (count($associatedEntities = $this->getDirectlyAssociatedEntities($config)) > 0) {
+                $entityClasses = array_merge($entityClasses, $associatedEntities);
+                $config = $this->createConfigFor($entityClasses);
+            }
+        }
         $config->setSQLLogger($this->queryLogger);
         return EntityManager::create($this->defaultConnectionParams, $config);
     }
@@ -308,5 +318,49 @@ class ORMInfrastructure
             }
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
+    }
+
+    /**
+     * Creates a Doctrine configuration for the given entity classes.
+     *
+     * @param string[] $entityClasses
+     * @return \Doctrine\ORM\Configuration
+     */
+    protected function createConfigFor(array $entityClasses)
+    {
+        $config = Setup::createAnnotationMetadataConfiguration(
+            $this->getFilePathsForArrayOfClassNames($entityClasses),
+            // Activate development mode.
+            true,
+            // Store proxies in the default temp directory.
+            null,
+            // Avoid Doctrine auto-detection of cache and use an isolated cache.
+            new ArrayCache(),
+            false
+        );
+        return $config;
+    }
+
+    /**
+     * Returns the class names of additional entities that are directly associated with
+     * one of the entities that is explicitly mentioned in the given configuration.
+     *
+     * @param Configuration $config
+     * @return string[] Associated entity classes.
+     */
+    protected function getDirectlyAssociatedEntities(Configuration $config)
+    {
+        $associatedEntities = array();
+        // TODO: getAllClassNames returns *all* entities in the configured directories
+        foreach ($config->getMetadataDriverImpl()->getAllClassNames() as $entityClass) {
+            /* @var $entityClass string */
+            $metadata = new ClassMetadata($entityClass);
+            $config->getMetadataDriverImpl()->loadMetadataForClass($entityClass, $metadata);
+            foreach ($metadata->getAssociationMappings() as $mapping) {
+                /* @var $mapping array */
+                $associatedEntities[] = $mapping['targetEntity'];
+            }
+        }
+        return array();
     }
 }
