@@ -27,7 +27,7 @@ class TestEntityWithDependency
      * Required reference to another entity.
      *
      * @var ReferencedEntity
-     * @ORM\OneToOne(targetEntity="ReferencedEntity")
+     * @ORM\OneToOne(targetEntity="ReferencedEntity", cascade={"all"})
      * @ORM\JoinColumn(nullable=false)
      */
     protected $dependency = null;
