@@ -309,7 +309,12 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateWithDependenciesForCreatesInfrastructureForSetOfEntities()
     {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity'
+        ));
 
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
     }
 
     /**
@@ -318,7 +323,11 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateWithDependenciesForCreatesInfrastructureForSingleEntity()
     {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
 
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
     }
 
     /**
@@ -327,7 +336,12 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateOnlyForCreatesInfrastructureForSetOfEntities()
     {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity'
+        ));
 
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
     }
 
     /**
@@ -336,6 +350,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateOnlyForCreatesInfrastructureForSingleEntity()
     {
+        $infrastructure = ORMInfrastructure::createOnlyFor(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
 
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
     }
 }
