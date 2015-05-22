@@ -302,4 +302,40 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
         $infrastructure->getEntityManager()->flush();
     }
+
+    /**
+     * Ensures that createWithDependenciesFor() returns an infrastructure object if a set of
+     * entities classes is provided.
+     */
+    public function testCreateWithDependenciesForCreatesInfrastructureForSetOfEntities()
+    {
+
+    }
+
+    /**
+     * Ensures that createWithDependenciesFor() returns an infrastructure object if a single
+     * entity class is provided.
+     */
+    public function testCreateWithDependenciesForCreatesInfrastructureForSingleEntity()
+    {
+
+    }
+
+    /**
+     * Ensures that createOnlyFor() returns an infrastructure object if a set of
+     * entities classes is provided.
+     */
+    public function testCreateOnlyForCreatesInfrastructureForSetOfEntities()
+    {
+
+    }
+
+    /**
+     * Ensures that createOnlyFor() returns an infrastructure object if a single
+     * entity class is provided.
+     */
+    public function testCreateOnlyForCreatesInfrastructureForSingleEntity()
+    {
+
+    }
 }
