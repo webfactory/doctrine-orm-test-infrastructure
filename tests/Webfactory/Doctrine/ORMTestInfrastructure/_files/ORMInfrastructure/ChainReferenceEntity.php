@@ -2,12 +2,17 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Entity that references an entity indirectly (over another reference).
  *
  * Reference chain:
  *
  *     ChainReferenceEntity -> TestEntityWithDependency -> ReferencedEntity
+ *
+ * @ORM\Entity()
+ * @ORM\Table(name="test_chain_reference_entity")
  */
 class ChainReferenceEntity
 {

@@ -2,8 +2,13 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Entity with a minimal reference cycle.
+ *
+ * @ORM\Entity()
+ * @ORM\Table(name="test_reference_cycle_entity")
  */
 class ReferenceCycleEntity
 {
