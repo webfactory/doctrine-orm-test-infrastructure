@@ -72,7 +72,7 @@ class ORMInfrastructure
     );
 
     /**
-     * List of entity classes that are manager by this helper.
+     * List of entity classes that are managed by this infrastructure.
      *
      * @var array(string)
      */
