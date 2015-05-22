@@ -119,7 +119,7 @@ class ORMInfrastructure
      */
     public static function createWithDependenciesFor($entityClassOrClasses)
     {
-
+        return new static(static::normalizeEntityList($entityClassOrClasses), true);
     }
 
     /**
@@ -133,7 +133,19 @@ class ORMInfrastructure
      */
     public static function createOnlyFor($entityClassOrClasses)
     {
+        return new static(static::normalizeEntityList($entityClassOrClasses), false);
+    }
 
+    /**
+     * Accepts a single entity class or a list of entity classes and always returns a
+     * list of entity classes.
+     *
+     * @param string[]|string $entityClassOrClasses
+     * @return string[]
+     */
+    protected static function normalizeEntityList($entityClassOrClasses)
+    {
+        return (is_string($entityClassOrClasses)) ? array($entityClassOrClasses) : $entityClassOrClasses;
     }
 
     /**
