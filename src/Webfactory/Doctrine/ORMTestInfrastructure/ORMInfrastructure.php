@@ -109,6 +109,33 @@ class ORMInfrastructure
      */
     protected $annotationLoader = null;
 
+
+    /**
+     * Creates an infrastructure for the given entity or entities, including all
+     * referenced entities.
+     *
+     * @param string[]|string $entityClassOrClasses
+     * @return ORMInfrastructure
+     */
+    public static function createWithDependenciesFor($entityClassOrClasses)
+    {
+
+    }
+
+    /**
+     * Creates an infrastructure for the given entity or entities.
+     *
+     * The infrastructure that is required for entities that are associated with the given
+     * entities is *not* created automatically.
+     *
+     * @param string[]|string $entityClassOrClasses
+     * @return ORMInfrastructure
+     */
+    public static function createOnlyFor($entityClassOrClasses)
+    {
+
+    }
+
     /**
      * Creates an entity helper that provides a database infrastructure
      * for the provided entities.
