@@ -2,16 +2,14 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
- * Test entity that references another entity and therefore implicitly depends
- * on it in test scenarios.
+ * Entity that references an entity indirectly (over another reference).
  *
- * @ORM\Entity()
- * @ORM\Table(name="test_entity_with_dependency")
+ * Reference chain:
+ *
+ *     ChainReferenceEntity -> TestEntityWithDependency -> ReferencedEntity
  */
-class TestEntityWithDependency
+class ChainReferenceEntity
 {
     /**
      * A unique ID.
@@ -26,17 +24,17 @@ class TestEntityWithDependency
     /**
      * Required reference to another entity.
      *
-     * @var ReferencedEntity
-     * @ORM\OneToOne(targetEntity="ReferencedEntity", cascade={"all"})
+     * @var TestEntityWithDependency
+     * @ORM\OneToOne(targetEntity="TestEntityWithDependency", cascade={"all"})
      * @ORM\JoinColumn(nullable=false)
      */
     protected $dependency = null;
 
     /**
-     * Automatically creates a reference on construction.
+     * Automatically adds a referenced entity on construction.
      */
     public function __construct()
     {
-        $this->dependency = new ReferencedEntity();
+        $this->dependency = new TestEntityWithDependency();
     }
 }
