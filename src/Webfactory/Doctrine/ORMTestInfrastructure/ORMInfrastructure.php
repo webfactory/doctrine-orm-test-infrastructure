@@ -156,6 +156,7 @@ class ORMInfrastructure
      *
      * @param array(string) $entityClasses
      * @param boolean $automaticallySetupDependencies Determines if associated entities are handled automatically.
+     * @deprecated Use one of the create*For() factory methods.
      */
     public function __construct(array $entityClasses, $automaticallySetupDependencies = false)
     {
