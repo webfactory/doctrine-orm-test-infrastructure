@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -224,10 +225,12 @@ class ORMInfrastructure
     {
         $config = $this->createConfigFor($this->entityClasses);
         if ($this->automaticallySetupDependencies) {
-            $entityClasses = $this->entityClasses;
-            while (count($associatedEntities = $this->getDirectlyAssociatedEntities($config)) > 0) {
-                $entityClasses = array_merge($entityClasses, $associatedEntities);
-                $config = $this->createConfigFor($entityClasses);
+            $entitiesToCheck = $this->entityClasses;
+            while (count($associatedEntities = $this->getDirectlyAssociatedEntities($config, $entitiesToCheck)) > 0) {
+                $newAssociations = array_diff($associatedEntities, $this->entityClasses);
+                $this->entityClasses = array_merge($this->entityClasses, $newAssociations);
+                $config = $this->createConfigFor($this->entityClasses);
+                $entitiesToCheck = $newAssociations;
             }
         }
         $config->setSQLLogger($this->queryLogger);
@@ -346,21 +349,27 @@ class ORMInfrastructure
      * one of the entities that is explicitly mentioned in the given configuration.
      *
      * @param Configuration $config
+     * @param string[] $entityClasses Classes whose associations are checked.
      * @return string[] Associated entity classes.
      */
-    protected function getDirectlyAssociatedEntities(Configuration $config)
+    protected function getDirectlyAssociatedEntities(Configuration $config, $entityClasses)
     {
+        if (count($entityClasses) === 0) {
+            return array();
+        }
         $associatedEntities = array();
-        // TODO: getAllClassNames returns *all* entities in the configured directories
-        foreach ($config->getMetadataDriverImpl()->getAllClassNames() as $entityClass) {
+        $reflection = new RuntimeReflectionService();
+        foreach ($entityClasses as $entityClass) {
             /* @var $entityClass string */
             $metadata = new ClassMetadata($entityClass);
+            $metadata->initializeReflection($reflection);
             $config->getMetadataDriverImpl()->loadMetadataForClass($entityClass, $metadata);
-            foreach ($metadata->getAssociationMappings() as $mapping) {
-                /* @var $mapping array */
-                $associatedEntities[] = $mapping['targetEntity'];
+            foreach ($metadata->getAssociationNames() as $name) {
+                /* @var $name string */
+                $associatedEntity = $metadata->getAssociationTargetClass($name);
+                $associatedEntities[] = $metadata->fullyQualifiedClassName($associatedEntity);
             }
         }
-        return array();
+        return array_unique($associatedEntities);
     }
 }
