@@ -258,4 +258,27 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $infrastructure->getEntityManager()->persist($entityWithDependency);
         $infrastructure->getEntityManager()->flush();
     }
+
+    /**
+     * Checks if the automatic dependency setup can cope with reference cycles,
+     * for example if an entity references itself.
+     */
+    public function testAutomaticDependencyDetectionCanHandleCycles()
+    {
+
+    }
+
+    /**
+     * Checks if the automatic dependency setup can cope with chained references.
+     *
+     * Example:
+     *
+     *     A -> B -> C
+     *
+     * A references B, B references C. A is not directly related to C.
+     */
+    public function testAutomaticDependencyDetectionCanHandleChainedRelations()
+    {
+
+    }
 }
