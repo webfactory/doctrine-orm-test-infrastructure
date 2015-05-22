@@ -9,6 +9,8 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency;
 
@@ -265,7 +267,17 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testAutomaticDependencyDetectionCanHandleCycles()
     {
+        $infrastructure = new ORMInfrastructure(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+        ), true);
 
+        $entityWithCycle = new ReferenceCycleEntity();
+
+        // Saving will most probably work as no additional table is needed, but the reference
+        // detection, which is performed before, might lead to an endless loop.
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager()->persist($entityWithCycle);
+        $infrastructure->getEntityManager()->flush();
     }
 
     /**
@@ -279,6 +291,15 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testAutomaticDependencyDetectionCanHandleChainedRelations()
     {
+        $infrastructure = new ORMInfrastructure(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+        ), true);
 
+        $entityWithReferenceChain = new ChainReferenceEntity();
+
+        // All table must be created properly, otherwise it is not possible to store the entity.
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
+        $infrastructure->getEntityManager()->flush();
     }
 }
