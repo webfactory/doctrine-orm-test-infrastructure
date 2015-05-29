@@ -161,7 +161,7 @@ class ORMInfrastructure
      *
      * Foreach entity the fully qualified class name must be provided.
      *
-     * @param string|\Traversable $entityClasses
+     * @param string[]|\Traversable $entityClasses
      * @deprecated Use one of the create*For() factory methods.
      */
     public function __construct($entityClasses)
