@@ -10,13 +10,10 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
@@ -74,17 +71,9 @@ class ORMInfrastructure
     /**
      * List of entity classes that are managed by this infrastructure.
      *
-     * @var array(string)
+     * @var string[]
      */
     protected $entityClasses;
-
-    /**
-     * Determines if entities, that are referenced by the explicitly mentioned
-     * test entities, are set up automatically.
-     *
-     * @var boolean
-     */
-    protected $automaticallySetupDependencies;
 
     /**
      * The entity manager that is used to perform entity operations.
@@ -119,7 +108,8 @@ class ORMInfrastructure
      */
     public static function createWithDependenciesFor($entityClassOrClasses)
     {
-        return new static(static::normalizeEntityList($entityClassOrClasses), true);
+        $entityClasses = static::normalizeEntityList($entityClassOrClasses);
+        return new static(new EntityDependencyResolver($entityClasses));
     }
 
     /**
@@ -133,7 +123,7 @@ class ORMInfrastructure
      */
     public static function createOnlyFor($entityClassOrClasses)
     {
-        return new static(static::normalizeEntityList($entityClassOrClasses), false);
+        return new static(static::normalizeEntityList($entityClassOrClasses));
     }
 
     /**
@@ -154,14 +144,16 @@ class ORMInfrastructure
      *
      * Foreach entity the fully qualified class name must be provided.
      *
-     * @param array(string) $entityClasses
+     * @param string|\Traversable $entityClasses
      * @param boolean $automaticallySetupDependencies Determines if associated entities are handled automatically.
      * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct(array $entityClasses, $automaticallySetupDependencies = false)
+    public function __construct($entityClasses, $automaticallySetupDependencies = false)
     {
-        $this->entityClasses    = $entityClasses;
-        $this->automaticallySetupDependencies = $automaticallySetupDependencies;
+        if ($entityClasses instanceof \Traversable) {
+            $entityClasses = iterator_to_array($entityClasses);
+        }
+        $this->entityClasses = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
         $this->addAnnotationLoaderToRegistry($this->annotationLoader);
@@ -264,15 +256,6 @@ class ORMInfrastructure
     protected function createEntityManager()
     {
         $config = $this->createConfigFor($this->entityClasses);
-        if ($this->automaticallySetupDependencies) {
-            $entitiesToCheck = $this->entityClasses;
-            while (count($associatedEntities = $this->getDirectlyAssociatedEntities($config, $entitiesToCheck)) > 0) {
-                $newAssociations = array_diff($associatedEntities, $this->entityClasses);
-                $this->entityClasses = array_merge($this->entityClasses, $newAssociations);
-                $config = $this->createConfigFor($this->entityClasses);
-                $entitiesToCheck = $newAssociations;
-            }
-        }
         $config->setSQLLogger($this->queryLogger);
         return EntityManager::create($this->defaultConnectionParams, $config);
     }
@@ -382,34 +365,5 @@ class ORMInfrastructure
             false
         );
         return $config;
-    }
-
-    /**
-     * Returns the class names of additional entities that are directly associated with
-     * one of the entities that is explicitly mentioned in the given configuration.
-     *
-     * @param Configuration $config
-     * @param string[] $entityClasses Classes whose associations are checked.
-     * @return string[] Associated entity classes.
-     */
-    protected function getDirectlyAssociatedEntities(Configuration $config, $entityClasses)
-    {
-        if (count($entityClasses) === 0) {
-            return array();
-        }
-        $associatedEntities = array();
-        $reflection = new RuntimeReflectionService();
-        foreach ($entityClasses as $entityClass) {
-            /* @var $entityClass string */
-            $metadata = new ClassMetadata($entityClass);
-            $metadata->initializeReflection($reflection);
-            $config->getMetadataDriverImpl()->loadMetadataForClass($entityClass, $metadata);
-            foreach ($metadata->getAssociationNames() as $name) {
-                /* @var $name string */
-                $associatedEntity = $metadata->getAssociationTargetClass($name);
-                $associatedEntities[] = $metadata->fullyQualifiedClassName($associatedEntity);
-            }
-        }
-        return array_unique($associatedEntities);
     }
 }
