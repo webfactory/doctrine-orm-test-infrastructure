@@ -35,9 +35,9 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
         ));
 
-        $this->assertContains(
+        $this->assertContainsEntity(
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
-            $this->getResolvedSet($resolver)
+            $resolver
         );
     }
 
@@ -51,9 +51,9 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency'
         ));
 
-        $this->assertContains(
+        $this->assertContainsEntity(
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
-            $this->getResolvedSet($resolver)
+            $resolver
         );
     }
 
@@ -71,9 +71,9 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
         ));
 
-        $this->assertContains(
+        $this->assertContainsEntity(
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
-            $this->getResolvedSet($resolver)
+            $resolver
         );
     }
 
@@ -86,9 +86,9 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
         ));
 
-        $this->assertContains(
+        $this->assertContainsEntity(
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity',
-            $this->getResolvedSet($resolver)
+            $resolver
         );
     }
 
@@ -121,5 +121,20 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
         $entities = iterator_to_array($resolver);
         $this->assertContainsOnly('string', $entities);
         return $entities;
+    }
+
+    /**
+     * Asserts that the resolved entity list contains the given entity.
+     *
+     * @param string $entity Name of the entity class.
+     * @param EntityDependencyResolver|mixed $resolver
+     */
+    protected function assertContainsEntity($entity, $resolver)
+    {
+        $normalizedEntity = ltrim($entity, '\\');
+        $this->assertContains(
+            $normalizedEntity,
+            $this->getResolvedSet($resolver)
+        );
     }
 }
