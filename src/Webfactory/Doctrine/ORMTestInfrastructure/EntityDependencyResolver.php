@@ -9,12 +9,10 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Tools\Setup;
 
 /**
  * Takes a set of entity classes and resolves to a set that contains all entities
@@ -39,6 +37,13 @@ class EntityDependencyResolver implements \IteratorAggregate
     protected $reflectionService = null;
 
     /**
+     * Factory that is used to create ORM configurations.
+     *
+     * @var ConfigurationFactory
+     */
+    protected $configFactory = null;
+
+    /**
      * Creates a resolver for the given entity classes.
      *
      * @param string[] $entityClasses
@@ -47,6 +52,7 @@ class EntityDependencyResolver implements \IteratorAggregate
     {
         $this->initialEntitySet  = $this->normalizeClassNames($entityClasses);
         $this->reflectionService = new RuntimeReflectionService();
+        $this->configFactory     = new ConfigurationFactory();
     }
 
     /**
@@ -69,11 +75,11 @@ class EntityDependencyResolver implements \IteratorAggregate
     protected function resolve(array $entityClasses)
     {
         $entitiesToCheck = $entityClasses;
-        $config = $this->createConfigFor($entitiesToCheck);
+        $config = $this->configFactory->createFor($entitiesToCheck);
         while (count($associatedEntities = $this->getDirectlyAssociatedEntities($config, $entitiesToCheck)) > 0) {
             $newAssociations = array_diff($associatedEntities, $entityClasses);
-            $entityClasses = array_merge($entityClasses, $newAssociations);
-            $config = $this->createConfigFor($entityClasses);
+            $entityClasses   = array_merge($entityClasses, $newAssociations);
+            $config          = $this->configFactory->createFor($entityClasses);
             $entitiesToCheck = $newAssociations;
         }
         return $entityClasses;
@@ -105,54 +111,6 @@ class EntityDependencyResolver implements \IteratorAggregate
             }
         }
         return array_unique($associatedEntities);
-    }
-
-    /**
-     * Creates a Doctrine configuration for the given entity classes.
-     *
-     * @param string[] $entityClasses
-     * @return \Doctrine\ORM\Configuration
-     */
-    protected function createConfigFor(array $entityClasses)
-    {
-        $config = Setup::createAnnotationMetadataConfiguration(
-            $this->getFilePathsForClassNames($entityClasses),
-            // Activate development mode.
-            true,
-            // Store proxies in the default temp directory.
-            null,
-            // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache(),
-            false
-        );
-        return $config;
-    }
-
-    /**
-     * Returns a list of file paths for the provided class names.
-     *
-     * @param array(string) $classNames
-     * @return array(string)
-     */
-    protected function getFilePathsForClassNames(array $classNames)
-    {
-        $paths = array();
-        foreach ($classNames as $className) {
-            $paths[] = $this->getFilePathForClassName($className);
-        }
-        return array_unique($paths);
-    }
-
-    /**
-     * Returns the path to the directory that contains the given class.
-     *
-     * @param string $className
-     * @return string
-     */
-    protected function getFilePathForClassName($className)
-    {
-        $info = new \ReflectionClass($className);
-        return dirname($info->getFileName());
     }
 
     /**

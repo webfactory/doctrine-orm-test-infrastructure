@@ -9,14 +9,12 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
 
 /**
  * Helper class that creates the database infrastructure for a defined set of entity classes.
@@ -112,6 +110,13 @@ class ORMInfrastructure
     protected $annotationLoader = null;
 
     /**
+     * Factory that is used to create ORM configurations.
+     *
+     * @var ConfigurationFactory
+     */
+    protected $configFactory = null;
+
+    /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
      *
@@ -168,6 +173,7 @@ class ORMInfrastructure
         $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
+        $this->configFactory    = new ConfigurationFactory();
         $this->addAnnotationLoaderToRegistry($this->annotationLoader);
     }
 
@@ -234,40 +240,13 @@ class ORMInfrastructure
     }
 
     /**
-     * Returns a list of file paths for the provided class names.
-     *
-     * @param array(string) $classNames
-     * @return array(string)
-     */
-    protected function getFilePathsForArrayOfClassNames(array $classNames)
-    {
-        $paths = array();
-        foreach ($classNames as $className) {
-            $paths[] = $this->getFilePathForClassName($className);
-        }
-        return array_unique($paths);
-    }
-
-    /**
-     * Returns the file path for the provided class name
-     *
-     * @param string $className
-     * @return string
-     */
-    protected function getFilePathForClassName($className)
-    {
-        $info = new \ReflectionClass($className);
-        return dirname($info->getFileName());
-    }
-
-    /**
      * Creates a new entity manager.
      *
      * @return \Doctrine\ORM\EntityManager
      */
     protected function createEntityManager()
     {
-        $config = $this->createConfigFor($this->entityClasses);
+        $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
         return EntityManager::create($this->defaultConnectionParams, $config);
     }
@@ -356,26 +335,5 @@ class ORMInfrastructure
             }
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
-    }
-
-    /**
-     * Creates a Doctrine configuration for the given entity classes.
-     *
-     * @param string[] $entityClasses
-     * @return \Doctrine\ORM\Configuration
-     */
-    protected function createConfigFor(array $entityClasses)
-    {
-        $config = Setup::createAnnotationMetadataConfiguration(
-            $this->getFilePathsForArrayOfClassNames($entityClasses),
-            // Activate development mode.
-            true,
-            // Store proxies in the default temp directory.
-            null,
-            // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache(),
-            false
-        );
-        return $config;
     }
 }
