@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Persistence\Mapping\ReflectionService;
 use Doctrine\Common\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -31,13 +32,21 @@ class EntityDependencyResolver implements \IteratorAggregate
     protected $initialEntitySet = null;
 
     /**
+     * Service that is used to inspect entity classes.
+     *
+     * @var ReflectionService
+     */
+    protected $reflectionService = null;
+
+    /**
      * Creates a resolver for the given entity classes.
      *
      * @param string[] $entityClasses
      */
     public function __construct(array $entityClasses)
     {
-        $this->initialEntitySet = $this->normalizeClassNames($entityClasses);
+        $this->initialEntitySet  = $this->normalizeClassNames($entityClasses);
+        $this->reflectionService = new RuntimeReflectionService();
     }
 
     /**
@@ -84,11 +93,10 @@ class EntityDependencyResolver implements \IteratorAggregate
             return array();
         }
         $associatedEntities = array();
-        $reflection = new RuntimeReflectionService();
         foreach ($entityClasses as $entityClass) {
             /* @var $entityClass string */
             $metadata = new ClassMetadata($entityClass);
-            $metadata->initializeReflection($reflection);
+            $metadata->initializeReflection($this->reflectionService);
             $config->getMetadataDriverImpl()->loadMetadataForClass($entityClass, $metadata);
             foreach ($metadata->getAssociationNames() as $name) {
                 /* @var $name string */
