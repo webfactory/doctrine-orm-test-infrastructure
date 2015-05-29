@@ -162,10 +162,9 @@ class ORMInfrastructure
      * Foreach entity the fully qualified class name must be provided.
      *
      * @param string|\Traversable $entityClasses
-     * @param boolean $automaticallySetupDependencies Determines if associated entities are handled automatically.
      * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct($entityClasses, $automaticallySetupDependencies = false)
+    public function __construct($entityClasses)
     {
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
@@ -267,7 +266,7 @@ class ORMInfrastructure
      * Returns the metadata for each managed entity.
      *
      * @param ClassMetadataFactory $metadataFactory
-     * @return array(\Doctrine\Common\Persistence\Mapping\ClassMetadata)
+     * @return \Doctrine\Common\Persistence\Mapping\ClassMetadata[]
      */
     protected function getMetadataForSupportedEntities(ClassMetadataFactory $metadataFactory)
     {

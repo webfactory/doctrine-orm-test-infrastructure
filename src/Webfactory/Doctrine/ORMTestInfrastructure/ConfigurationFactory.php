@@ -43,8 +43,8 @@ class ConfigurationFactory
     /**
      * Returns a list of file paths for the provided class names.
      *
-     * @param array(string) $classNames
-     * @return array(string)
+     * @param string[] $classNames
+     * @return string[]
      */
     protected function getFilePathsForClassNames(array $classNames)
     {
