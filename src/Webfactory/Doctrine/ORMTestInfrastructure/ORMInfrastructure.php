@@ -30,7 +30,7 @@ use Doctrine\ORM\Tools\Setup;
  *
  * Create the infrastructure for a set of entities:
  *
- *     $infrastructure = new ORMInfrastructure(array(
+ *     $infrastructure = ORMInfrastructure::createOnlyFor(array(
  *        'My\Entity\ClassName'
  *     ));
  *
@@ -40,6 +40,19 @@ use Doctrine\ORM\Tools\Setup;
  *
  * The entity manager can be used as usual. It operates on an in-memory database that contains
  * the schema for all entities that have been mentioned in the infrastructure constructor.
+ *
+ * ### Advanced Setup ###
+ *
+ * Use the ``createWithDependenciesFor()`` factory method to create an infrastructure for
+ * the given entities, including all entities that are associated by these:
+ *
+ *     $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+ *        'My\Entity\ClassName'
+ *     ));
+ *
+ * This is convenient as it avoids touching tests when associations are added, but it
+ * might also hide the existence of entity dependencies that you are not really aware
+ * of.
  *
  * ## Import Test Data ##
  *
@@ -153,7 +166,7 @@ class ORMInfrastructure
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
-        $this->entityClasses = $entityClasses;
+        $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
         $this->addAnnotationLoaderToRegistry($this->annotationLoader);
