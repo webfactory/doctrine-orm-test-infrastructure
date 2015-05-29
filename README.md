@@ -99,7 +99,7 @@ Testing the library itself
 
 After installing the dependencies managed via composer, just run
 
-    php vendor/phpunit/phpunit/phpunit.php
+    vendor/bin/phpunit
 
 from the library's root folder. This uses the shipped phpunit.xml.dist - feel free to create your own phpunit.xml if you
 need local changes.
