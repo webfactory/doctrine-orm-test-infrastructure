@@ -110,6 +110,24 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Ensures that the resolver returns the entity class names without leading slash.
+     */
+    public function testResolvedSetContainsEntityClassesWithoutLeadingSlash()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+        ));
+
+        $resolvedSet = $this->getResolvedSet($resolver);
+
+        foreach ($resolvedSet as $entityClass) {
+            /* @var $entityClass string */
+            $message = 'Entity class name must be normalized and must not start with \\.';
+            $this->assertStringStartsNotWith('\\', $entityClass, $message);
+        }
+    }
+
+    /**
      * Returns the resolved set of entity classes as array.
      *
      * @param EntityDependencyResolver $resolver
