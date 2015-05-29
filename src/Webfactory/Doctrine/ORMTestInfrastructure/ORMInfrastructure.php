@@ -111,7 +111,6 @@ class ORMInfrastructure
      */
     protected $annotationLoader = null;
 
-
     /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
