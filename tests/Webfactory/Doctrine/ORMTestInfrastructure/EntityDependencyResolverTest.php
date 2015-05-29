@@ -19,7 +19,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolverIsTraversable()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
 
+        $this->assertInstanceOf('\Traversable', $resolver);
     }
 
     /**
@@ -27,7 +31,14 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetContainsProvidedEntityClasses()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
 
+        $this->assertContains(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            $this->getResolvedSet($resolver)
+        );
     }
 
     /**
@@ -36,7 +47,14 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetContainsEntityClassesThatAreDirectlyConnectedToInitialSet()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency'
+        ));
 
+        $this->assertContains(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            $this->getResolvedSet($resolver)
+        );
     }
 
     /**
@@ -49,7 +67,14 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetContainsIndirectlyConnectedEntityClasses()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+        ));
 
+        $this->assertContains(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            $this->getResolvedSet($resolver)
+        );
     }
 
     /**
@@ -57,6 +82,44 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolverCanHandleDependencyCycles()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+        ));
 
+        $this->assertContains(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity',
+            $this->getResolvedSet($resolver)
+        );
+    }
+
+    /**
+     * Ensures that the resolved entity list contains each entity class only once.
+     */
+    public function testSetContainsEntitiesOnlyOnce()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+        ));
+
+        $resolvedSet = $this->getResolvedSet($resolver);
+
+        $normalized = array_unique($resolvedSet);
+        sort($resolvedSet);
+        sort($normalized);
+        $this->assertEquals($normalized, $resolvedSet);
+    }
+
+    /**
+     * Returns the resolved set of entity classes as array.
+     *
+     * @param EntityDependencyResolver $resolver
+     * @return string[]
+     */
+    protected function getResolvedSet(EntityDependencyResolver $resolver)
+    {
+        $this->assertInstanceOf('\Traversable', $resolver);
+        $entities = iterator_to_array($resolver);
+        $this->assertContainsOnly('string', $entities);
+        return $entities;
     }
 }
