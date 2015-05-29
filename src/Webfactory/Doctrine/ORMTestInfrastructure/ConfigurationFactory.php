@@ -9,6 +9,9 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\ORM\Tools\Setup;
+
 /**
  * Creates ORM configurations for a set of entities.
  *
@@ -24,6 +27,43 @@ class ConfigurationFactory
      */
     public function createFor(array $entityClasses)
     {
+        $config = Setup::createAnnotationMetadataConfiguration(
+            $this->getFilePathsForClassNames($entityClasses),
+            // Activate development mode.
+            true,
+            // Store proxies in the default temp directory.
+            null,
+            // Avoid Doctrine auto-detection of cache and use an isolated cache.
+            new ArrayCache(),
+            false
+        );
+        return $config;
+    }
 
+    /**
+     * Returns a list of file paths for the provided class names.
+     *
+     * @param array(string) $classNames
+     * @return array(string)
+     */
+    protected function getFilePathsForClassNames(array $classNames)
+    {
+        $paths = array();
+        foreach ($classNames as $className) {
+            $paths[] = $this->getFilePathForClassName($className);
+        }
+        return array_unique($paths);
+    }
+
+    /**
+     * Returns the path to the directory that contains the given class.
+     *
+     * @param string $className
+     * @return string
+     */
+    protected function getFilePathForClassName($className)
+    {
+        $info = new \ReflectionClass($className);
+        return dirname($info->getFileName());
     }
 }
