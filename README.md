@@ -56,9 +56,7 @@ Usage
         protected function setUp()
         {
             $this->infrastructure = ORMInfrastructure::createWithDependenciesFor(
-                array(
-                    'Entity\MyEntity'
-                )
+                'Entity\MyEntity'
             );
             $this->repository = $this->infrastructure->getRepository('Entity\MyEntity');
         }

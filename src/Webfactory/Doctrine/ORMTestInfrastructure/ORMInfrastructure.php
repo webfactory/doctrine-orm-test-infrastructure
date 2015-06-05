@@ -42,11 +42,11 @@ use Doctrine\ORM\Tools\SchemaTool;
  * ### Advanced Setup ###
  *
  * Use the ``createWithDependenciesFor()`` factory method to create an infrastructure for
- * the given entities, including all entities that are associated by these:
+ * the given entity, including all entities that are associated with it:
  *
- *     $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+ *     $infrastructure = ORMInfrastructure::createWithDependenciesFor(
  *        'My\Entity\ClassName'
- *     ));
+ *     );
  *
  * This is convenient as it avoids touching tests when associations are added, but it
  * might also hide the existence of entity dependencies that you are not really aware
