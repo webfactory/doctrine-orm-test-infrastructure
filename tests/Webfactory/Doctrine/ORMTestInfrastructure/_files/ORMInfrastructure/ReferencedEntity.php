@@ -5,12 +5,12 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Doctrine entity that is used for testing.
+ * An entity that is referenced by another one.
  *
- * @ORM\Entity(repositoryClass="TestEntityRepository")
- * @ORM\Table(name="test_entity")
+ * @ORM\Entity()
+ * @ORM\Table(name="referenced_entity")
  */
-class TestEntity
+class ReferencedEntity
 {
     /**
      * A unique ID.
@@ -21,12 +21,4 @@ class TestEntity
      * @ORM\GeneratedValue
      */
     public $id = null;
-
-    /**
-     * A string property.
-     *
-     * @var string
-     * @ORM\Column(type="string", name="name", nullable=true)
-     */
-    public $name = null;
 }

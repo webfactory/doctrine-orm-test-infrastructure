@@ -9,14 +9,12 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
 
 /**
  * Helper class that creates the database infrastructure for a defined set of entity classes.
@@ -30,7 +28,7 @@ use Doctrine\ORM\Tools\Setup;
  *
  * Create the infrastructure for a set of entities:
  *
- *     $infrastructure = new ORMInfrastructure(array(
+ *     $infrastructure = ORMInfrastructure::createOnlyFor(array(
  *        'My\Entity\ClassName'
  *     ));
  *
@@ -40,6 +38,19 @@ use Doctrine\ORM\Tools\Setup;
  *
  * The entity manager can be used as usual. It operates on an in-memory database that contains
  * the schema for all entities that have been mentioned in the infrastructure constructor.
+ *
+ * ### Advanced Setup ###
+ *
+ * Use the ``createWithDependenciesFor()`` factory method to create an infrastructure for
+ * the given entity, including all entities that are associated with it:
+ *
+ *     $infrastructure = ORMInfrastructure::createWithDependenciesFor(
+ *        'My\Entity\ClassName'
+ *     );
+ *
+ * This is convenient as it avoids touching tests when associations are added, but it
+ * might also hide the existence of entity dependencies that you are not really aware
+ * of.
  *
  * ## Import Test Data ##
  *
@@ -69,9 +80,9 @@ class ORMInfrastructure
     );
 
     /**
-     * List of entity classes that are manager by this helper.
+     * List of entity classes that are managed by this infrastructure.
      *
-     * @var array(string)
+     * @var string[]
      */
     protected $entityClasses;
 
@@ -99,18 +110,69 @@ class ORMInfrastructure
     protected $annotationLoader = null;
 
     /**
+     * Factory that is used to create ORM configurations.
+     *
+     * @var ConfigurationFactory
+     */
+    protected $configFactory = null;
+
+    /**
+     * Creates an infrastructure for the given entity or entities, including all
+     * referenced entities.
+     *
+     * @param string[]|string $entityClassOrClasses
+     * @return ORMInfrastructure
+     */
+    public static function createWithDependenciesFor($entityClassOrClasses)
+    {
+        $entityClasses = static::normalizeEntityList($entityClassOrClasses);
+        return new static(new EntityDependencyResolver($entityClasses));
+    }
+
+    /**
+     * Creates an infrastructure for the given entity or entities.
+     *
+     * The infrastructure that is required for entities that are associated with the given
+     * entities is *not* created automatically.
+     *
+     * @param string[]|string $entityClassOrClasses
+     * @return ORMInfrastructure
+     */
+    public static function createOnlyFor($entityClassOrClasses)
+    {
+        return new static(static::normalizeEntityList($entityClassOrClasses));
+    }
+
+    /**
+     * Accepts a single entity class or a list of entity classes and always returns a
+     * list of entity classes.
+     *
+     * @param string[]|string $entityClassOrClasses
+     * @return string[]
+     */
+    protected static function normalizeEntityList($entityClassOrClasses)
+    {
+        return (is_string($entityClassOrClasses)) ? array($entityClassOrClasses) : $entityClassOrClasses;
+    }
+
+    /**
      * Creates an entity helper that provides a database infrastructure
      * for the provided entities.
      *
      * Foreach entity the fully qualified class name must be provided.
      *
-     * @param array(string) $entityClasses
+     * @param string[]|\Traversable $entityClasses
+     * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct(array $entityClasses)
+    public function __construct($entityClasses)
     {
+        if ($entityClasses instanceof \Traversable) {
+            $entityClasses = iterator_to_array($entityClasses);
+        }
         $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
+        $this->configFactory    = new ConfigurationFactory();
         $this->addAnnotationLoaderToRegistry($this->annotationLoader);
     }
 
@@ -177,49 +239,13 @@ class ORMInfrastructure
     }
 
     /**
-     * Returns a list of file paths for the provided class names.
-     *
-     * @param array(string) $classNames
-     * @return array(string)
-     */
-    protected function getFilePathsForArrayOfClassNames(array $classNames)
-    {
-        $paths = array();
-        foreach ($classNames as $className) {
-            $paths[] = $this->getFilePathForClassName($className);
-        }
-        return array_unique($paths);
-    }
-
-    /**
-     * Returns the file path for the provided class name
-     *
-     * @param string $className
-     * @return string
-     */
-    protected function getFilePathForClassName($className)
-    {
-        $info = new \ReflectionClass($className);
-        return dirname($info->getFileName());
-    }
-
-    /**
      * Creates a new entity manager.
      *
      * @return \Doctrine\ORM\EntityManager
      */
     protected function createEntityManager()
     {
-        $config = Setup::createAnnotationMetadataConfiguration(
-            $this->getFilePathsForArrayOfClassNames($this->entityClasses),
-            // Activate development mode.
-            true,
-            // Store proxies in the default temp directory.
-            null,
-            // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache(),
-            false
-        );
+        $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
         return EntityManager::create($this->defaultConnectionParams, $config);
     }
@@ -240,7 +266,7 @@ class ORMInfrastructure
      * Returns the metadata for each managed entity.
      *
      * @param ClassMetadataFactory $metadataFactory
-     * @return array(\Doctrine\Common\Persistence\Mapping\ClassMetadata)
+     * @return \Doctrine\Common\Persistence\Mapping\ClassMetadata[]
      */
     protected function getMetadataForSupportedEntities(ClassMetadataFactory $metadataFactory)
     {

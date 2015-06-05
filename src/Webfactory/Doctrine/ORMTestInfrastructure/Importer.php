@@ -123,7 +123,7 @@ class Importer
     /**
      * Imports a list of entities.
      *
-     * @param array(object) $entities
+     * @param object[] $entities
      */
     protected function importEntityList(array $entities)
     {

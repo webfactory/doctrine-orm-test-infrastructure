@@ -9,7 +9,10 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency;
 
 /**
  * Tests the infrastructure.
@@ -238,5 +241,119 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInternalType('array', $queries);
         $this->assertCount(1, $queries);
+    }
+
+    /**
+     * Ensures that createWithDependenciesFor() returns an infrastructure object if a set of
+     * entities classes is provided.
+     */
+    public function testCreateWithDependenciesForCreatesInfrastructureForSetOfEntities()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity'
+        ));
+
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+    }
+
+    /**
+     * Ensures that createWithDependenciesFor() returns an infrastructure object if a single
+     * entity class is provided.
+     */
+    public function testCreateWithDependenciesForCreatesInfrastructureForSingleEntity()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
+
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+    }
+
+    /**
+     * Ensures that createOnlyFor() returns an infrastructure object if a set of
+     * entities classes is provided.
+     */
+    public function testCreateOnlyForCreatesInfrastructureForSetOfEntities()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity'
+        ));
+
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+    }
+
+    /**
+     * Ensures that createOnlyFor() returns an infrastructure object if a single
+     * entity class is provided.
+     */
+    public function testCreateOnlyForCreatesInfrastructureForSingleEntity()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
+
+        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+    }
+
+    /**
+     * Ensures that referenced sub-entities are automatically prepared if the infrastructure is
+     * requested to handle such cases.
+     */
+    public function testInfrastructureAutomaticallyPerformsDependencySetupIfRequested()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency'
+        ));
+
+        $entityWithDependency = new TestEntityWithDependency();
+
+        // Saving without prepared sub-entity would fail.
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager()->persist($entityWithDependency);
+        $infrastructure->getEntityManager()->flush();
+    }
+
+    /**
+     * Checks if the automatic dependency setup can cope with reference cycles,
+     * for example if an entity references itself.
+     */
+    public function testAutomaticDependencyDetectionCanHandleCycles()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+        ));
+
+        $entityWithCycle = new ReferenceCycleEntity();
+
+        // Saving will most probably work as no additional table is needed, but the reference
+        // detection, which is performed before, might lead to an endless loop.
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager()->persist($entityWithCycle);
+        $infrastructure->getEntityManager()->flush();
+    }
+
+    /**
+     * Checks if the automatic dependency setup can cope with chained references.
+     *
+     * Example:
+     *
+     *     A -> B -> C
+     *
+     * A references B, B references C. A is not directly related to C.
+     */
+    public function testAutomaticDependencyDetectionCanHandleChainedRelations()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+        ));
+
+        $entityWithReferenceChain = new ChainReferenceEntity();
+
+        // All table must be created properly, otherwise it is not possible to store the entity.
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
+        $infrastructure->getEntityManager()->flush();
     }
 }
