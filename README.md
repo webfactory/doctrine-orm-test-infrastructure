@@ -119,4 +119,4 @@ This bundle was started at webfactory GmbH, Bonn.
 - <http://www.webfactory.de>
 - <http://twitter.com/webfactory>
 
-Copyright 2012-2014 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
+Copyright 2012-2015 webfactory GmbH, Bonn. Code released under [the MIT license](LICENSE).
