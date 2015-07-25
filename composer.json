@@ -23,7 +23,8 @@
         "sebastian/phpcpd": "~2.0",
         "mayflower/php-codebrowser": "~1.1",
         "phploc/phploc": "~2.0",
-        "pdepend/pdepend": "~1.1"
+        "pdepend/pdepend": "~1.1",
+        "athletic/athletic": "^0.1.8"
     },
 
     "autoload": {
