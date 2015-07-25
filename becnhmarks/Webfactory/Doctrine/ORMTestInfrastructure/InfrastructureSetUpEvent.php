@@ -16,5 +16,33 @@ use Athletic\AthleticEvent;
  */
 class InfrastructureSetUpEvent extends AthleticEvent
 {
+    public function simpleEntityWithAssociationDetection()
+    {
 
+    }
+
+    public function simpleEntityWithoutAssociationDetection()
+    {
+
+    }
+
+    public function singleAssociationEntityWithAssociationDetection()
+    {
+
+    }
+
+    public function singleAssociationEntityExplicitAssociationDefinition()
+    {
+
+    }
+
+    public function complexEntityWithAssociationDetection()
+    {
+
+    }
+
+    public function complexEntityWithExplicitAssociationDefinition()
+    {
+
+    }
 }
