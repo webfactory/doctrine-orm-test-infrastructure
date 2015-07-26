@@ -51,7 +51,7 @@ class ImportEvent extends AthleticEvent
      * You should take out the calculated time from the import benchmarks
      * (once per iteration) to get the raw import times.
      *
-     * @iterations 200
+     * @iterations 500
      */
     public function creationOf10Entities()
     {
@@ -61,7 +61,7 @@ class ImportEvent extends AthleticEvent
     /**
      * Analog to measuring the creation time of 10 entities.
      *
-     * @iterations 200
+     * @iterations 500
      * @see creationOf10Entities()
      */
     public function creationOf100Entities()
