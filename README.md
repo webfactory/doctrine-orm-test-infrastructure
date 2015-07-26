@@ -114,6 +114,8 @@ may stumble upon any Doctrine issues. Especially take care of it's [known sqlite
 Performance Tests
 -----------------
 
+    http://bugs.xdebug.org/view.php?id=1070
+    
     php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug.default_enable=0 vendor/bin/athletic --path benchmarks
 
 
