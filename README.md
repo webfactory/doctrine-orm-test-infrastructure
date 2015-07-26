@@ -114,10 +114,13 @@ may stumble upon any Doctrine issues. Especially take care of it's [known sqlite
 Performance Tests
 -----------------
 
-    http://bugs.xdebug.org/view.php?id=1070
+Several benchmarks have been created to keep track of the performance of the library.
+Use the following command to run all benchmarks:
     
-    php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug.default_enable=0 vendor/bin/athletic --path benchmarks
-
+    php composer.phar benchmark
+    
+To avoid a [bug](http://bugs.xdebug.org/view.php?id=1070) in [Xdebug](http://xdebug.org/),
+debugging is automatically disabled during the benchmark run.
 
 Credits, Copyright and License
 ------------------------------
