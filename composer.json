@@ -34,7 +34,8 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/"
+            "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/",
+            "benchmarks"
         ]
     }
 }
