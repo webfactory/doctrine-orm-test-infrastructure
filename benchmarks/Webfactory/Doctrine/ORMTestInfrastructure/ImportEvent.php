@@ -51,7 +51,7 @@ class ImportEvent extends AthleticEvent
      * You should take out the calculated time from the import benchmarks
      * (once per iteration) to get the raw import times.
      *
-     * @iterations 50
+     * @iterations 200
      */
     public function creationOf10Entities()
     {
@@ -61,7 +61,7 @@ class ImportEvent extends AthleticEvent
     /**
      * Analog to measuring the creation time of 10 entities.
      *
-     * @iterations 50
+     * @iterations 200
      * @see creationOf10Entities()
      */
     public function creationOf100Entities()
@@ -70,7 +70,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import10EntitiesFromList()
     {
@@ -78,7 +78,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import100EntitiesFromList()
     {
@@ -86,7 +86,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import10EntitiesViaCallback()
     {
@@ -98,7 +98,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import100EntitiesViaCallback()
     {
@@ -110,7 +110,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import10EntitiesViaPhpFile()
     {
@@ -120,7 +120,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import100EntitiesViaPhpFile()
     {
@@ -130,7 +130,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import10EntitiesReturnedByPhpFile()
     {
@@ -140,7 +140,7 @@ class ImportEvent extends AthleticEvent
     }
 
     /**
-     * @iterations 50
+     * @iterations 200
      */
     public function import100EntitiesReturnedByPhpFile()
     {
