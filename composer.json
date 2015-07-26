@@ -27,6 +27,11 @@
         "athletic/athletic": "^0.1.8"
     },
 
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "benchmark": "php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug.default_enable=0 vendor/bin/athletic --path benchmarks"
+    },
+
     "autoload": {
         "psr-0": {
             "Webfactory\\Doctrine": "src/"
