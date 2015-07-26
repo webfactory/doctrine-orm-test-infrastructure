@@ -111,6 +111,12 @@ Please note that apart from any [open issues in this library](https://github.com
 may stumble upon any Doctrine issues. Especially take care of it's [known sqlite issues](http://doctrine-dbal.readthedocs.org/en/latest/reference/known-vendor-issues.html#sqlite).
 
 
+Performance Tests
+-----------------
+
+    php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug.default_enable=0 vendor/bin/athletic --path benchmarks
+
+
 Credits, Copyright and License
 ------------------------------
 
