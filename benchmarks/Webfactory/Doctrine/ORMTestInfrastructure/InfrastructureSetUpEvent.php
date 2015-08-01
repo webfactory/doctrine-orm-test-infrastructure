@@ -55,7 +55,7 @@ class InfrastructureSetUpEvent extends AthleticEvent
     /**
      * @iterations 100
      */
-    public function singleAssociationEntityExplicitAssociationDefinition()
+    public function singleAssociationEntityWithExplicitAssociationDefinition()
     {
         $infrastructure = ORMInfrastructure::createOnlyFor(array(
             '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency',
