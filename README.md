@@ -111,6 +111,17 @@ Please note that apart from any [open issues in this library](https://github.com
 may stumble upon any Doctrine issues. Especially take care of it's [known sqlite issues](http://doctrine-dbal.readthedocs.org/en/latest/reference/known-vendor-issues.html#sqlite).
 
 
+Performance Tests
+-----------------
+
+Several benchmarks have been created to keep track of the performance of the library.
+Use the following command to run all benchmarks:
+    
+    php composer.phar benchmark
+    
+To avoid a [bug](http://bugs.xdebug.org/view.php?id=1070) in [Xdebug](http://xdebug.org/),
+debugging is automatically disabled during the benchmark run.
+
 Credits, Copyright and License
 ------------------------------
 
