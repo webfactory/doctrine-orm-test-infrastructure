@@ -9,7 +9,11 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\Setup;
 
 /**
@@ -20,6 +24,16 @@ use Doctrine\ORM\Tools\Setup;
 class ConfigurationFactory
 {
     /**
+     * Shared annotation reader or null, if not created yet.
+     *
+     * A shared reader is used for performance reasons. As annotations cannot
+     * change during a test run, it is save to use a shared reader.
+     *
+     * @var Reader|null
+     */
+    protected static $defaultAnnotationReader = null;
+
+    /**
      * Creates the ORM configuration for the given set of entities.
      *
      * @param string[] $entityClasses
@@ -27,16 +41,19 @@ class ConfigurationFactory
      */
     public function createFor(array $entityClasses)
     {
-        $config = Setup::createAnnotationMetadataConfiguration(
-            $this->getFilePathsForClassNames($entityClasses),
+        $config = Setup::createConfiguration(
             // Activate development mode.
             true,
             // Store proxies in the default temp directory.
             null,
             // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache(),
-            false
+            new ArrayCache()
         );
+        $driver = new AnnotationDriver(
+            $this->getAnnotationReader(),
+            $this->getFilePathsForClassNames($entityClasses)
+        );
+        $config->setMetadataDriverImpl($driver);
         return $config;
     }
 
@@ -65,5 +82,24 @@ class ConfigurationFactory
     {
         $info = new \ReflectionClass($className);
         return dirname($info->getFileName());
+    }
+
+    /**
+     * Returns the default annotation reader and creates it if necessary.
+     *
+     * @return Reader|AnnotationReader
+     */
+    protected function getAnnotationReader()
+    {
+        if (static::$defaultAnnotationReader === null) {
+            $factory = new Configuration();
+            // Use the configuration to create an annotation driver as the configuration
+            // handles loading of default annotation automatically.
+            $driver = $factory->newDefaultAnnotationDriver(array(), false);
+            // Use just the reader as the driver depends on the configured
+            // paths and, therefore, should not be shared.
+            static::$defaultAnnotationReader = $driver->getReader();
+        }
+        return static::$defaultAnnotationReader;
     }
 }
