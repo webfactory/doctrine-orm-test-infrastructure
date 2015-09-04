@@ -191,6 +191,18 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Ensures that the resolved set contains the entities that are explicitly mentioned in
+     * a discriminator map.
+     *
+     * Doctrine uses the information from the discriminator map to generate its queries.
+     * Therefore, the tables on the mentioned entities must be generated in the tests.
+     */
+    public function testResolvedSetContainsNamesOfEntitiesThatAreMentionedInDiscriminatorMap()
+    {
+
+    }
+
+    /**
      * Returns the resolved set of entity classes as array.
      *
      * @param EntityDependencyResolver $resolver
