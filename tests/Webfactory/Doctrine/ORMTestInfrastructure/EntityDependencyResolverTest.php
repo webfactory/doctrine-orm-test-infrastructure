@@ -199,7 +199,14 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolvedSetContainsNamesOfEntitiesThatAreMentionedInDiscriminatorMap()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapEntity'
+        ));
 
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapChildEntity',
+            $resolver
+        );
     }
 
     /**
