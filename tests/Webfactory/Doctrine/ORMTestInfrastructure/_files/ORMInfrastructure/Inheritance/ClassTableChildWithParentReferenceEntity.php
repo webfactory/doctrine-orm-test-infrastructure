@@ -2,6 +2,8 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Child class that uses class table inheritance with a parent that references another entity.
  *
