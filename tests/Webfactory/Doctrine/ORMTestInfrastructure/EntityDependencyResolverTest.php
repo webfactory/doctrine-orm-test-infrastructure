@@ -132,7 +132,14 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolvedSetContainsNameOfClassTableInheritanceParent()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildEntity'
+        ));
 
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableParentEntity',
+            $resolver
+        );
     }
 
     /**
@@ -141,7 +148,15 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolvedSetContainsNameOfClassThatIsReferencedByParentWithClassTableStrategy()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance' .
+            '\ClassTableChildWithParentReferenceEntity'
+        ));
 
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            $resolver
+        );
     }
 
     /**
@@ -149,7 +164,30 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     public function testResolvedSetContainsNameOfMappedSuperClass()
     {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild'
+        ));
 
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance' .
+            '\MappedSuperClassParentWithReference',
+            $resolver
+        );
+    }
+
+    /**
+     * Ensures that an entity, that is referenced by a mapped super class, is listed in the resolved set.
+     */
+    public function testResolvedSetContainsNameOfEntityThatIsReferencedByMappedSuperClass()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild'
+        ));
+
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            $resolver
+        );
     }
 
     /**

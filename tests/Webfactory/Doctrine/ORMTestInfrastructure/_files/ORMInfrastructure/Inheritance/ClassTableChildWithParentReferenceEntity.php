@@ -9,7 +9,7 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheri
  * @ORM\Table(name="class_inheritance_with_reference_child")
  * @see http://doctrine-orm.readthedocs.org/en/latest/reference/inheritance-mapping.html#class-table-inheritance
  */
-class ClassTableChildWithParentReferenceEntity
+class ClassTableChildWithParentReferenceEntity extends ClassTableParentWithReferenceEntity
 {
     /**
      * @var string
