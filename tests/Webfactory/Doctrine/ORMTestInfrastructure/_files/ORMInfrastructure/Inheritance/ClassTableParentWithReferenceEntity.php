@@ -32,7 +32,10 @@ abstract class ClassTableParentWithReferenceEntity
      * Required reference to another entity.
      *
      * @var ReferencedEntity
-     * @ORM\OneToOne(targetEntity="ReferencedEntity", cascade={"all"})
+     * @ORM\OneToOne(
+     *     targetEntity="\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity",
+     *     cascade={"all"}
+     * )
      * @ORM\JoinColumn(nullable=false)
      */
     protected $dependency = null;
