@@ -128,6 +128,88 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Ensures that a parent that uses class table inheritance is listed in the resolved set.
+     */
+    public function testResolvedSetContainsNameOfClassTableInheritanceParent()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildEntity'
+        ));
+
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableParentEntity',
+            $resolver
+        );
+    }
+
+    /**
+     * Ensures that the resolved set contains an entity class that is referenced by a parent
+     * entity (with class table inheritance strategy).
+     */
+    public function testResolvedSetContainsNameOfClassThatIsReferencedByParentWithClassTableStrategy()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance' .
+            '\ClassTableChildWithParentReferenceEntity'
+        ));
+
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            $resolver
+        );
+    }
+
+    /**
+     * Ensures that a mapped super class is listed in the resolved set.
+     */
+    public function testResolvedSetContainsNameOfMappedSuperClass()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild'
+        ));
+
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance' .
+            '\MappedSuperClassParentWithReference',
+            $resolver
+        );
+    }
+
+    /**
+     * Ensures that an entity, that is referenced by a mapped super class, is listed in the resolved set.
+     */
+    public function testResolvedSetContainsNameOfEntityThatIsReferencedByMappedSuperClass()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild'
+        ));
+
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            $resolver
+        );
+    }
+
+    /**
+     * Ensures that the resolved set contains the entities that are explicitly mentioned in
+     * a discriminator map.
+     *
+     * Doctrine uses the information from the discriminator map to generate its queries.
+     * Therefore, the tables on the mentioned entities must be generated in the tests.
+     */
+    public function testResolvedSetContainsNamesOfEntitiesThatAreMentionedInDiscriminatorMap()
+    {
+        $resolver = new EntityDependencyResolver(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapEntity'
+        ));
+
+        $this->assertContainsEntity(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapChildEntity',
+            $resolver
+        );
+    }
+
+    /**
      * Returns the resolved set of entity classes as array.
      *
      * @param EntityDependencyResolver $resolver

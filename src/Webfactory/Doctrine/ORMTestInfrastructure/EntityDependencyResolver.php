@@ -104,10 +104,23 @@ class EntityDependencyResolver implements \IteratorAggregate
             $metadata = new ClassMetadata($entityClass);
             $metadata->initializeReflection($this->reflectionService);
             $config->getMetadataDriverImpl()->loadMetadataForClass($entityClass, $metadata);
+
             foreach ($metadata->getAssociationNames() as $name) {
                 /* @var $name string */
                 $associatedEntity = $metadata->getAssociationTargetClass($name);
                 $associatedEntities[] = $metadata->fullyQualifiedClassName($associatedEntity);
+            }
+
+            if (count($metadata->discriminatorMap) > 0) {
+                $childClasses = array_values($metadata->discriminatorMap);
+                $associatedEntities = array_merge($associatedEntities, $childClasses);
+            }
+
+            // Add parent classes that are involved in some kind of entity inheritance.
+            foreach ($this->reflectionService->getParentClasses($entityClass) as $parentClass) {
+                if (!$config->getMetadataDriverImpl()->isTransient($parentClass)) {
+                    $associatedEntities[] = $parentClass;
+                }
             }
         }
         return array_unique($associatedEntities);
