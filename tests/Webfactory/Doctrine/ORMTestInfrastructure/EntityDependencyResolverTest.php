@@ -128,6 +128,31 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Ensures that a parent that uses class table inheritance is listed in the resolved set.
+     */
+    public function testResolvedSetContainsNameOfClassTableInheritanceParent()
+    {
+
+    }
+
+    /**
+     * Ensures that the resolved set contains an entity class that is referenced by a parent
+     * entity (with class table inheritance strategy).
+     */
+    public function testResolvedSetContainsNameOfClassThatIsReferencedByParentWithClassTableStrategy()
+    {
+
+    }
+
+    /**
+     * Ensures that a mapped super class is listed in the resolved set.
+     */
+    public function testResolvedSetContainsNameOfMappedSuperClass()
+    {
+
+    }
+
+    /**
      * Returns the resolved set of entity classes as array.
      *
      * @param EntityDependencyResolver $resolver
