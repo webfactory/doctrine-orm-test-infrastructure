@@ -3,6 +3,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -50,16 +51,35 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetAllClassNamesReturnsOnlyExposedEntityClasses()
     {
+        $this->innerDriver->expects($this->any())
+            ->method('getAllClassNames')
+            ->will($this->returnValue(array(
+                'My\Namespace\Person',
+                'My\Namespace\Address',
+                'My\Namespace\PhoneNumber'
+            )));
 
+        $classes = $this->driver->getAllClassNames();
+
+        $this->assertInternalType('array', $classes);
+        $this->assertContains('My\Namespace\Person', $classes);
+        $this->assertContains('My\Namespace\Address', $classes);
+        $this->assertNotContains('My\Namespace\PhoneNumber', $classes);
     }
 
     public function testDriverDelegatesMetadataCalls()
     {
+        $this->innerDriver->expects($this->once())
+            ->method('loadMetadataForClass');
 
+        $this->driver->loadMetadataForClass('My\Namespace\Person', new ClassMetadataInfo('My\Namespace\Person'));
     }
 
     public function testDriverDelegatesIsTransientCall()
     {
+        $this->innerDriver->expects($this->once())
+            ->method('isTransient');
 
+        $this->driver->isTransient('My\Namespace\Person');
     }
 }
