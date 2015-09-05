@@ -351,7 +351,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $entityWithReferenceChain = new ChainReferenceEntity();
 
-        // All table must be created properly, otherwise it is not possible to store the entity.
+        // All tables must be created properly, otherwise it is not possible to store the entity.
         $this->setExpectedException(null);
         $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
         $infrastructure->getEntityManager()->flush();
