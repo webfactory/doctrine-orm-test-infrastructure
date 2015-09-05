@@ -356,4 +356,15 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
         $infrastructure->getEntityManager()->flush();
     }
+
+    /**
+     * Ensures that it is not possible to retrieve the class names of entities,
+     * which are not simulated by the infrastructure.
+     *
+     * If not handled properly, the metadata provides access to several entity classes.
+     */
+    public function testNotSimulatedEntitiesAreNotExposed()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
 }
