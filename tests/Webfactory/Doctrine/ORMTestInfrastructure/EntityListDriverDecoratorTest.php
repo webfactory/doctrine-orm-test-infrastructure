@@ -43,6 +43,11 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
+    public function testImplementsInterface()
+    {
+        $this->assertInstanceOf('Doctrine\Common\Persistence\Mapping\Driver\MappingDriver', $this->driver);
+    }
+
     public function testGetAllClassNamesReturnsOnlyExposedEntityClasses()
     {
 
