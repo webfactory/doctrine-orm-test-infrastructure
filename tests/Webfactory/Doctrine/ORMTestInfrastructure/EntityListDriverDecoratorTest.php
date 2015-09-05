@@ -1,6 +1,6 @@
 <?php
 
-namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
+namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 {
