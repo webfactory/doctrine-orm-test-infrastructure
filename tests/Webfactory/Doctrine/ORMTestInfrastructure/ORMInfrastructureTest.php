@@ -9,6 +9,7 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -365,6 +366,17 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotSimulatedEntitiesAreNotExposed()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
+
+        $metadata = $infrastructure->getEntityManager()->getMetadataFactory()->getAllMetadata();
+        $entities = array_map(function (ClassMetadataInfo $info) {
+            return ltrim($info->name, '\\');
+        }, $metadata);
+        $this->assertEquals(
+            array('Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'),
+            $entities
+        );
     }
 }
