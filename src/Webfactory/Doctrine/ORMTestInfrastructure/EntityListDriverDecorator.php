@@ -13,12 +13,27 @@ use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 class EntityListDriverDecorator implements MappingDriver
 {
     /**
+     * The decorated driver.
+     *
+     * @var MappingDriver
+     */
+    protected $innerDriver = null;
+
+    /**
+     * Class names of all entities that are exposed.
+     *
+     * @var string[]
+     */
+    protected $exposedEntityClasses = null;
+
+    /**
      * @param MappingDriver $innerDriver
      * @param string[] $exposedEntityClasses
      */
     public function __construct(MappingDriver $innerDriver, array $exposedEntityClasses)
     {
-
+        $this->innerDriver = $innerDriver;
+        $this->exposedEntityClasses = $exposedEntityClasses;
     }
 
     /**
@@ -28,7 +43,7 @@ class EntityListDriverDecorator implements MappingDriver
      */
     public function getAllClassNames()
     {
-        // TODO: Implement getAllClassNames() method.
+        return $this->exposedEntityClasses;
     }
 
     /**
@@ -39,7 +54,7 @@ class EntityListDriverDecorator implements MappingDriver
      */
     public function loadMetadataForClass($className, ClassMetadata $metadata)
     {
-        // TODO: Implement loadMetadataForClass() method.
+        $this->innerDriver->loadMetadataForClass($className, $metadata);
     }
 
     /**
@@ -51,6 +66,6 @@ class EntityListDriverDecorator implements MappingDriver
      */
     public function isTransient($className)
     {
-        // TODO: Implement isTransient() method.
+        return $this->innerDriver->isTransient($className);
     }
 }
