@@ -33,7 +33,7 @@ class EntityListDriverDecorator implements MappingDriver
     public function __construct(MappingDriver $innerDriver, array $exposedEntityClasses)
     {
         $this->innerDriver = $innerDriver;
-        $this->exposedEntityClasses = $exposedEntityClasses;
+        $this->exposedEntityClasses = $this->normalizeClassNames($exposedEntityClasses);
     }
 
     /**
@@ -70,5 +70,18 @@ class EntityListDriverDecorator implements MappingDriver
     public function isTransient($className)
     {
         return $this->innerDriver->isTransient($className);
+    }
+
+    /**
+     * Removes leading slashes from the given class names.
+     *
+     * @param string[] $entityClasses
+     * @return string[]
+     */
+    protected function normalizeClassNames(array $entityClasses)
+    {
+        return array_map(function ($class) {
+            return ltrim($class, '\\');
+        }, $entityClasses);
     }
 }
