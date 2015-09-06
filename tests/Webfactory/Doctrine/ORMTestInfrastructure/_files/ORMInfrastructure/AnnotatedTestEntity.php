@@ -13,7 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AnnotatedTestEntity
 {
-
     /**
      * A unique ID.
      *

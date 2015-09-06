@@ -14,6 +14,16 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEn
 abstract class MappedSuperClassParentWithReference
 {
     /**
+     * A unique ID.
+     *
+     * @var integer|null
+     * @ORM\Id
+     * @ORM\Column(type="integer", name="id")
+     * @ORM\GeneratedValue
+     */
+    public $id = null;
+
+    /**
      * Required reference to another entity.
      *
      * @var ReferencedEntity
