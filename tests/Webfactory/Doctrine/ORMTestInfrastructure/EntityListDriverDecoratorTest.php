@@ -67,6 +67,26 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains('My\Namespace\PhoneNumber', $classes);
     }
 
+    /**
+     * Ensures that the driver decorator does not expose entity classes, which are listed, but
+     * not supported by the iner driver.
+     */
+    public function testDriverDoesNotExposeEntitiesThatAreInListButNotSupportedByInnerDriver()
+    {
+        $this->innerDriver->expects($this->any())
+            ->method('getAllClassNames')
+            ->will($this->returnValue(array(
+                // The inner driver supports Person, but not Address.
+                'My\Namespace\Person'
+            )));
+
+        $classes = $this->driver->getAllClassNames();
+
+        $this->assertInternalType('array', $classes);
+        $this->assertContains('My\Namespace\Person', $classes);
+        $this->assertNotContains('My\Namespace\Address', $classes);
+    }
+
     public function testDriverDelegatesMetadataCalls()
     {
         $this->innerDriver->expects($this->once())
