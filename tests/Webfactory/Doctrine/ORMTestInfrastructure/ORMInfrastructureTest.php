@@ -9,6 +9,7 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -351,9 +352,31 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $entityWithReferenceChain = new ChainReferenceEntity();
 
-        // All table must be created properly, otherwise it is not possible to store the entity.
+        // All tables must be created properly, otherwise it is not possible to store the entity.
         $this->setExpectedException(null);
         $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
         $infrastructure->getEntityManager()->flush();
+    }
+
+    /**
+     * Ensures that it is not possible to retrieve the class names of entities,
+     * which are not simulated by the infrastructure.
+     *
+     * If not handled properly, the metadata provides access to several entity classes.
+     */
+    public function testNotSimulatedEntitiesAreNotExposed()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ));
+
+        $metadata = $infrastructure->getEntityManager()->getMetadataFactory()->getAllMetadata();
+        $entities = array_map(function (ClassMetadataInfo $info) {
+            return ltrim($info->name, '\\');
+        }, $metadata);
+        $this->assertEquals(
+            array('Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'),
+            $entities
+        );
     }
 }
