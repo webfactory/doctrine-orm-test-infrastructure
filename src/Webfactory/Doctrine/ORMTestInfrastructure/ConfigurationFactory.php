@@ -53,6 +53,7 @@ class ConfigurationFactory
             $this->getAnnotationReader(),
             $this->getFilePathsForClassNames($entityClasses)
         );
+        $driver = new EntityListDriverDecorator($driver, $entityClasses);
         $config->setMetadataDriverImpl($driver);
         return $config;
     }
