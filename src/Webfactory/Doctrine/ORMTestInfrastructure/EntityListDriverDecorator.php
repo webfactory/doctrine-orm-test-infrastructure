@@ -43,7 +43,10 @@ class EntityListDriverDecorator implements MappingDriver
      */
     public function getAllClassNames()
     {
-        return $this->exposedEntityClasses;
+        return array_intersect(
+            $this->exposedEntityClasses,
+            $this->innerDriver->getAllClassNames()
+        );
     }
 
     /**
