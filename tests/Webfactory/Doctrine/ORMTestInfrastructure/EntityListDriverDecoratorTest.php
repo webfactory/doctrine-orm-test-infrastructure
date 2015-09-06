@@ -87,6 +87,24 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains('My\Namespace\Address', $classes);
     }
 
+    public function testGetAllClassNamesWorksIfEntityClassWasPassedWithLeadingBackslash()
+    {
+        $this->driver = new EntityListDriverDecorator($this->innerDriver, array(
+            // The entity class is passed with a leading slash.
+            '\My\Namespace\Person'
+        ));
+        $this->innerDriver->expects($this->any())
+            ->method('getAllClassNames')
+            ->will($this->returnValue(array(
+                'My\Namespace\Person'
+            )));
+
+        $classes = $this->driver->getAllClassNames();
+
+        $this->assertInternalType('array', $classes);
+        $this->assertContains('My\Namespace\Person', $classes);
+    }
+
     public function testDriverDelegatesMetadataCalls()
     {
         $this->innerDriver->expects($this->once())
