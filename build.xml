@@ -35,6 +35,7 @@
 
     <target name="install-composer">
         <exec executable="bash" failonerror="true">
+            <env key="COMPOSER_HOME" value="${basedir}/.composer" />
             <arg value="-c" />
             <arg value="curl -sS https://getcomposer.org/installer | php" />
         </exec>
@@ -42,6 +43,7 @@
 
     <target name="install-dependencies" depends="install-composer" extensionOf="prepare">
         <exec executable="php" failonerror="true">
+            <env key="COMPOSER_HOME" value="${basedir}/.composer" />
             <arg value="composer.phar" />
             <arg value="--no-interaction" />
             <arg value="--no-progress" />
