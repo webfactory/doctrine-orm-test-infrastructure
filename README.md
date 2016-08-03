@@ -22,17 +22,9 @@ functional tests are not possible, it is our only way to test repositories and e
 Installation
 ------------
 
-Add the following to composer.json (see http://getcomposer.org/):
+Install via composer (see http://getcomposer.org/):
 
-    "require-dev" :  {
-        // ...
-        "webfactory/doctrine-orm-test-infrastructure": "@stable"
-    }
-
-If you don't have a `require-dev` key in your `composer.json` file, just
-add one! You can alternatively add this to your `require` key and things
-will work just fine. Confused about the difference? See:
-[GetComposer.org: require-dev](https://getcomposer.org/doc/04-schema.md#require-dev).
+    composer require --dev webfactory/doctrine-orm-test-infrastructure
 
 
 Usage
@@ -42,7 +34,7 @@ Usage
     
     use Entity\MyEntity;
     use Entity\MyEntityRepository;
-    use Webfactory\Doctrine\ORMTestInfrastructure;
+    use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
     
     class MyEntityRepositoryTest extends \PHPUnit_Framework_TestCase
     {
