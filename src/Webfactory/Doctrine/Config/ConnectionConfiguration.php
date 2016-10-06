@@ -23,11 +23,18 @@ namespace Webfactory\Doctrine\Config;
 class ConnectionConfiguration
 {
     /**
+     * Connection parameters that are compatible to Doctrine DBAL.
+     *
+     * @var array<string, mixed>
+     */
+    private $connectionParameters = null;
+
+    /**
      * @param array<string, mixed> $connectionParameters
      */
     public function __construct(array $connectionParameters)
     {
-
+        $this->connectionParameters = $connectionParameters;
     }
 
     /**
@@ -37,6 +44,6 @@ class ConnectionConfiguration
      */
     public function getConnectionParameters()
     {
-
+        return $this->connectionParameters;
     }
 }
