@@ -8,6 +8,11 @@ namespace Webfactory\Doctrine\Config;
 class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
 {
     /**
+     * @var boolean
+     */
+    private $automaticCleanUp = true;
+
+    /**
      * @param string|null $filePath
      * @param boolean $automaticCleanUp
      */
@@ -19,6 +24,10 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
             'password' => '',
             'path'     => $this->toFilePath($filePath)
         ));
+        $this->automaticCleanUp = $automaticCleanUp;
+        if ($this->automaticCleanUp) {
+            $this->cleanUp();
+        }
     }
 
     /**
@@ -39,7 +48,19 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
      */
     public function cleanUp()
     {
-        
+        if (is_file($this->getDatabaseFile())) {
+            unlink($this->getDatabaseFile());
+        }
+    }
+
+    /**
+     * Removes the database file if necessary.
+     */
+    public function __destruct()
+    {
+        if ($this->automaticCleanUp) {
+            $this->cleanUp();
+        }
     }
 
     /**
