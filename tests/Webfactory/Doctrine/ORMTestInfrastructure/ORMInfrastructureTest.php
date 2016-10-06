@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -378,5 +379,21 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             array('Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'),
             $entities
         );
+    }
+
+    /**
+     * Checks if it is possible to pass a more specific connection configuration.
+     */
+    public function testUsesMoreSpecificConnectionConfiguration()
+    {
+        $this->infrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ), new ConnectionConfiguration(array(
+            'invalid' => 'configuration'
+        )));
+
+        // The passed configuration is simply invalid, therefore, we expect an exception.
+        $this->setExpectedException('Exception');
+        $this->infrastructure->getEntityManager();
     }
 }
