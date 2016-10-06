@@ -115,6 +115,7 @@ class ORMInfrastructure
      * Factory that is used to create ORM configurations.
      *
      * @var ConfigurationFactory
+     * @deprecated To be removed in 2.0. Only used once and can be degraded to a local variable.
      */
     protected $configFactory = null;
 
