@@ -9,8 +9,9 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
 {
     /**
      * @param string|null $filePath
+     * @param boolean $automaticCleanUp
      */
-    public function __construct($filePath = null)
+    public function __construct($filePath = null, $automaticCleanUp = true)
     {
         parent::__construct(array(
             'driver'   => 'pdo_sqlite',
@@ -31,6 +32,14 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
     {
         $parameters = $this->getConnectionParameters();
         return $parameters['path'];
+    }
+
+    /**
+     * Removes the database file if it exists.
+     */
+    public function cleanUp()
+    {
+        
     }
 
     /**

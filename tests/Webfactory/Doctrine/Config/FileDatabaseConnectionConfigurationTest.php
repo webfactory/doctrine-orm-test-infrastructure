@@ -30,6 +30,26 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $this->assertNotEquals($firstConfiguration->getDatabaseFile(), $secondConfiguration->getDatabaseFile());
     }
 
+    public function testCleanUpRemovesTheDatabaseFileIfItExists()
+    {
+        $configuration = new FileDatabaseConnectionConfiguration();
+        touch($configuration->getDatabaseFile());
+
+        $configuration->cleanUp();
+
+        $this->assertFileNotExists($configuration->getDatabaseFile());
+    }
+
+    public function testCleanUpDoesNothingIfTheDatabaseFileDoesNotExistYet()
+    {
+        $configuration = new FileDatabaseConnectionConfiguration();
+
+        $this->assertFileNotExists($configuration->getDatabaseFile());
+
+        $this->setExpectedException(null);
+        $configuration->cleanUp();
+    }
+
     /**
      * Checks if the connection configuration *really* works with the infrastructure.
      */
