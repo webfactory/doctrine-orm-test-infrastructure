@@ -64,6 +64,13 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $configuration->cleanUp();
     }
 
+    public function testCleanUpProvidesFluentInterface()
+    {
+        $configuration = new FileDatabaseConnectionConfiguration();
+
+        $this->assertSame($configuration, $configuration->cleanUp());
+    }
+
     /**
      * Checks if the connection configuration *really* works with the infrastructure.
      */
