@@ -12,14 +12,20 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $path = __DIR__ . '/_files/my-db.sqlite';
         $configuration = new FileDatabaseConnectionConfiguration($path);
 
-        $this->assertEquals($path, $configuration->getDatabaseFile());
+        $file = $configuration->getDatabaseFile();
+        $this->assertInstanceOf('SplFileInfo', $file);
+        $this->assertEquals($path, $file->getPathname());
     }
 
     public function testGeneratedFileNameIsNotChangedForExistingConfigurationObject()
     {
         $configuration = new FileDatabaseConnectionConfiguration();
 
-        $this->assertEquals($configuration->getDatabaseFile(), $configuration->getDatabaseFile());
+        $firstCall = $configuration->getDatabaseFile();
+        $secondCall = $configuration->getDatabaseFile();
+        $this->assertInstanceOf('SplFileInfo', $firstCall);
+        $this->assertInstanceOf('SplFileInfo', $secondCall);
+        $this->assertEquals($firstCall->getPathname(), $secondCall->getPathname());
     }
 
     public function testGeneratesUniqueFileNameIfFilePathIsOmitted()
@@ -27,24 +33,32 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $firstConfiguration = new FileDatabaseConnectionConfiguration();
         $secondConfiguration = new FileDatabaseConnectionConfiguration();
 
-        $this->assertNotEquals($firstConfiguration->getDatabaseFile(), $secondConfiguration->getDatabaseFile());
+        $firstFile = $firstConfiguration->getDatabaseFile();
+        $secondFile = $secondConfiguration->getDatabaseFile();
+        $this->assertInstanceOf('SplFileInfo', $firstFile);
+        $this->assertInstanceOf('SplFileInfo', $secondFile);
+        $this->assertNotEquals($firstFile->getPathname(), $secondFile->getPathname());
     }
 
     public function testCleanUpRemovesTheDatabaseFileIfItExists()
     {
         $configuration = new FileDatabaseConnectionConfiguration();
-        touch($configuration->getDatabaseFile());
+        $file = $configuration->getDatabaseFile();
+        $this->assertInstanceOf('SplFileInfo', $file);
+        touch($file->getPathname());
 
         $configuration->cleanUp();
 
-        $this->assertFileNotExists($configuration->getDatabaseFile());
+        $this->assertFileNotExists($file->getPathname());
     }
 
     public function testCleanUpDoesNothingIfTheDatabaseFileDoesNotExistYet()
     {
         $configuration = new FileDatabaseConnectionConfiguration();
+        $file = $configuration->getDatabaseFile();
+        $this->assertInstanceOf('SplFileInfo', $file);
 
-        $this->assertFileNotExists($configuration->getDatabaseFile());
+        $this->assertFileNotExists($file->getPathname());
 
         $this->setExpectedException(null);
         $configuration->cleanUp();
@@ -69,7 +83,9 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $infrastructure = $this->createInfrastructure($configuration);
         $infrastructure->import(new TestEntity());
 
-        $this->assertFileExists($configuration->getDatabaseFile());
+        $file = $configuration->getDatabaseFile();
+        $this->assertInstanceOf('SplFileInfo', $file);
+        $this->assertFileExists($file->getPathname());
     }
 
     /**
