@@ -58,6 +58,8 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
     {
         if ($filePath === null) {
             $temporaryFile =  sys_get_temp_dir() . '/' . uniqid('db-', true) . '.sqlite';
+            // Ensure that the temporary file is removed on shutdown, otherwise the filesystem
+            // might be cluttered with database files.
             register_shutdown_function(array($this, 'cleanUp'));
             return $temporaryFile;
         }
