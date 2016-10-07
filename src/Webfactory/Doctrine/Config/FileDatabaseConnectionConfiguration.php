@@ -40,8 +40,8 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
      */
     public function cleanUp()
     {
-        if (is_file($this->getDatabaseFile())) {
-            unlink($this->getDatabaseFile());
+        if ($this->getDatabaseFile()->isFile()) {
+            unlink($this->getDatabaseFile()->getPathname());
         }
         return $this;
     }
