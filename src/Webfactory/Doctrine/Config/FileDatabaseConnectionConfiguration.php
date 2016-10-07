@@ -25,13 +25,12 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
      *
      * The database file may not exist.
      *
-     * @return string
+     * @return \SplFileInfo
      */
     public function getDatabaseFile()
     {
-        // TODO object
         $parameters = $this->getConnectionParameters();
-        return $parameters['path'];
+        return new \SplFileInfo($parameters['path']);
     }
 
     /**
