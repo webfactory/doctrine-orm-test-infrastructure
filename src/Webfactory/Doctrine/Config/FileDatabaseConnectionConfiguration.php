@@ -35,12 +35,15 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
 
     /**
      * Removes the database file if it exists.
+     *
+     * @return $this Provides a fluent interface.
      */
     public function cleanUp()
     {
         if (is_file($this->getDatabaseFile())) {
             unlink($this->getDatabaseFile());
         }
+        return $this;
     }
 
     /**
