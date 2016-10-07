@@ -8,15 +8,9 @@ namespace Webfactory\Doctrine\Config;
 class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
 {
     /**
-     * @var boolean
-     */
-    private $automaticCleanUp = true;
-
-    /**
      * @param string|null $filePath
-     * @param boolean $automaticCleanUp
      */
-    public function __construct($filePath = null, $automaticCleanUp = true)
+    public function __construct($filePath = null)
     {
         parent::__construct(array(
             'driver'   => 'pdo_sqlite',
@@ -24,10 +18,6 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
             'password' => '',
             'path'     => $this->toFilePath($filePath)
         ));
-        $this->automaticCleanUp = $automaticCleanUp;
-        if ($this->automaticCleanUp) {
-            $this->cleanUp();
-        }
     }
 
     /**
@@ -39,6 +29,7 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
      */
     public function getDatabaseFile()
     {
+        // TODO object
         $parameters = $this->getConnectionParameters();
         return $parameters['path'];
     }
@@ -54,16 +45,6 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
     }
 
     /**
-     * Removes the database file if necessary.
-     */
-    public function __destruct()
-    {
-        if ($this->automaticCleanUp) {
-            $this->cleanUp();
-        }
-    }
-
-    /**
      * Returns a file path for the database file.
      *
      * Generates a unique file name if the given $filePath is null.
@@ -74,7 +55,9 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
     private function toFilePath($filePath)
     {
         if ($filePath === null) {
-            return sys_get_temp_dir() . '/' . uniqid('db-', true) . '.sqlite';
+            $temporaryFile =  sys_get_temp_dir() . '/' . uniqid('db-', true) . '.sqlite';
+            register_shutdown_function(array($this, 'cleanUp'));
+            return $temporaryFile;
         }
         return $filePath;
     }

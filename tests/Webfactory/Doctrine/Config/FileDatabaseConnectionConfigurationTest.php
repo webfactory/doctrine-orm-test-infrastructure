@@ -72,44 +72,6 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $this->assertFileExists($configuration->getDatabaseFile());
     }
 
-    public function testDatabaseFileIsRemovedWhenInfrastructureIsDestroyed()
-    {
-        $configuration = new FileDatabaseConnectionConfiguration();
-        $databaseFile  = $configuration->getDatabaseFile();
-
-        $infrastructure = $this->createInfrastructure($configuration);
-        $infrastructure->import(new TestEntity());
-
-        $configuration = null;
-        $infrastructure = null;
-        $this->assertFileNotExists($databaseFile);
-    }
-
-    public function testWorksIfFileAlreadyExists()
-    {
-        $databaseFile = tempnam(sys_get_temp_dir(), 'db-');
-        file_put_contents($databaseFile, 'my irrelevant file content');
-        $configuration = new FileDatabaseConnectionConfiguration($databaseFile);
-        $infrastructure = $this->createInfrastructure($configuration);
-
-        $this->setExpectedException(null);
-        $infrastructure->import(new TestEntity());
-    }
-
-    public function testDoesNotRemoveFileIfAutoCleanUpIsDisabled()
-    {
-        $configuration = new FileDatabaseConnectionConfiguration(null, false);
-        $databaseFile  = $configuration->getDatabaseFile();
-
-        $infrastructure = $this->createInfrastructure($configuration);
-        $infrastructure->import(new TestEntity());
-
-        $configuration = null;
-        $infrastructure = null;
-        $this->assertFileExists($databaseFile);
-        unlink($databaseFile);
-    }
-
     /**
      * Creates a new infrastructure with the given connection configuration.
      *
