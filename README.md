@@ -63,7 +63,7 @@ Usage
             
             $entitiesLoadedFromDatabase = $this->repository->findAll();
 
-            // Please note that due to a bug in PHPUnit, you might not be able to do the following:
+            // Please note that you cannot do the following:
             // $this->assertContains($myEntityFixture, $entitiesLoadedFromDatabase);
 
             // But you can do things like this (you probably want to extract that in a convenient assertion method):
