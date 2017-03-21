@@ -90,6 +90,15 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Ensure that the infrastructure fails fast if obviously invalid data is passed.
+     */
+    public function testInfrastructureRejectsNonClassNames()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+        ORMInfrastructure::createOnlyFor(array('NotAClass'));
+    }
+
+    /**
      * Checks if import() adds entities to the database.
      *
      * There are different options to import entities, but these are handled in detail
