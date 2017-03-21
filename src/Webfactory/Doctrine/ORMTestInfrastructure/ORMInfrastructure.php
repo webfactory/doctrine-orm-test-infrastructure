@@ -168,14 +168,17 @@ class ORMInfrastructure
      */
     public function __construct($entityClasses)
     {
+        // Register the annotation loader before the dependency discovery process starts (if required).
+        // This ensures that the annotation loader is available for the entity resolver that reads the annotations.
+        $this->annotationLoader = $this->createAnnotationLoader();
+        $this->addAnnotationLoaderToRegistry($this->annotationLoader);
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
-        $this->entityClasses    = $entityClasses;
-        $this->annotationLoader = $this->createAnnotationLoader();
-        $this->queryLogger      = new DebugStack();
-        $this->configFactory    = new ConfigurationFactory();
-        $this->addAnnotationLoaderToRegistry($this->annotationLoader);
+        $this->entityClasses = $entityClasses;
+        $this->queryLogger   = new DebugStack();
+        $this->configFactory = new ConfigurationFactory();
+
     }
 
     /**
