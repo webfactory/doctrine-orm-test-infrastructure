@@ -329,7 +329,7 @@ class ORMInfrastructure
      */
     protected function removeAnnotationLoaderFromRegistry(\Closure $loader)
     {
-        $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
+        $reflection = new \ReflectionClass(AnnotationRegistry::class);
         $annotationLoaderProperty = $reflection->getProperty('loaders');
         $annotationLoaderProperty->setAccessible(true);
         $activeLoaders = $annotationLoaderProperty->getValue();
