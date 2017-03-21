@@ -299,15 +299,12 @@ class ORMInfrastructure
         $loader = function ($annotationClass) {
             return class_exists($annotationClass, true);
         };
-        if (method_exists($loader, 'bindTo')) {
-            // Starting with PHP 5.4, the object context is bound to created closures. The context is not needed
-            // in the function above and as we will store the function in an attribute, this would create a
-            // circular reference between object and function. That would delay the garbage collection and
-            // the cleanup that happens in __destruct.
-            // To avoid these issues, we simply remove the context from the lambda function.
-            $loader = $loader->bindTo(null);
-        }
-        return $loader;
+        // Starting with PHP 5.4, the object context is bound to created closures. The context is not needed
+        // in the function above and as we will store the function in an attribute, this would create a
+        // circular reference between object and function. That would delay the garbage collection and
+        // the cleanup that happens in __destruct.
+        // To avoid these issues, we simply remove the context from the lambda function.
+        return $loader->bindTo(null);
     }
 
     /**
