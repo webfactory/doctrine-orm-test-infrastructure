@@ -7,13 +7,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
+namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation;
 
 /**
  * An annotation that is used in the test scenarios.
  *
  * @Annotation
  */
-class TestAnnotation
+class AnnotationForSimpleTest
 {
 }

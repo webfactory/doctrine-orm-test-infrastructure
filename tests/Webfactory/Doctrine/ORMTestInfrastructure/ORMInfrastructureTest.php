@@ -10,6 +10,9 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -149,19 +152,6 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             $loadedEntity
         );
         $this->assertNotSame($entity, $loadedEntity);
-    }
-
-    /**
-     * Ensures that entities with non-Doctrine annotations can be used.
-     */
-    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
-    {
-        $infrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity'
-        ));
-
-        $this->setExpectedException(null);
-        $infrastructure->getEntityManager();
     }
 
     /**
@@ -419,6 +409,65 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             $beforeCreation,
             $afterDestruction,
             'Expected annotation loader to be immediately removed, which should happen in __destruct().'
+        );
+    }
+
+    /**
+     * Ensures that entities with non-Doctrine annotations can be used.
+     */
+    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            AnnotatedTestEntity::class
+        ));
+
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager();
+    }
+
+    /**
+     * This test covers a rare edge case.
+     *
+     * Prerequisites of the problem:
+     *
+     * - No custom annotation loader registered (e.g. if no infrastructure has been created yet)
+     * - Infrastructure is created with dependency discovery
+     * - Entity uses a custom annotation
+     * - Annotation class has not been loaded yet
+     *
+     * Observation:
+     *
+     * - Exception stating that the annotation could not be loaded
+     * - Creation of the infrastructure failed
+     *
+     * Reason:
+     *
+     * The dependency resolver scans the provided entities to find connected entities.
+     * That happened early in the infrastructure constructor so that no annotation loader was registered yet.
+     * Therefore, the annotation that is found cannot be loaded.
+     *
+     * @see \Webfactory\Doctrine\ORMTestInfrastructure\EntityDependencyResolver
+     */
+    public function testEntityDependencyDiscoveryWithCustomAnnotationThatWasNotLoadedBefore()
+    {
+        // Destruct the default infrastructure to ensure that its annotation loader is removed.
+        $this->infrastructure = null;
+        $this->assertEquals(
+            0,
+            $this->getNumberOfAnnotationLoaders(),
+            'This test assumes that no custom annotation loaders are registered.'
+        );
+        $this->assertFalse(
+            class_exists(AnnotationForTestWithDependencyDiscovery::class, false),
+            sprintf(
+                'This test assumes that the annotation class "%s" was not loaded before.',
+                AnnotationForTestWithDependencyDiscovery::class
+            )
+        );
+
+        $this->setExpectedException(null);
+        ORMInfrastructure::createWithDependenciesFor(
+            AnnotatedTestEntityForDependencyDiscovery::class
         );
     }
 
