@@ -96,6 +96,15 @@ need local changes.
 Happy testing!
 
 
+## Changelog ##
+
+### 1.4.3 -> 1.4.4 ###
+
+- Improved garbage collection
+- Dropped support for PHP < 5.5
+- Officially support PHP 7
+
+
 Known Issues
 ------------
 
