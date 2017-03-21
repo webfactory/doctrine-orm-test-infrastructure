@@ -154,19 +154,6 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensures that entities with non-Doctrine annotations can be used.
-     */
-    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
-    {
-        $infrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity'
-        ));
-
-        $this->setExpectedException(null);
-        $infrastructure->getEntityManager();
-    }
-
-    /**
      * Ensures that different infrastructure instances provide database isolation.
      */
     public function testDifferentInfrastructureInstancesUseSeparatedDatabases()
@@ -422,6 +409,19 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             $afterDestruction,
             'Expected annotation loader to be immediately removed, which should happen in __destruct().'
         );
+    }
+
+    /**
+     * Ensures that entities with non-Doctrine annotations can be used.
+     */
+    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
+    {
+        $infrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity'
+        ));
+
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager();
     }
 
     public function testWorksIfTestedEntityUsesCustomAnnotationThatWasNotLoadedBefore()
