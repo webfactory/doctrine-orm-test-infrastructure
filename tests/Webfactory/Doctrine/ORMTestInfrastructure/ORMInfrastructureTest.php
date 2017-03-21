@@ -379,4 +379,50 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             $entities
         );
     }
+
+    /**
+     * This test checks if a ORMInfrastructure object is immediately destructed when external references are removed.
+     *
+     * This ensures that the cleanup process runs early and the test environment is not polluted with infrastructure
+     * objects hanging in memory until the tests end.
+     * This is not a perfect test as it relies on internal knowledge about the magic of infrastructure. However,
+     * at the moment it is at least a viable solution.
+     */
+    public function testInfrastructureIsImmediatelyDestructed()
+    {
+        $beforeCreation = $this->getNumberOfAnnotationLoaders();
+        $infrastructure = ORMInfrastructure::createOnlyFor(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
+        $afterCreation = $this->getNumberOfAnnotationLoaders();
+        $this->assertEquals(
+            $beforeCreation + 1,
+            $afterCreation,
+            'This test assumes that each infrastructure add an annotation loader. ' .
+            'It will not work if this prerequisite is not met.'
+        );
+
+        // Remove reference to the infrastructure object.
+        unset($infrastructure);
+
+        $afterDestruction = $this->getNumberOfAnnotationLoaders();
+        $this->assertEquals(
+            $beforeCreation,
+            $afterDestruction,
+            'Expected annotation loader to be immediately removed, which should happen in __destruct().'
+        );
+    }
+
+    /**
+     * Returns the number of currently registered annotation loaders.
+     *
+     * @return integer
+     */
+    private function getNumberOfAnnotationLoaders()
+    {
+        $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
+        $annotationLoaderProperty = $reflection->getProperty('loaders');
+        $annotationLoaderProperty->setAccessible(true);
+        return count($annotationLoaderProperty->getValue());
+    }
 }
