@@ -1,8 +1,9 @@
 <?php
 
-namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation;
+namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 
 use Doctrine\ORM\Mapping as ORM;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\CustomAnnotation;
 
 /**
  * Doctrine entity that is used for testing.
