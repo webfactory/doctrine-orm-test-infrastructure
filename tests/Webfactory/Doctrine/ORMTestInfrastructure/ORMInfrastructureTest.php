@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\CustomAnnotation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\TestEntityWithAnnotation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
@@ -57,6 +58,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             0,
             $this->getNumberOfAnnotationLoaders(),
             'This test assumes that no custom annotation loaders are registered.'
+        );
+        $this->assertFalse(
+            class_exists(CustomAnnotation::class, false),
+            sprintf('This test assumes that the annotation class "%s" was not loaded before.', CustomAnnotation::class)
         );
 
         $this->setExpectedException(null);
