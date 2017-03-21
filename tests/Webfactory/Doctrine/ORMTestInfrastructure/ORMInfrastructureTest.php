@@ -425,6 +425,29 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $infrastructure->getEntityManager();
     }
 
+    /**
+     * This test covers a rare edge case.
+     *
+     * Prerequisites of the problem:
+     *
+     * - No custom annotation loader registered (e.g. if no infrastructure has been created yet)
+     * - Infrastructure is created with dependency discovery
+     * - Entity uses a custom annotation
+     * - Annotation class has not been loaded yet
+     *
+     * Observation:
+     *
+     * - Exception stating that the annotation could not be loaded
+     * - Creation of the infrastructure failed
+     *
+     * Reason:
+     *
+     * The dependency resolver scans the provided entities to find connected entities.
+     * That happened early in the infrastructure constructor so that no annotation loader was registered yet.
+     * Therefore, the annotation that is found cannot be loaded.
+     *
+     * @see \Webfactory\Doctrine\ORMTestInfrastructure\EntityDependencyResolver
+     */
     public function testEntityDependencyDiscoveryWithCustomAnnotationThatWasNotLoadedBefore()
     {
         // Destruct the default infrastructure to ensure that its annotation loader is removed.
