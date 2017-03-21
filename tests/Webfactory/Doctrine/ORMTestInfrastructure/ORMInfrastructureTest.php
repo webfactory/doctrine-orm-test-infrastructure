@@ -48,6 +48,22 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
+    public function testWorksIfTestedEntityUsesCustomAnnotationThatWasNotLoadedBefore()
+    {
+        // Destruct the default infrastructure to ensure that its annotation loader is removed.
+        $this->infrastructure = null;
+        $this->assertEquals(
+            0,
+            $this->getNumberOfAnnotationLoaders(),
+            'This test assumes that no custom annotation loaders are registered.'
+        );
+
+        $this->setExpectedException(null);
+        ORMInfrastructure::createWithDependenciesFor(
+            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\TestEntityWithAnnotation'
+        );
+    }
+
     /**
      * Checks if getEntityManager() returns the Doctrine entity manager,
      */
