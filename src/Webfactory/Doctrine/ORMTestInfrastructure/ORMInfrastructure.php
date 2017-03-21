@@ -152,7 +152,9 @@ class ORMInfrastructure
      */
     protected static function normalizeEntityList($entityClassOrClasses)
     {
-        return (is_string($entityClassOrClasses)) ? array($entityClassOrClasses) : $entityClassOrClasses;
+        $entityClasses = (is_string($entityClassOrClasses)) ? array($entityClassOrClasses) : $entityClassOrClasses;
+        static::assertClassNames($entityClasses);
+        return $entityClasses;
     }
 
     /**
@@ -169,7 +171,6 @@ class ORMInfrastructure
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
-        $this->assertClassNames($entityClasses);
         $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
@@ -349,7 +350,7 @@ class ORMInfrastructure
      * @param string[] $classes
      * @throws \InvalidArgumentException If an entry is not a valid class name.
      */
-    private function assertClassNames(array $classes)
+    private static function assertClassNames(array $classes)
     {
         foreach ($classes as $class) {
             if (class_exists($class, true)) {
