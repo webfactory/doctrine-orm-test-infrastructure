@@ -12,7 +12,7 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithAnnotation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -444,7 +444,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(null);
         ORMInfrastructure::createWithDependenciesFor(
-            TestEntityWithAnnotation::class
+            AnnotatedTestEntityForDependencyDiscovery::class
         );
     }
 

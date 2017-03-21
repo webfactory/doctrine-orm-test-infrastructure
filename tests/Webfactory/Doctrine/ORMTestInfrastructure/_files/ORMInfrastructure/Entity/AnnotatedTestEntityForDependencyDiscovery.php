@@ -6,12 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 
 /**
- * Doctrine entity that is used for testing.
+ * Doctrine entity that is used for to test custom annotations in combination with dependency discovery.
  *
  * @ORM\Entity()
  * @ORM\Table(name="test_entity_with_annotation")
  */
-class TestEntityWithAnnotation
+class AnnotatedTestEntityForDependencyDiscovery
 {
     /**
      * A unique ID.
