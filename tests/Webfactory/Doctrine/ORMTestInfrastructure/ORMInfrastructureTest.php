@@ -11,7 +11,7 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\CustomAnnotation;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\TestEntityWithAnnotation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithAnnotation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -48,26 +48,6 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     {
         $this->infrastructure = null;
         parent::tearDown();
-    }
-
-    public function testWorksIfTestedEntityUsesCustomAnnotationThatWasNotLoadedBefore()
-    {
-        // Destruct the default infrastructure to ensure that its annotation loader is removed.
-        $this->infrastructure = null;
-        $this->assertEquals(
-            0,
-            $this->getNumberOfAnnotationLoaders(),
-            'This test assumes that no custom annotation loaders are registered.'
-        );
-        $this->assertFalse(
-            class_exists(CustomAnnotation::class, false),
-            sprintf('This test assumes that the annotation class "%s" was not loaded before.', CustomAnnotation::class)
-        );
-
-        $this->setExpectedException(null);
-        ORMInfrastructure::createWithDependenciesFor(
-            TestEntityWithAnnotation::class
-        );
     }
 
     /**
@@ -441,6 +421,26 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             $beforeCreation,
             $afterDestruction,
             'Expected annotation loader to be immediately removed, which should happen in __destruct().'
+        );
+    }
+
+    public function testWorksIfTestedEntityUsesCustomAnnotationThatWasNotLoadedBefore()
+    {
+        // Destruct the default infrastructure to ensure that its annotation loader is removed.
+        $this->infrastructure = null;
+        $this->assertEquals(
+            0,
+            $this->getNumberOfAnnotationLoaders(),
+            'This test assumes that no custom annotation loaders are registered.'
+        );
+        $this->assertFalse(
+            class_exists(CustomAnnotation::class, false),
+            sprintf('This test assumes that the annotation class "%s" was not loaded before.', CustomAnnotation::class)
+        );
+
+        $this->setExpectedException(null);
+        ORMInfrastructure::createWithDependenciesFor(
+            TestEntityWithAnnotation::class
         );
     }
 
