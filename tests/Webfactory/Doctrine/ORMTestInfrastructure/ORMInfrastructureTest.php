@@ -10,7 +10,8 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\CustomAnnotation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithAnnotation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
@@ -417,14 +418,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
     {
         $infrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity'
+            AnnotatedTestEntity::class
         ));
 
         $this->setExpectedException(null);
         $infrastructure->getEntityManager();
     }
 
-    public function testWorksIfTestedEntityUsesCustomAnnotationThatWasNotLoadedBefore()
+    public function testEntityDependencyDiscoveryWithCustomAnnotationThatWasNotLoadedBefore()
     {
         // Destruct the default infrastructure to ensure that its annotation loader is removed.
         $this->infrastructure = null;
@@ -434,8 +435,11 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             'This test assumes that no custom annotation loaders are registered.'
         );
         $this->assertFalse(
-            class_exists(CustomAnnotation::class, false),
-            sprintf('This test assumes that the annotation class "%s" was not loaded before.', CustomAnnotation::class)
+            class_exists(AnnotationForTestWithDependencyDiscovery::class, false),
+            sprintf(
+                'This test assumes that the annotation class "%s" was not loaded before.',
+                AnnotationForTestWithDependencyDiscovery::class
+            )
         );
 
         $this->setExpectedException(null);

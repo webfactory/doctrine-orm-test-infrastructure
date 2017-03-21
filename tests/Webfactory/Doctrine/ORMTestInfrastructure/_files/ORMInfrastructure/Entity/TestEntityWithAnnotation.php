@@ -3,7 +3,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\CustomAnnotation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 
 /**
  * Doctrine entity that is used for testing.
@@ -27,7 +27,7 @@ class TestEntityWithAnnotation
      * A string property.
      *
      * @var string
-     * @CustomAnnotation()
+     * @AnnotationForTestWithDependencyDiscovery()
      */
     public $name = null;
 }

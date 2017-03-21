@@ -10,10 +10,11 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation;
 
 /**
- * A custom annotation class.
+ * A custom annotation class that is used in a test that checks custom annotations
+ * in combination with dependency discovery.
  *
  * @Annotation
  */
-class CustomAnnotation
+class AnnotationForTestWithDependencyDiscovery
 {
 }
