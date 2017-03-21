@@ -169,6 +169,7 @@ class ORMInfrastructure
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
+        $this->assertClassNames($entityClasses);
         $this->entityClasses    = $entityClasses;
         $this->annotationLoader = $this->createAnnotationLoader();
         $this->queryLogger      = new DebugStack();
@@ -340,5 +341,22 @@ class ORMInfrastructure
             }
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
+    }
+
+    /**
+     * Checks if all entries in the given list are names of existing classes.
+     *
+     * @param string[] $classes
+     * @throws \InvalidArgumentException If an entry is not a valid class name.
+     */
+    private function assertClassNames(array $classes)
+    {
+        foreach ($classes as $class) {
+            if (class_exists($class, true)) {
+                continue;
+            }
+            $message = sprintf('"%s" is no existing class. Did you configure your autoloader correctly?', $class);
+            throw new \InvalidArgumentException($message);
+        }
     }
 }
