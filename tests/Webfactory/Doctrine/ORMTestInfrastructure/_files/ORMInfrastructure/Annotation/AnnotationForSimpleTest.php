@@ -14,6 +14,6 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annota
  *
  * @Annotation
  */
-class TestAnnotation
+class AnnotationForSimpleTest
 {
 }

@@ -10,14 +10,14 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\TestAnnotation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForSimpleTest;
 
 /**
  * An entity that uses a custom annotation.
  *
  * @ORM\Entity()
  * @ORM\Table(name="annotated_test_entity")
- * @TestAnnotation
+ * @AnnotationForSimpleTest
  */
 class AnnotatedTestEntity
 {
