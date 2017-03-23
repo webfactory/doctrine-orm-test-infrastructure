@@ -8,15 +8,19 @@ namespace Webfactory\Doctrine\Config;
 class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
 {
     /**
-     * @param string|null $filePath
+     * Creates a configuration that uses the given SQLite database file.
+     *
+     * Omit the file path to ensure that a temporary database file is created.
+     *
+     * @param string|null $databaseFilePath
      */
-    public function __construct($filePath = null)
+    public function __construct($databaseFilePath = null)
     {
         parent::__construct(array(
             'driver'   => 'pdo_sqlite',
             'user'     => 'root',
             'password' => '',
-            'path'     => $this->toFilePath($filePath)
+            'path'     => $this->toDatabaseFilePath($databaseFilePath)
         ));
     }
 
@@ -54,7 +58,7 @@ class FileDatabaseConnectionConfiguration extends ConnectionConfiguration
      * @param string|null $filePath
      * @return string
      */
-    private function toFilePath($filePath)
+    private function toDatabaseFilePath($filePath)
     {
         if ($filePath === null) {
             $temporaryFile =  sys_get_temp_dir() . '/' . uniqid('db-', true) . '.sqlite';
