@@ -11,6 +11,9 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -91,6 +94,15 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Ensure that the infrastructure fails fast if obviously invalid data is passed.
+     */
+    public function testInfrastructureRejectsNonClassNames()
+    {
+        $this->setExpectedException(\InvalidArgumentException::class);
+        ORMInfrastructure::createOnlyFor(array('NotAClass'));
+    }
+
+    /**
      * Checks if import() adds entities to the database.
      *
      * There are different options to import entities, but these are handled in detail
@@ -141,19 +153,6 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             $loadedEntity
         );
         $this->assertNotSame($entity, $loadedEntity);
-    }
-
-    /**
-     * Ensures that entities with non-Doctrine annotations can be used.
-     */
-    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
-    {
-        $infrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity'
-        ));
-
-        $this->setExpectedException(null);
-        $infrastructure->getEntityManager();
     }
 
     /**
@@ -382,6 +381,98 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * This test checks if a ORMInfrastructure object is immediately destructed when external references are removed.
+     *
+     * This ensures that the cleanup process runs early and the test environment is not polluted with infrastructure
+     * objects hanging in memory until the tests end.
+     * This is not a perfect test as it relies on internal knowledge about the magic of infrastructure. However,
+     * at the moment it is at least a viable solution.
+     */
+    public function testInfrastructureIsImmediatelyDestructed()
+    {
+        $beforeCreation = $this->getNumberOfAnnotationLoaders();
+        $infrastructure = ORMInfrastructure::createOnlyFor(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        );
+        $afterCreation = $this->getNumberOfAnnotationLoaders();
+        $this->assertEquals(
+            $beforeCreation + 1,
+            $afterCreation,
+            'This test assumes that each infrastructure add an annotation loader. ' .
+            'It will not work if this prerequisite is not met.'
+        );
+
+        // Remove reference to the infrastructure object.
+        unset($infrastructure);
+
+        $afterDestruction = $this->getNumberOfAnnotationLoaders();
+        $this->assertEquals(
+            $beforeCreation,
+            $afterDestruction,
+            'Expected annotation loader to be immediately removed, which should happen in __destruct().'
+        );
+    }
+
+    /**
+     * Ensures that entities with non-Doctrine annotations can be used.
+     */
+    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            AnnotatedTestEntity::class
+        ));
+
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager();
+    }
+
+    /**
+     * This test covers a rare edge case.
+     *
+     * Prerequisites of the problem:
+     *
+     * - No custom annotation loader registered (e.g. if no infrastructure has been created yet)
+     * - Infrastructure is created with dependency discovery
+     * - Entity uses a custom annotation
+     * - Annotation class has not been loaded yet
+     *
+     * Observation:
+     *
+     * - Exception stating that the annotation could not be loaded
+     * - Creation of the infrastructure failed
+     *
+     * Reason:
+     *
+     * The dependency resolver scans the provided entities to find connected entities.
+     * That happened early in the infrastructure constructor so that no annotation loader was registered yet.
+     * Therefore, the annotation that is found cannot be loaded.
+     *
+     * @see \Webfactory\Doctrine\ORMTestInfrastructure\EntityDependencyResolver
+     */
+    public function testEntityDependencyDiscoveryWithCustomAnnotationThatWasNotLoadedBefore()
+    {
+        // Destruct the default infrastructure to ensure that its annotation loader is removed.
+        $this->infrastructure = null;
+        $this->assertEquals(
+            0,
+            $this->getNumberOfAnnotationLoaders(),
+            'This test assumes that no custom annotation loaders are registered.'
+        );
+        $this->assertFalse(
+            class_exists(AnnotationForTestWithDependencyDiscovery::class, false),
+            sprintf(
+                'This test assumes that the annotation class "%s" was not loaded before.',
+                AnnotationForTestWithDependencyDiscovery::class
+            )
+        );
+
+        $this->setExpectedException(null);
+        ORMInfrastructure::createWithDependenciesFor(
+            AnnotatedTestEntityForDependencyDiscovery::class
+        );
+    }
+
+    /**
      * Checks if it is possible to pass a more specific connection configuration.
      */
     public function testUsesMoreSpecificConnectionConfiguration()
@@ -395,5 +486,18 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         // The passed configuration is simply invalid, therefore, we expect an exception.
         $this->setExpectedException('Exception');
         $this->infrastructure->getEntityManager();
+    }
+
+    /**
+     * Returns the number of currently registered annotation loaders.
+     *
+     * @return integer
+     */
+    private function getNumberOfAnnotationLoaders()
+    {
+        $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
+        $annotationLoaderProperty = $reflection->getProperty('loaders');
+        $annotationLoaderProperty->setAccessible(true);
+        return count($annotationLoaderProperty->getValue());
     }
 }

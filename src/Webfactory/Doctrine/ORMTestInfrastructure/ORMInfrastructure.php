@@ -166,7 +166,9 @@ class ORMInfrastructure
      */
     protected static function normalizeEntityList($entityClassOrClasses)
     {
-        return (is_string($entityClassOrClasses)) ? array($entityClassOrClasses) : $entityClassOrClasses;
+        $entityClasses = (is_string($entityClassOrClasses)) ? array($entityClassOrClasses) : $entityClassOrClasses;
+        static::assertClassNames($entityClasses);
+        return $entityClasses;
     }
 
     /**
@@ -181,6 +183,10 @@ class ORMInfrastructure
      */
     public function __construct($entityClasses, ConnectionConfiguration $connectionConfiguration = null)
     {
+        // Register the annotation loader before the dependency discovery process starts (if required).
+        // This ensures that the annotation loader is available for the entity resolver that reads the annotations.
+        $this->annotationLoader = $this->createAnnotationLoader();
+        $this->addAnnotationLoaderToRegistry($this->annotationLoader);
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
@@ -189,10 +195,8 @@ class ORMInfrastructure
         }
         $this->entityClasses           = $entityClasses;
         $this->connectionConfiguration = $connectionConfiguration;
-        $this->annotationLoader        = $this->createAnnotationLoader();
         $this->queryLogger             = new DebugStack();
         $this->configFactory           = new ConfigurationFactory();
-        $this->addAnnotationLoaderToRegistry($this->annotationLoader);
     }
 
     /**
@@ -315,9 +319,15 @@ class ORMInfrastructure
      */
     protected function createAnnotationLoader()
     {
-        return function ($annotationClass) {
+        $loader = function ($annotationClass) {
             return class_exists($annotationClass, true);
         };
+        // Starting with PHP 5.4, the object context is bound to created closures. The context is not needed
+        // in the function above and as we will store the function in an attribute, this would create a
+        // circular reference between object and function. That would delay the garbage collection and
+        // the cleanup that happens in __destruct.
+        // To avoid these issues, we simply remove the context from the lambda function.
+        return $loader->bindTo(null);
     }
 
     /**
@@ -342,7 +352,7 @@ class ORMInfrastructure
      */
     protected function removeAnnotationLoaderFromRegistry(\Closure $loader)
     {
-        $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
+        $reflection = new \ReflectionClass(AnnotationRegistry::class);
         $annotationLoaderProperty = $reflection->getProperty('loaders');
         $annotationLoaderProperty->setAccessible(true);
         $activeLoaders = $annotationLoaderProperty->getValue();
@@ -353,5 +363,22 @@ class ORMInfrastructure
             }
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
+    }
+
+    /**
+     * Checks if all entries in the given list are names of existing classes.
+     *
+     * @param string[] $classes
+     * @throws \InvalidArgumentException If an entry is not a valid class name.
+     */
+    private static function assertClassNames(array $classes)
+    {
+        foreach ($classes as $class) {
+            if (class_exists($class, true)) {
+                continue;
+            }
+            $message = sprintf('"%s" is no existing class. Did you configure your autoloader correctly?', $class);
+            throw new \InvalidArgumentException($message);
+        }
     }
 }

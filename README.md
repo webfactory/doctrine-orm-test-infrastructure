@@ -63,7 +63,7 @@ Usage
             
             $entitiesLoadedFromDatabase = $this->repository->findAll();
 
-            // Please note that due to a bug in PHPUnit, you might not be able to do the following:
+            // Please note that you cannot do the following:
             // $this->assertContains($myEntityFixture, $entitiesLoadedFromDatabase);
 
             // But you can do things like this (you probably want to extract that in a convenient assertion method):
@@ -94,6 +94,15 @@ from the library's root folder. This uses the shipped phpunit.xml.dist - feel fr
 need local changes.
 
 Happy testing!
+
+
+## Changelog ##
+
+### 1.4.3 -> 1.4.4 ###
+
+- Improved garbage collection
+- Dropped support for PHP < 5.5
+- Officially support PHP 7
 
 
 Known Issues
