@@ -95,7 +95,7 @@ class ConfigurationFactory
         if (static::$defaultAnnotationReader === null) {
             $factory = new Configuration();
             // Use the configuration to create an annotation driver as the configuration
-            // handles loading of default annotation automatically.
+            // handles loading of default annotations automatically.
             $driver = $factory->newDefaultAnnotationDriver(array(), false);
             // Use just the reader as the driver depends on the configured
             // paths and, therefore, should not be shared.
