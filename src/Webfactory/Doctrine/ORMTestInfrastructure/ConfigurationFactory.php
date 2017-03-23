@@ -51,7 +51,7 @@ class ConfigurationFactory
         );
         $driver = new AnnotationDriver(
             $this->getAnnotationReader(),
-            $this->getFilePathsForClassNames($entityClasses)
+            $this->getDirectoryPathsForClassNames($entityClasses)
         );
         $driver = new EntityListDriverDecorator($driver, $entityClasses);
         $config->setMetadataDriverImpl($driver);
@@ -64,11 +64,11 @@ class ConfigurationFactory
      * @param string[] $classNames
      * @return string[]
      */
-    protected function getFilePathsForClassNames(array $classNames)
+    protected function getDirectoryPathsForClassNames(array $classNames)
     {
         $paths = array();
         foreach ($classNames as $className) {
-            $paths[] = $this->getFilePathForClassName($className);
+            $paths[] = $this->getDirectoryPathForClassName($className);
         }
         return array_unique($paths);
     }
@@ -79,7 +79,7 @@ class ConfigurationFactory
      * @param string $className
      * @return string
      */
-    protected function getFilePathForClassName($className)
+    protected function getDirectoryPathForClassName($className)
     {
         $info = new \ReflectionClass($className);
         return dirname($info->getFileName());
