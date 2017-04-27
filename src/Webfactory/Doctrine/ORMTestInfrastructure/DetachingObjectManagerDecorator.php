@@ -22,6 +22,7 @@ use Doctrine\Common\Persistence\ObjectManagerDecorator;
  *
  * @deprecated Will be removed in 2.0.
  * @see MemorizingObjectManagerDecorator
+ * @internal
  */
 class DetachingObjectManagerDecorator extends ObjectManagerDecorator
 {
