@@ -19,6 +19,9 @@ use Doctrine\Common\Persistence\ObjectManagerDecorator;
  * with database contents when they are already attached.
  * This may lead to tests that pass because of object identity without noticing
  * that the real reading from the database does not work as expected.
+ *
+ * @deprecated Will be removed in 2.0.
+ * @see MemorizingObjectManagerDecorator
  */
 class DetachingObjectManagerDecorator extends ObjectManagerDecorator
 {
