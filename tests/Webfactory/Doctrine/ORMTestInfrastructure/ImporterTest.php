@@ -176,6 +176,29 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         $this->importer->import($entities);
     }
 
+    public function testEntitiesAreDetachedAfterFlush()
+    {
+        $detached = 0.0;
+        $this->entityManager->expects($this->atLeastOnce())
+            ->method('detach')
+            ->will($this->returnCallback(function () use (&$detached) {
+                $detached = microtime(true);
+            }));
+        $flushed = 0.0;
+        $this->entityManager->expects($this->once())
+            ->method('flush')
+            ->will($this->returnCallback(function () use (&$flushed) {
+                $flushed = microtime(true);
+            }));
+
+        $entities = array(
+            new \stdClass()
+        );
+        $this->importer->import($entities);
+
+        $this->assertGreaterThan($detached, $flushed, 'detach() was called before flush().');
+    }
+
     /**
      * Creates a mocked entity manager.
      *
