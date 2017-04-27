@@ -165,6 +165,17 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         $this->importer->import($entities);
     }
 
+    public function testEntityManagerIsFlushedOnlyOnce()
+    {
+        $this->entityManager->expects($this->once())
+            ->method('flush');
+
+        $entities = array(
+            new \stdClass()
+        );
+        $this->importer->import($entities);
+    }
+
     /**
      * Creates a mocked entity manager.
      *
