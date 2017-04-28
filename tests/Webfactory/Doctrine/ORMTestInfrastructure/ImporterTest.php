@@ -17,7 +17,6 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class ImporterTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * System under test.
      *
@@ -179,16 +178,17 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     public function testEntitiesAreDetachedAfterFlush()
     {
         $detached = 0.0;
+        $callCounter = 0;
         $this->entityManager->expects($this->atLeastOnce())
             ->method('detach')
-            ->will($this->returnCallback(function () use (&$detached) {
-                $detached = microtime(true);
+            ->will($this->returnCallback(function () use (&$detached, &$callCounter) {
+                $detached = $callCounter++;
             }));
         $flushed = 0.0;
         $this->entityManager->expects($this->once())
             ->method('flush')
-            ->will($this->returnCallback(function () use (&$flushed) {
-                $flushed = microtime(true);
+            ->will($this->returnCallback(function () use (&$flushed, &$callCounter) {
+                $flushed = $callCounter++;
             }));
 
         $entities = array(
