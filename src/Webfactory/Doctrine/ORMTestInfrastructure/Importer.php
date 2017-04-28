@@ -165,8 +165,11 @@ class Importer
             call_user_func($callback, $decorator);
             return $decorator->getSeenEntities();
         };
+        /* @var $entitiesToDetach object[]|true */
         $entitiesToDetach = $this->entityManager->transactional($import);
-        $this->detachEntities($entitiesToDetach);
+        if (is_array($entitiesToDetach)) {
+            $this->detachEntities($entitiesToDetach);
+        }
     }
 
     /**
