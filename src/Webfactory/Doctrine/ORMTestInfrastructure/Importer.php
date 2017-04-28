@@ -173,7 +173,7 @@ class Importer
     }
 
     /**
-     * Detaches all entities that have been passed to persist.
+     * Detaches all provided entities.
      *
      * This is important for imports, as entities are not populated
      * with database contents when they are already attached.
