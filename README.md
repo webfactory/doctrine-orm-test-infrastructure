@@ -98,6 +98,11 @@ Happy testing!
 
 ## Changelog ##
 
+### 1.4.4 -> 1.4.5 ###
+
+- fixed bug [#20](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/20): Entities might have been imported twice in case of bidirectional cascade
+- deprecated class ``Webfactory\Doctrine\ORMTestInfrastructure\DetachingObjectManagerDecorator`` (will be removed in next major release)
+
 ### 1.4.3 -> 1.4.4 ###
 
 - Improved garbage collection
