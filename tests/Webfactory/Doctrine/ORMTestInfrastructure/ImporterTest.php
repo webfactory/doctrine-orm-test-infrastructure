@@ -10,13 +10,13 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Tests the importer.
  */
 class ImporterTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * System under test.
      *
@@ -59,10 +59,10 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
      */
     public function testImportPassesObjectManagerToCallback()
     {
-        $callable = $this->getMock('\stdClass', array('__invoke'));
+        $callable = $this->getMock(\stdClass::class, array('__invoke'));
         $callable->expects($this->once())
                  ->method('__invoke')
-                 ->with($this->isInstanceOf('\Doctrine\Common\Persistence\ObjectManager'));
+                 ->with($this->isInstanceOf(ObjectManager::class));
 
         $this->importer->import($callable);
     }
@@ -79,7 +79,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
 
         $this->entityManager->expects($this->exactly(2))
                             ->method('persist')
-                            ->with($this->isInstanceOf('\stdClass'));
+                            ->with($this->isInstanceOf(\stdClass::class));
 
         $this->importer->import($callable);
     }
@@ -91,7 +91,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     {
         $this->entityManager->expects($this->exactly(2))
                             ->method('persist')
-                            ->with($this->isInstanceOf('\stdClass'));
+                            ->with($this->isInstanceOf(\stdClass::class));
 
         $path = __DIR__ . '/_files/Importer/LoadEntities.php';
         $this->importer->import($path);
@@ -104,7 +104,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     {
         $this->entityManager->expects($this->exactly(2))
                             ->method('persist')
-                            ->with($this->isInstanceOf('\stdClass'));
+                            ->with($this->isInstanceOf(\stdClass::class));
 
         $path = __DIR__ . '/_files/Importer/ReturnEntities.php';
         $this->importer->import($path);
@@ -117,7 +117,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     {
         $this->entityManager->expects($this->once())
                             ->method('persist')
-                            ->with($this->isInstanceOf('\stdClass'));
+                            ->with($this->isInstanceOf(\stdClass::class));
 
         $this->importer->import(new \stdClass());
     }
@@ -129,7 +129,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     {
         $this->entityManager->expects($this->exactly(2))
                             ->method('persist')
-                            ->with($this->isInstanceOf('\stdClass'));
+                            ->with($this->isInstanceOf(\stdClass::class));
 
         $entities = array(
             new \stdClass(),
@@ -138,13 +138,19 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         $this->importer->import($entities);
     }
 
+    public function testImportCanHandleEmptyEntityList()
+    {
+        $this->setExpectedException(null);
+        $this->importer->import([]);
+    }
+
     /**
      * Ensures that import() throws an exception if the given data source
      * is not supported.
      */
     public function testImportThrowsExceptionIfDataSourceIsNotSupported()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->setExpectedException(\InvalidArgumentException::class);
         $this->importer->import(42);
     }
 
@@ -155,13 +161,48 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     {
         $this->entityManager->expects($this->exactly(2))
                             ->method('detach')
-                            ->with($this->isInstanceOf('\stdClass'));
+                            ->with($this->isInstanceOf(\stdClass::class));
 
         $entities = array(
             new \stdClass(),
             new \stdClass()
         );
         $this->importer->import($entities);
+    }
+
+    public function testEntityManagerIsFlushedOnlyOnce()
+    {
+        $this->entityManager->expects($this->once())
+            ->method('flush');
+
+        $entities = array(
+            new \stdClass()
+        );
+        $this->importer->import($entities);
+    }
+
+    public function testEntitiesAreDetachedAfterFlush()
+    {
+        $detached = 0.0;
+        $callCounter = 0;
+        $this->entityManager->expects($this->atLeastOnce())
+            ->method('detach')
+            ->will($this->returnCallback(function () use (&$detached, &$callCounter) {
+                $detached = $callCounter++;
+            }));
+        $flushed = 0.0;
+        $this->entityManager->expects($this->once())
+            ->method('flush')
+            ->will($this->returnCallback(function () use (&$flushed, &$callCounter) {
+                $flushed = $callCounter++;
+            }));
+
+        $entities = array(
+            new \stdClass()
+        );
+        $this->importer->import($entities);
+
+        $this->assertGreaterThan($flushed, $detached, 'detach() was called before flush().');
     }
 
     /**
@@ -171,13 +212,13 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
      */
     protected function createEntityManager()
     {
-        $mock = $this->getMock('\Doctrine\ORM\EntityManagerInterface');
+        $mock = $this->getMock(EntityManagerInterface::class);
         // Simulates the transactional() call on the entity manager.
         $transactional = function ($callback) use ($mock) {
             /* @var $mock \Doctrine\ORM\EntityManagerInterface */
             $result = call_user_func($callback, $mock);
             $mock->flush();
-            return $result;
+            return $result ?: true;
         };
         $mock->expects($this->any())
              ->method('transactional')
