@@ -58,6 +58,6 @@ class MemorizingObjectManagerDecorator extends ObjectManagerDecorator
      */
     public function getSeenEntities()
     {
-
+        return $this->seenEntities;
     }
 }

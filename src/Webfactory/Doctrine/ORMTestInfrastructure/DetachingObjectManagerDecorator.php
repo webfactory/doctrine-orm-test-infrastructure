@@ -15,7 +15,7 @@ use Doctrine\Common\Persistence\ObjectManagerDecorator;
 /**
  * Object manager that detaches entities after storing them.
  *
- * This decorator is mainly useful for imports as entities are not populated
+ * This decorator is mainly useful for imports, as entities are not populated
  * with database contents when they are already attached.
  * This may lead to tests that pass because of object identity without noticing
  * that the real reading from the database does not work as expected.

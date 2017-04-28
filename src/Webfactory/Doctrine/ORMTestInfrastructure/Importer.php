@@ -161,11 +161,29 @@ class Importer
     protected function importFromCallback($callback)
     {
         $import = function (ObjectManager $objectManager) use ($callback) {
-            $decorator = new DetachingObjectManagerDecorator($objectManager);
+            $decorator = new MemorizingObjectManagerDecorator($objectManager);
             call_user_func($callback, $decorator);
-            // Flush manually to ensure that persisted entities are detached.
-            $decorator->flush();
+            return $decorator->getSeenEntities();
         };
-        $this->entityManager->transactional($import);
+        $entitiesToDetach = $this->entityManager->transactional($import);
+        $this->detachEntities($entitiesToDetach);
+    }
+
+    /**
+     * Detaches all entities that have been passed to persist.
+     *
+     * This is important for imports, as entities are not populated
+     * with database contents when they are already attached.
+     * This may lead to tests that pass because of object identity without noticing
+     * that the real reading from the database does not work as expected.
+     *
+     * @param object[] $entities
+     */
+    private function detachEntities(array $entities)
+    {
+        foreach ($entities as $entity) {
+            /* @var $entity object */
+            $this->entityManager->detach($entity);
+        }
     }
 }
