@@ -60,7 +60,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
      */
     public function testImportPassesObjectManagerToCallback()
     {
-        $callable = $this->getMock('\stdClass', array('__invoke'));
+        $callable = $this->getMock(\stdClass::class, array('__invoke'));
         $callable->expects($this->once())
                  ->method('__invoke')
                  ->with($this->isInstanceOf(ObjectManager::class));
