@@ -138,6 +138,12 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         $this->importer->import($entities);
     }
 
+    public function testImportCanHandleEmptyEntityList()
+    {
+        $this->setExpectedException(null);
+        $this->importer->import([]);
+    }
+
     /**
      * Ensures that import() throws an exception if the given data source
      * is not supported.
