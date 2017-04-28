@@ -196,7 +196,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         );
         $this->importer->import($entities);
 
-        $this->assertGreaterThan($detached, $flushed, 'detach() was called before flush().');
+        $this->assertGreaterThan($flushed, $detached, 'detach() was called before flush().');
     }
 
     /**
