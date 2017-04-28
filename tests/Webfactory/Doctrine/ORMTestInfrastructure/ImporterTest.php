@@ -212,7 +212,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
             /* @var $mock \Doctrine\ORM\EntityManagerInterface */
             $result = call_user_func($callback, $mock);
             $mock->flush();
-            return $result;
+            return $result ?: true;
         };
         $mock->expects($this->any())
              ->method('transactional')
