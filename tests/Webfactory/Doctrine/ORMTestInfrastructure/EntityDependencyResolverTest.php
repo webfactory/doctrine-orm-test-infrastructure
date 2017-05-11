@@ -17,6 +17,8 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassParentWithReference;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityInterface;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityWithAssociationAgainstInterface;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -218,6 +220,19 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
             DiscriminatorMapChildEntity::class,
             $resolver
         );
+    }
+
+    /**
+     * Interfaces can be used as association targets, but this simple resolver cannot handle them.
+     * Nevertheless, the resolver should not fail and the interfaces should not show up in the dependency list.
+     */
+    public function testResolvedSetDoesNotContainInterfaces()
+    {
+        $resolver = new EntityDependencyResolver([
+            EntityWithAssociationAgainstInterface::class
+        ]);
+
+        $this->assertNotContains(EntityInterface::class, $this->getResolvedSet($resolver));
     }
 
     /**
