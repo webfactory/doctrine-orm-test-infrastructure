@@ -77,10 +77,11 @@ class EntityDependencyResolver implements \IteratorAggregate
         $entitiesToCheck = $entityClasses;
         $config = $this->configFactory->createFor($entitiesToCheck);
         while (count($associatedEntities = $this->getDirectlyAssociatedEntities($config, $entitiesToCheck)) > 0) {
-            $newAssociations = array_diff($associatedEntities, $entityClasses);
-            $entityClasses   = array_merge($entityClasses, $newAssociations);
-            $config          = $this->configFactory->createFor($entityClasses);
-            $entitiesToCheck = $newAssociations;
+            $associatedEntities = $this->removeInterfaces($associatedEntities);
+            $newAssociations    = array_diff($associatedEntities, $entityClasses);
+            $entityClasses      = array_merge($entityClasses, $newAssociations);
+            $config             = $this->configFactory->createFor($entityClasses);
+            $entitiesToCheck    = $newAssociations;
         }
         return $entityClasses;
     }
@@ -137,5 +138,24 @@ class EntityDependencyResolver implements \IteratorAggregate
         return array_map(function ($class) {
             return ltrim($class, '\\');
         }, $entityClasses);
+    }
+
+    /**
+     * Returns all interfaces from the given list of entity types.
+     *
+     * Interfaces can be defined as association targets, but this simple resolver cannot handle them properly.
+     * Interfaces need additional configuration to be resolved to real entity classes.
+     *
+     * @param string[] $entityTypes
+     * @return string[]
+     */
+    private function removeInterfaces($entityTypes)
+    {
+        return array_filter(
+            $entityTypes,
+            function ($entity) {
+                return !interface_exists($entity);
+            }
+        );
     }
 }
