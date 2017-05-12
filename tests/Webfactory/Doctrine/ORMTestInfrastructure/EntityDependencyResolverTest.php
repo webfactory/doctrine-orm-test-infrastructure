@@ -9,6 +9,21 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildWithParentReferenceEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableParentEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapChildEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassParentWithReference;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityInterface;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityWithAssociationAgainstInterface;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency;
+
 /**
  * Tests the entity resolver.
  */
@@ -20,7 +35,7 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolverIsTraversable()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         ));
 
         $this->assertInstanceOf('\Traversable', $resolver);
@@ -32,11 +47,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testSetContainsProvidedEntityClasses()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            TestEntity::class,
             $resolver
         );
     }
@@ -48,11 +63,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testSetContainsEntityClassesThatAreDirectlyConnectedToInitialSet()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency'
+            TestEntityWithDependency::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            ReferencedEntity::class,
             $resolver
         );
     }
@@ -68,11 +83,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testSetContainsIndirectlyConnectedEntityClasses()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+            ChainReferenceEntity::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            ReferencedEntity::class,
             $resolver
         );
     }
@@ -83,11 +98,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolverCanHandleDependencyCycles()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+            ReferenceCycleEntity::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity',
+            ReferenceCycleEntity::class,
             $resolver
         );
     }
@@ -98,7 +113,7 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testSetContainsEntitiesOnlyOnce()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+            ReferenceCycleEntity::class
         ));
 
         $resolvedSet = $this->getResolvedSet($resolver);
@@ -115,7 +130,7 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolvedSetContainsEntityClassesWithoutLeadingSlash()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+            ChainReferenceEntity::class
         ));
 
         $resolvedSet = $this->getResolvedSet($resolver);
@@ -133,11 +148,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolvedSetContainsNameOfClassTableInheritanceParent()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildEntity'
+            ClassTableChildEntity::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableParentEntity',
+            ClassTableParentEntity::class,
             $resolver
         );
     }
@@ -149,12 +164,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolvedSetContainsNameOfClassThatIsReferencedByParentWithClassTableStrategy()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance' .
-            '\ClassTableChildWithParentReferenceEntity'
+            ClassTableChildWithParentReferenceEntity::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            ReferencedEntity::class,
             $resolver
         );
     }
@@ -165,12 +179,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolvedSetContainsNameOfMappedSuperClass()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild'
+            MappedSuperClassChild::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance' .
-            '\MappedSuperClassParentWithReference',
+            MappedSuperClassParentWithReference::class,
             $resolver
         );
     }
@@ -181,11 +194,11 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolvedSetContainsNameOfEntityThatIsReferencedByMappedSuperClass()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\MappedSuperClassChild'
+            MappedSuperClassChild::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity',
+            ReferencedEntity::class,
             $resolver
         );
     }
@@ -200,13 +213,26 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolvedSetContainsNamesOfEntitiesThatAreMentionedInDiscriminatorMap()
     {
         $resolver = new EntityDependencyResolver(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapEntity'
+            DiscriminatorMapEntity::class
         ));
 
         $this->assertContainsEntity(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\DiscriminatorMapChildEntity',
+            DiscriminatorMapChildEntity::class,
             $resolver
         );
+    }
+
+    /**
+     * Interfaces can be used as association targets, but this simple resolver cannot handle them.
+     * Nevertheless, the resolver should not fail and the interfaces should not show up in the dependency list.
+     */
+    public function testResolvedSetDoesNotContainInterfaces()
+    {
+        $resolver = new EntityDependencyResolver([
+            EntityWithAssociationAgainstInterface::class
+        ]);
+
+        $this->assertNotContains(EntityInterface::class, $this->getResolvedSet($resolver));
     }
 
     /**
@@ -217,7 +243,7 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
      */
     protected function getResolvedSet(EntityDependencyResolver $resolver)
     {
-        $this->assertInstanceOf('\Traversable', $resolver);
+        $this->assertInstanceOf(\Traversable::class, $resolver);
         $entities = iterator_to_array($resolver);
         $this->assertContainsOnly('string', $entities);
         return $entities;

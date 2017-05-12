@@ -9,13 +9,21 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\EventManager;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\EntityImplementation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityInterface;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityWithAssociationAgainstInterface;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityRepository;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency;
 
 /**
@@ -38,7 +46,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
         $this->infrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         ));
     }
 
@@ -58,7 +66,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     {
         $entityManager = $this->infrastructure->getEntityManager();
 
-        $this->assertInstanceOf('Doctrine\ORM\EntityManager', $entityManager);
+        $this->assertInstanceOf(EntityManager::class, $entityManager);
     }
 
     /**
@@ -68,11 +76,11 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testGetRepositoryReturnsRepositoryThatBelongsToEntityClass()
     {
         $repository = $this->infrastructure->getRepository(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         );
 
         $this->assertInstanceOf(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityRepository',
+            TestEntityRepository::class,
             $repository
         );
     }
@@ -87,7 +95,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $repository = $this->infrastructure->getRepository($entity);
 
         $this->assertInstanceOf(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityRepository',
+            TestEntityRepository::class,
             $repository
         );
     }
@@ -148,7 +156,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $loadedEntity = $repository->find($entity->id);
         $this->assertInstanceOf(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
+            TestEntity::class,
             $loadedEntity
         );
         $this->assertNotSame($entity, $loadedEntity);
@@ -161,7 +169,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     {
         $entity = new TestEntity();
         $anotherInfrastructure = new ORMInfrastructure(array(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         ));
         $repository = $anotherInfrastructure->getRepository($entity);
 
@@ -195,7 +203,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $queries = $this->infrastructure->getQueries();
 
         $this->assertInternalType('array', $queries);
-        $this->assertContainsOnly('\Webfactory\Doctrine\ORMTestInfrastructure\Query', $queries);
+        $this->assertContainsOnly(Query::class, $queries);
     }
 
     /**
@@ -250,11 +258,11 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testCreateWithDependenciesForCreatesInfrastructureForSetOfEntities()
     {
         $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity'
+            TestEntity::class,
+            ReferencedEntity::class
         ));
 
-        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+        $this->assertInstanceOf(ORMInfrastructure::class, $infrastructure);
     }
 
     /**
@@ -264,10 +272,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testCreateWithDependenciesForCreatesInfrastructureForSingleEntity()
     {
         $infrastructure = ORMInfrastructure::createWithDependenciesFor(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         );
 
-        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+        $this->assertInstanceOf(ORMInfrastructure::class, $infrastructure);
     }
 
     /**
@@ -277,11 +285,11 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testCreateOnlyForCreatesInfrastructureForSetOfEntities()
     {
         $infrastructure = ORMInfrastructure::createOnlyFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity',
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity'
+            TestEntity::class,
+            ReferencedEntity::class
         ));
 
-        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+        $this->assertInstanceOf(ORMInfrastructure::class, $infrastructure);
     }
 
     /**
@@ -291,10 +299,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testCreateOnlyForCreatesInfrastructureForSingleEntity()
     {
         $infrastructure = ORMInfrastructure::createOnlyFor(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         );
 
-        $this->assertInstanceOf('\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure', $infrastructure);
+        $this->assertInstanceOf(ORMInfrastructure::class, $infrastructure);
     }
 
     /**
@@ -304,7 +312,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testInfrastructureAutomaticallyPerformsDependencySetupIfRequested()
     {
         $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWithDependency'
+            TestEntityWithDependency::class
         ));
 
         $entityWithDependency = new TestEntityWithDependency();
@@ -322,7 +330,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testAutomaticDependencyDetectionCanHandleCycles()
     {
         $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity'
+            ReferenceCycleEntity::class
         ));
 
         $entityWithCycle = new ReferenceCycleEntity();
@@ -346,7 +354,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testAutomaticDependencyDetectionCanHandleChainedRelations()
     {
         $infrastructure = ORMInfrastructure::createWithDependenciesFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity'
+            ChainReferenceEntity::class
         ));
 
         $entityWithReferenceChain = new ChainReferenceEntity();
@@ -366,7 +374,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     public function testNotSimulatedEntitiesAreNotExposed()
     {
         $infrastructure = ORMInfrastructure::createOnlyFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         ));
 
         $metadata = $infrastructure->getEntityManager()->getMetadataFactory()->getAllMetadata();
@@ -374,7 +382,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             return ltrim($info->name, '\\');
         }, $metadata);
         $this->assertEquals(
-            array('Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'),
+            array(TestEntity::class),
             $entities
         );
     }
@@ -391,7 +399,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     {
         $beforeCreation = $this->getNumberOfAnnotationLoaders();
         $infrastructure = ORMInfrastructure::createOnlyFor(
-            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class
         );
         $afterCreation = $this->getNumberOfAnnotationLoaders();
         $this->assertEquals(
@@ -471,6 +479,37 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetEventManagerReturnsEventManager()
+    {
+        $this->assertInstanceOf(EventManager::class, $this->infrastructure->getEventManager());
+    }
+
+    public function testGetEventManagerReturnsSameEventManagerThatIsUsedByEntityManager()
+    {
+        $this->assertSame(
+            $this->infrastructure->getEventManager(),
+            $this->infrastructure->getEntityManager()->getEventManager()
+        );
+    }
+
+    public function testCanHandleInterfaceAssociationsIfMappingIsProvided()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(EntityWithAssociationAgainstInterface::class);
+
+        $infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager();
+    }
+
+    public function testCannotRegisterEntityMappingAfterEntityManagerCreation()
+    {
+        $this->infrastructure->getEntityManager();
+
+        $this->setExpectedException(\LogicException::class);
+        $this->infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+    }
+
     /**
      * Returns the number of currently registered annotation loaders.
      *
@@ -478,7 +517,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     private function getNumberOfAnnotationLoaders()
     {
-        $reflection = new \ReflectionClass('\Doctrine\Common\Annotations\AnnotationRegistry');
+        $reflection = new \ReflectionClass(AnnotationRegistry::class);
         $annotationLoaderProperty = $reflection->getProperty('loaders');
         $annotationLoaderProperty->setAccessible(true);
         return count($annotationLoaderProperty->getValue());

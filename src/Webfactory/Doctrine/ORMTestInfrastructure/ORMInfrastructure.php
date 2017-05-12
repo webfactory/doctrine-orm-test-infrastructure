@@ -9,12 +9,16 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\Common\EventManager;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Doctrine\ORM\Tools\SchemaTool;
+use \Doctrine\Common\EventSubscriber;
 
 /**
  * Helper class that creates the database infrastructure for a defined set of entity classes.
@@ -117,6 +121,20 @@ class ORMInfrastructure
     protected $configFactory = null;
 
     /**
+     * @var EventManager
+     */
+    private $eventManager;
+
+    /**
+     * Listener that is used to resolve entity mappings.
+     *
+     * Null if the listener is not registered yet.
+     *
+     * @var ResolveTargetEntityListener|null
+     */
+    private $resolveTargetListener;
+
+    /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
      *
@@ -178,7 +196,7 @@ class ORMInfrastructure
         $this->entityClasses = $entityClasses;
         $this->queryLogger   = new DebugStack();
         $this->configFactory = new ConfigurationFactory();
-
+        $this->eventManager  = new EventManager();
     }
 
     /**
@@ -244,6 +262,41 @@ class ORMInfrastructure
     }
 
     /**
+     * Returns the event manager that will be used by the entity manager.
+     *
+     * Can be used to register type mappings for interfaces.
+     *
+     * @return EventManager
+     * @internal Do not rely on this method if you don't have to. Might be removed in future versions.
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
+    }
+
+    /**
+     * Registers a type mapping.
+     *
+     * Might be required if you define an association mapping against an interface.
+     *
+     * @param string $originalEntity
+     * @param string $targetEntity
+     * @throws \LogicException If you call this method after using the infrastructure.
+     * @internal Might be replaced in the future by a more advanced config system.
+     *           Do not rely on this feature if you don't have to.
+     * @see http://symfony.com/doc/current/doctrine/resolve_target_entity.html#set-up
+     */
+    public function registerEntityMapping($originalEntity, $targetEntity)
+    {
+        if ($this->entityManager !== null) {
+            $message = 'Call %s() before using the entity manager or importing data. '
+                . 'Otherwise your entity mapping might not take effect.';
+            throw new \LogicException(sprintf($message, __FUNCTION__));
+        }
+        $this->getResolveTargetListener()->addResolveTargetEntity($originalEntity, $targetEntity, array());
+    }
+
+    /**
      * Creates a new entity manager.
      *
      * @return \Doctrine\ORM\EntityManager
@@ -252,7 +305,7 @@ class ORMInfrastructure
     {
         $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
-        return EntityManager::create($this->defaultConnectionParams, $config);
+        return EntityManager::create($this->defaultConnectionParams, $config, $this->eventManager);
     }
 
     /**
@@ -345,6 +398,28 @@ class ORMInfrastructure
             }
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
+    }
+
+    /**
+     * Returns the listener that is used to apply entity mappings.
+     *
+     * Registers one if none is configured yet.
+     *
+     * @return ResolveTargetEntityListener
+     */
+    private function getResolveTargetListener()
+    {
+        if ($this->resolveTargetListener === null) {
+            $this->resolveTargetListener = new ResolveTargetEntityListener();
+            if ($this->resolveTargetListener instanceof EventSubscriber) {
+                // In Doctrine > 2.5 this is a event subscriber.
+                $this->getEventManager()->addEventSubscriber($this->resolveTargetListener);
+            } else {
+                // In previous versions the listener must be attached "manually".
+                $this->getEventManager()->addEventListener(Events::loadClassMetadata, $this->resolveTargetListener);
+            }
+        }
+        return $this->resolveTargetListener;
     }
 
     /**
