@@ -98,6 +98,18 @@ Happy testing!
 
 ## Changelog ##
 
+### 1.4.5 -> 1.4.6 ###
+
+- ignore associations against interfaces when detecting dependencies via ``ORMInfrastructure::createWithDependenciesFor`` to avoid errors
+- exposed event manager and created helper method to be able to register entity mappings
+
+
+Register entity type mapping:
+
+    $infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+
+Do not rely on this "feature" if you don't have to. Might be restructured in future versions.
+
 ### 1.4.4 -> 1.4.5 ###
 
 - fixed bug [#20](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/20): Entities might have been imported twice in case of bidirectional cascade
