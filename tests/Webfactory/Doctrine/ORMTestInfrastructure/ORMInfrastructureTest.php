@@ -10,12 +10,16 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\EntityImplementation;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityInterface;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityWithAssociationAgainstInterface;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferenceCycleEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ReferencedEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
@@ -473,6 +477,29 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         ORMInfrastructure::createWithDependenciesFor(
             AnnotatedTestEntityForDependencyDiscovery::class
         );
+    }
+
+    public function testGetEventManagerReturnsEventManager()
+    {
+        $this->assertInstanceOf(EventManager::class, $this->infrastructure->getEventManager());
+    }
+
+    public function testGetEventManagerReturnsSameEventManagerThatIsUsedByEntityManager()
+    {
+        $this->assertSame(
+            $this->infrastructure->getEventManager(),
+            $this->infrastructure->getEntityManager()->getEventManager()
+        );
+    }
+
+    public function testCanHandleInterfaceAssociationsIfMappingIsProvided()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(EntityWithAssociationAgainstInterface::class);
+
+        $infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+
+        $this->setExpectedException(null);
+        $infrastructure->getEntityManager();
     }
 
     /**
