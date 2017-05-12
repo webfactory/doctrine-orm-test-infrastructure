@@ -281,12 +281,18 @@ class ORMInfrastructure
      *
      * @param string $originalEntity
      * @param string $targetEntity
+     * @throws \LogicException If you call this method after using the infrastructure.
      * @internal Might be replaced in the future by a more advanced config system.
      *           Do not rely on this feature if you don't have to.
      * @see http://symfony.com/doc/current/doctrine/resolve_target_entity.html#set-up
      */
     public function registerEntityMapping($originalEntity, $targetEntity)
     {
+        if ($this->entityManager !== null) {
+            $message = 'Call %s() before using the entity manager or importing data. '
+                . 'Otherwise your entity mapping might not take effect.';
+            throw new \LogicException(sprintf($message, __FUNCTION__));
+        }
         $this->getResolveTargetListener()->addResolveTargetEntity($originalEntity, $targetEntity, array());
     }
 
