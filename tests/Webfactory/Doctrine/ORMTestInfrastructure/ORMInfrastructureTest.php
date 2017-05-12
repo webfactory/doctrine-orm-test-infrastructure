@@ -502,6 +502,14 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $infrastructure->getEntityManager();
     }
 
+    public function testCannotRegisterEntityMappingAfterEntityManagerCreation()
+    {
+        $this->infrastructure->getEntityManager();
+
+        $this->setExpectedException(\LogicException::class);
+        $this->infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+    }
+
     /**
      * Returns the number of currently registered annotation loaders.
      *
