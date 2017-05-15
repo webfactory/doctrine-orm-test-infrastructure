@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
@@ -508,6 +509,22 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(\LogicException::class);
         $this->infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+    }
+
+    /**
+     * Checks if it is possible to pass a more specific connection configuration.
+     */
+    public function testUsesMoreSpecificConnectionConfiguration()
+    {
+        $this->infrastructure = new ORMInfrastructure(array(
+            'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+        ), new ConnectionConfiguration(array(
+            'invalid' => 'configuration'
+        )));
+
+        // The passed configuration is simply invalid, therefore, we expect an exception.
+        $this->setExpectedException('Exception');
+        $this->infrastructure->getEntityManager();
     }
 
     /**

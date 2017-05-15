@@ -19,6 +19,7 @@ use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Doctrine\ORM\Tools\SchemaTool;
 use \Doctrine\Common\EventSubscriber;
+use Webfactory\Doctrine\Config\ConnectionConfiguration;
 
 /**
  * Helper class that creates the database infrastructure for a defined set of entity classes.
@@ -75,6 +76,7 @@ class ORMInfrastructure
      * {@link http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html}.
      *
      * @var array(string=>mixed)
+     * @deprecated To be removed in 2.0. Pass ConnectionConfiguration during construction to change the connection.
      */
     protected $defaultConnectionParams = array(
         'driver'   => 'pdo_sqlite',
@@ -117,6 +119,7 @@ class ORMInfrastructure
      * Factory that is used to create ORM configurations.
      *
      * @var ConfigurationFactory
+     * @deprecated To be removed in 2.0. Only used once and can be degraded to a local variable.
      */
     protected $configFactory = null;
 
@@ -135,16 +138,26 @@ class ORMInfrastructure
     private $resolveTargetListener;
 
     /**
+     * The configuration that is used to connect to the test database.
+     *
+     * @var ConnectionConfiguration
+     */
+    private $connectionConfiguration = null;
+
+    /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
      *
      * @param string[]|string $entityClassOrClasses
+     * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createWithDependenciesFor($entityClassOrClasses)
-    {
+    public static function createWithDependenciesFor(
+        $entityClassOrClasses,
+        ConnectionConfiguration $connectionConfiguration = null
+    ) {
         $entityClasses = static::normalizeEntityList($entityClassOrClasses);
-        return new static(new EntityDependencyResolver($entityClasses));
+        return new static(new EntityDependencyResolver($entityClasses), $connectionConfiguration);
     }
 
     /**
@@ -154,11 +167,12 @@ class ORMInfrastructure
      * entities is *not* created automatically.
      *
      * @param string[]|string $entityClassOrClasses
+     * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createOnlyFor($entityClassOrClasses)
+    public static function createOnlyFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null)
     {
-        return new static(static::normalizeEntityList($entityClassOrClasses));
+        return new static(static::normalizeEntityList($entityClassOrClasses), $connectionConfiguration);
     }
 
     /**
@@ -182,9 +196,10 @@ class ORMInfrastructure
      * Foreach entity the fully qualified class name must be provided.
      *
      * @param string[]|\Traversable $entityClasses
+     * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct($entityClasses)
+    public function __construct($entityClasses, ConnectionConfiguration $connectionConfiguration = null)
     {
         // Register the annotation loader before the dependency discovery process starts (if required).
         // This ensures that the annotation loader is available for the entity resolver that reads the annotations.
@@ -193,10 +208,14 @@ class ORMInfrastructure
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
-        $this->entityClasses = $entityClasses;
-        $this->queryLogger   = new DebugStack();
-        $this->configFactory = new ConfigurationFactory();
-        $this->eventManager  = new EventManager();
+        if ($connectionConfiguration === null) {
+            $connectionConfiguration = new ConnectionConfiguration($this->defaultConnectionParams);
+        }
+        $this->entityClasses           = $entityClasses;
+        $this->connectionConfiguration = $connectionConfiguration;
+        $this->queryLogger             = new DebugStack();
+        $this->configFactory           = new ConfigurationFactory();
+        $this->eventManager            = new EventManager();
     }
 
     /**
@@ -305,7 +324,7 @@ class ORMInfrastructure
     {
         $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
-        return EntityManager::create($this->defaultConnectionParams, $config, $this->eventManager);
+        return EntityManager::create($this->connectionConfiguration->getConnectionParameters(), $config, $this->eventManager);
     }
 
     /**

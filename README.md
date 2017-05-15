@@ -98,10 +98,26 @@ Happy testing!
 
 ## Changelog ##
 
+### 1.4.6 -> 1.5.0 ###
+
+- Introduced ``ConnectionConfiguration`` to explicitly define the type of database connection [(#15)](https://github.com/webfactory/doctrine-orm-test-infrastructure/pull/15)
+- Added support for simple SQLite file databases via ``FileDatabaseConnectionConfiguration``; useful when data must persist for some time, but the connection is reset, e.g. in Symfony's [Functional Tests](http://symfony.com/doc/current/testing.html#functional-tests)
+
+
+Create file-backed database:
+
+    $configuration = new FileDatabaseConnectionConfiguration();
+    $infrastructure = ORMInfrastructure::createOnlyFor(
+        MyEntity::class,
+        $configuration
+    );
+    // Used database file:
+    echo $configuration->getDatabaseFile();
+
 ### 1.4.5 -> 1.4.6 ###
 
-- ignore associations against interfaces when detecting dependencies via ``ORMInfrastructure::createWithDependenciesFor`` to avoid errors
-- exposed event manager and created helper method to be able to register entity mappings
+- Ignore associations against interfaces when detecting dependencies via ``ORMInfrastructure::createWithDependenciesFor`` to avoid errors
+- Exposed event manager and created helper method to be able to register entity mappings
 
 
 Register entity type mapping:
@@ -112,8 +128,8 @@ Do not rely on this "feature" if you don't have to. Might be restructured in fut
 
 ### 1.4.4 -> 1.4.5 ###
 
-- fixed bug [#20](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/20): Entities might have been imported twice in case of bidirectional cascade
-- deprecated class ``Webfactory\Doctrine\ORMTestInfrastructure\DetachingObjectManagerDecorator`` (will be removed in next major release)
+- Fixed bug [#20](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/20): Entities might have been imported twice in case of bidirectional cascade
+- Deprecated class ``Webfactory\Doctrine\ORMTestInfrastructure\DetachingObjectManagerDecorator`` (will be removed in next major release)
 
 ### 1.4.3 -> 1.4.4 ###
 
