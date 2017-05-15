@@ -11,6 +11,8 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 /**
  * Tests the object manager decorator that detaches entities after persisting.
+ *
+ * @deprecated Will be removed in 2.0.
  */
 class DetachingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
 {
