@@ -258,7 +258,12 @@ class ORMInfrastructure
     {
         $loggerWasEnabled = $this->queryLogger->enabled;
         $this->queryLogger->enabled = false;
-        $importer = new Importer($this->getEntityManager());
+        $em = EntityManager::create(
+            $this->getEntityManager()->getConnection(),
+            $this->getEntityManager()->getConfiguration(),
+            $this->entityManager->getEventManager()
+        );
+        $importer = new Importer($em);
         $importer->import($dataSource);
         $this->queryLogger->enabled = $loggerWasEnabled;
     }
@@ -324,7 +329,11 @@ class ORMInfrastructure
     {
         $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
-        return EntityManager::create($this->connectionConfiguration->getConnectionParameters(), $config, $this->eventManager);
+        return EntityManager::create(
+            $this->connectionConfiguration->getConnectionParameters(),
+            $config,
+            $this->eventManager
+        );
     }
 
     /**
