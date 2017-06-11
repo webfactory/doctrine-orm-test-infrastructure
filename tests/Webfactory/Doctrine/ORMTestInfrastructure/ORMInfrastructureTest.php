@@ -539,6 +539,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $infrastructure->import($cascadingPersistingEntity);
 
         $this->setExpectedException(null);
+        // If this call fails, then there are leftovers in the identity map.
         $infrastructure->getEntityManager()->flush();
     }
 
