@@ -19,10 +19,11 @@ use Doctrine\Common\Persistence\ObjectManagerDecorator;
  * be removed from the identity map afterwards.
  *
  * @internal
+ * @deprecated Will be removed in 2.0. Not needed anymore, as selective detach()
+ *             calls have been removed from the importer.
  */
 class MemorizingObjectManagerDecorator extends ObjectManagerDecorator
 {
-
     /**
      * Contains all entities that were persisted by this object manager decorator.
      *
