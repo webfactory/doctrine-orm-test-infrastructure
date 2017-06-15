@@ -47,10 +47,8 @@ Usage
         /** @see \PHPUnit_Framework_TestCase::setUp() */
         protected function setUp()
         {
-            $this->infrastructure = ORMInfrastructure::createWithDependenciesFor(
-                'Entity\MyEntity'
-            );
-            $this->repository = $this->infrastructure->getRepository('Entity\MyEntity');
+            $this->infrastructure = ORMInfrastructure::createWithDependenciesFor(MyEntity::class);
+            $this->repository = $this->infrastructure->getRepository(MyEntity::class);
         }
         
         /**
