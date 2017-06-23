@@ -11,6 +11,10 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Persistence\ObjectManagerDecorator;
 
+/**
+ * @deprecated Will be removed in 2.0.
+ * @see \Webfactory\Doctrine\ORMTestInfrastructure\MemorizingObjectManagerDecorator
+ */
 class MemorizingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
 {
     /**

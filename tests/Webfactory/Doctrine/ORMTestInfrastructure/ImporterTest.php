@@ -155,13 +155,12 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Checks if the importer detaches the provided entities.
+     * Checks if the importer clears the manager after import.
      */
-    public function testImporterDetachesEntities()
+    public function testImporterClearsEntityManager()
     {
-        $this->entityManager->expects($this->exactly(2))
-                            ->method('detach')
-                            ->with($this->isInstanceOf(\stdClass::class));
+        $this->entityManager->expects($this->once())
+                            ->method('clear');
 
         $entities = array(
             new \stdClass(),
@@ -181,14 +180,14 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         $this->importer->import($entities);
     }
 
-    public function testEntitiesAreDetachedAfterFlush()
+    public function testEntityManagerIsClearedAfterFlush()
     {
-        $detached = 0.0;
+        $cleared = 0.0;
         $callCounter = 0;
-        $this->entityManager->expects($this->atLeastOnce())
-            ->method('detach')
-            ->will($this->returnCallback(function () use (&$detached, &$callCounter) {
-                $detached = $callCounter++;
+        $this->entityManager->expects($this->once())
+            ->method('clear')
+            ->will($this->returnCallback(function () use (&$cleared, &$callCounter) {
+                $cleared = $callCounter++;
             }));
         $flushed = 0.0;
         $this->entityManager->expects($this->once())
@@ -202,7 +201,7 @@ class ImporterTest extends \PHPUnit_Framework_TestCase
         );
         $this->importer->import($entities);
 
-        $this->assertGreaterThan($flushed, $detached, 'detach() was called before flush().');
+        $this->assertGreaterThan($flushed, $cleared, 'clear() was called before flush().');
     }
 
     /**

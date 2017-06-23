@@ -165,28 +165,8 @@ class Importer
             call_user_func($callback, $decorator);
             return $decorator->getSeenEntities();
         };
-        /* @var $entitiesToDetach object[]|true */
-        $entitiesToDetach = $this->entityManager->transactional($import);
-        if (is_array($entitiesToDetach)) {
-            $this->detachEntities($entitiesToDetach);
-        }
-    }
-
-    /**
-     * Detaches all provided entities.
-     *
-     * This is important for imports, as entities are not populated
-     * with database contents when they are already attached.
-     * This may lead to tests that pass because of object identity without noticing
-     * that the real reading from the database does not work as expected.
-     *
-     * @param object[] $entities
-     */
-    private function detachEntities(array $entities)
-    {
-        foreach ($entities as $entity) {
-            /* @var $entity object */
-            $this->entityManager->detach($entity);
-        }
+        $this->entityManager->transactional($import);
+        // Clear the entity manager to ensure that there are no leftovers in the identity map.
+        $this->entityManager->clear();
     }
 }

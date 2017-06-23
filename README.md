@@ -96,6 +96,12 @@ Happy testing!
 
 ## Changelog ##
 
+### 1.5.0 -> 1.5.1 ###
+
+- Clear entity manager after import to avoid problems with entities detected by cascade operations [(#23)](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/23)
+- Use separate entity managers for imports to avoid interference between import and test phase [(#2)](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/2)
+- Deprecated internal class ``\Webfactory\Doctrine\ORMTestInfrastructure\MemorizingObjectManagerDecorator`` as it is not needed anymore: there are no more selective ``detach()`` calls`after imports
+
 ### 1.4.6 -> 1.5.0 ###
 
 - Introduced ``ConnectionConfiguration`` to explicitly define the type of database connection [(#15)](https://github.com/webfactory/doctrine-orm-test-infrastructure/pull/15)

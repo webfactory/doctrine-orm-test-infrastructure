@@ -258,7 +258,7 @@ class ORMInfrastructure
     {
         $loggerWasEnabled = $this->queryLogger->enabled;
         $this->queryLogger->enabled = false;
-        $importer = new Importer($this->getEntityManager());
+        $importer = new Importer($this->copyEntityManager());
         $importer->import($dataSource);
         $this->queryLogger->enabled = $loggerWasEnabled;
     }
@@ -324,7 +324,11 @@ class ORMInfrastructure
     {
         $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
-        return EntityManager::create($this->connectionConfiguration->getConnectionParameters(), $config, $this->eventManager);
+        return EntityManager::create(
+            $this->connectionConfiguration->getConnectionParameters(),
+            $config,
+            $this->eventManager
+        );
     }
 
     /**
@@ -417,6 +421,20 @@ class ORMInfrastructure
             }
         }
         $annotationLoaderProperty->setValue(array_values($activeLoaders));
+    }
+
+    /**
+     * Creates a copy of the current entity manager.
+     *
+     * @return EntityManager
+     */
+    private function copyEntityManager()
+    {
+        return EntityManager::create(
+            $this->getEntityManager()->getConnection(),
+            $this->getEntityManager()->getConfiguration(),
+            $this->entityManager->getEventManager()
+        );
     }
 
     /**

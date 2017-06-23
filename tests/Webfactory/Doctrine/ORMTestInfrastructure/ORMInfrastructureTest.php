@@ -17,6 +17,8 @@ use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Cascade\CascadePersistingEntity;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Cascade\CascadePersistedEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\EntityImplementation;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\InterfaceAssociation\EntityInterface;
@@ -32,7 +34,6 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWi
  */
 class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * System under test.
      *
@@ -525,6 +526,21 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         // The passed configuration is simply invalid, therefore, we expect an exception.
         $this->setExpectedException('Exception');
         $this->infrastructure->getEntityManager();
+    }
+
+    /**
+     * @see https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/23
+     */
+    public function testWorksWithCascadePersist()
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor(CascadePersistingEntity::class);
+        $cascadingPersistingEntity = new CascadePersistingEntity();
+        $cascadingPersistingEntity->add(new CascadePersistedEntity());
+        $infrastructure->import($cascadingPersistingEntity);
+
+        $this->setExpectedException(null);
+        // If this call fails, then there are leftovers in the identity map.
+        $infrastructure->getEntityManager()->flush();
     }
 
     /**
