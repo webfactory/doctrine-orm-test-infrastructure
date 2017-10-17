@@ -13,10 +13,12 @@ This library provides some infrastructure for tests of Doctrine ORM entities, fe
 - a mechanism for importing fixtures into your database that circumvents Doctrine's caching. This results in a more
   realistic test environment when loading entities from a repository.
 
-[We](https://www.webfactory.de/) use it to test Doctrine repositories and entities in Symfony 2 bundles. In
-applications, it's a lightweight alternative to the heavyweight [functional tests suggested in the Symfony documentation](http://symfony.com/doc/current/cookbook/testing/doctrine.html)
-(we don't suggest you should skip those - we just want to open another path). In non application bundles, where
-functional tests are not possible, it is our only way to test repositories and entities.
+[We](https://www.webfactory.de/) use it to test Doctrine repositories and entities in Symfony applications. It's a
+lightweight alternative to the heavyweight [functional tests suggested in the Symfony documentation](http://symfony.com/doc/current/cookbook/testing/doctrine.html)
+(we don't suggest you should skip those - we just want to open another path). 
+
+In non-application bundles, where functional tests are not possible,
+it is our only way to test repositories and entities.
 
 
 Installation
