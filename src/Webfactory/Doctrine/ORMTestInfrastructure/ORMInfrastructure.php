@@ -124,11 +124,6 @@ class ORMInfrastructure
     protected $configFactory = null;
 
     /**
-     * @var EventManager
-     */
-    private $eventManager;
-
-    /**
      * Listener that is used to resolve entity mappings.
      *
      * Null if the listener is not registered yet.
@@ -215,7 +210,7 @@ class ORMInfrastructure
         $this->connectionConfiguration = $connectionConfiguration;
         $this->queryLogger             = new DebugStack();
         $this->configFactory           = new ConfigurationFactory();
-        $this->eventManager            = new EventManager();
+        $this->resolveTargetListener   = new ResolveTargetEntityListener();
     }
 
     /**
@@ -274,6 +269,7 @@ class ORMInfrastructure
             $loggerWasEnabled = $this->queryLogger->enabled;
             $this->queryLogger->enabled = false;
             $this->entityManager = $this->createEntityManager();
+            $this->setupResolveTargetListener();
             $this->createSchemaForSupportedEntities($this->entityManager);
             $this->queryLogger->enabled = $loggerWasEnabled;
         }
@@ -290,7 +286,7 @@ class ORMInfrastructure
      */
     public function getEventManager()
     {
-        return $this->eventManager;
+        return $this->getEntityManager()->getEventManager();
     }
 
     /**
@@ -312,7 +308,7 @@ class ORMInfrastructure
                 . 'Otherwise your entity mapping might not take effect.';
             throw new \LogicException(sprintf($message, __FUNCTION__));
         }
-        $this->getResolveTargetListener()->addResolveTargetEntity($originalEntity, $targetEntity, array());
+        $this->resolveTargetListener->addResolveTargetEntity($originalEntity, $targetEntity, array());
     }
 
     /**
@@ -326,8 +322,7 @@ class ORMInfrastructure
         $config->setSQLLogger($this->queryLogger);
         return EntityManager::create(
             $this->connectionConfiguration->getConnectionParameters(),
-            $config,
-            $this->eventManager
+            $config
         );
     }
 
@@ -430,10 +425,12 @@ class ORMInfrastructure
      */
     private function copyEntityManager()
     {
+        $entityManager = $this->getEntityManager();
+
         return EntityManager::create(
-            $this->getEntityManager()->getConnection(),
-            $this->getEntityManager()->getConfiguration(),
-            $this->entityManager->getEventManager()
+            $entityManager->getConnection(),
+            $entityManager->getConfiguration(),
+            $this->getEventManager()
         );
     }
 
@@ -444,19 +441,16 @@ class ORMInfrastructure
      *
      * @return ResolveTargetEntityListener
      */
-    private function getResolveTargetListener()
+    private function setupResolveTargetListener()
     {
-        if ($this->resolveTargetListener === null) {
-            $this->resolveTargetListener = new ResolveTargetEntityListener();
-            if ($this->resolveTargetListener instanceof EventSubscriber) {
-                // In Doctrine > 2.5 this is a event subscriber.
-                $this->getEventManager()->addEventSubscriber($this->resolveTargetListener);
-            } else {
-                // In previous versions the listener must be attached "manually".
-                $this->getEventManager()->addEventListener(Events::loadClassMetadata, $this->resolveTargetListener);
-            }
+        $eventManager = $this->getEventManager();
+        if ($this->resolveTargetListener instanceof EventSubscriber) {
+            // In Doctrine > 2.5 this is a event subscriber.
+            $eventManager->addEventSubscriber($this->resolveTargetListener);
+        } else {
+            // In previous versions the listener must be attached "manually".
+            $eventManager->addEventListener(Events::loadClassMetadata, $this->resolveTargetListener);
         }
-        return $this->resolveTargetListener;
     }
 
     /**
