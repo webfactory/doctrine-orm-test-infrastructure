@@ -18,7 +18,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Doctrine\ORM\Tools\SchemaTool;
-use \Doctrine\Common\EventSubscriber;
+use Doctrine\Common\EventSubscriber;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 
 /**
@@ -140,6 +140,11 @@ class ORMInfrastructure
     private $connectionConfiguration = null;
 
     /**
+     * @var bool
+     */
+    private $createSchema = true;
+
+    /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
      *
@@ -213,6 +218,11 @@ class ORMInfrastructure
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
     }
 
+    public function disableSchemaCreation()
+    {
+        $this->createSchema = false;
+    }
+
     /**
      * Returns the repository for the provided entity.
      *
@@ -270,7 +280,9 @@ class ORMInfrastructure
             $this->queryLogger->enabled = false;
             $this->entityManager = $this->createEntityManager();
             $this->setupResolveTargetListener();
-            $this->createSchemaForSupportedEntities($this->entityManager);
+            if ($this->createSchema) {
+                $this->createSchemaForSupportedEntities($this->entityManager);
+            }
             $this->queryLogger->enabled = $loggerWasEnabled;
         }
         return $this->entityManager;
