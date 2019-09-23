@@ -16,6 +16,8 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Doctrine\ORM\Mapping\DefaultNamingStrategy;
+use Doctrine\ORM\Mapping\NamingStrategy;
 use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Common\EventSubscriber;
@@ -107,6 +109,13 @@ class ORMInfrastructure
      * @var DebugStack
      */
     protected $queryLogger = null;
+
+    /**
+     * The naming strategy that is used.
+     *
+     * @var NamingStrategy
+     */
+    protected $namingStrategy = null;
 
     /**
      * Callback that is used to load non-Doctrine annotations.
@@ -214,6 +223,7 @@ class ORMInfrastructure
         $this->entityClasses           = $entityClasses;
         $this->connectionConfiguration = $connectionConfiguration;
         $this->queryLogger             = new DebugStack();
+        $this->namingStrategy          = new DefaultNamingStrategy();
         $this->configFactory           = new ConfigurationFactory();
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
     }
@@ -221,6 +231,14 @@ class ORMInfrastructure
     public function disableSchemaCreation()
     {
         $this->createSchema = false;
+    }
+
+    /**
+     * @param NamingStrategy $namingStrategy
+     */
+    public function setNamingStrategy(NamingStrategy $namingStrategy): void
+    {
+        $this->namingStrategy = $namingStrategy;
     }
 
     /**
@@ -332,6 +350,8 @@ class ORMInfrastructure
     {
         $config = $this->configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
+        $config->setNamingStrategy($this->namingStrategy);
+
         return EntityManager::create(
             $this->connectionConfiguration->getConnectionParameters(),
             $config
