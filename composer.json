@@ -1,7 +1,11 @@
 {
     "name": "webfactory/doctrine-orm-test-infrastructure",
     "description": "Provides utils to create a test infrastructure for Doctrine 2 entities.",
-    "keywords": ["Doctrine", "ORM", "testing"],
+    "keywords": [
+        "Doctrine",
+        "ORM",
+        "testing"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -26,12 +30,10 @@
         "pdepend/pdepend": "~1.1",
         "athletic/athletic": "^0.1.8"
     },
-
     "scripts": {
         "test": "vendor/bin/phpunit",
         "benchmark": "php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug.default_enable=0 vendor/bin/athletic --path benchmarks"
     },
-
     "autoload": {
         "psr-0": {
             "Webfactory\\Doctrine": "src/"
@@ -42,5 +44,11 @@
             "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/",
             "benchmarks"
         ]
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "7.2.24"
+        }
     }
 }
