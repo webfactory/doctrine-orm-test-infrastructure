@@ -9,10 +9,11 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use PHPUnit\Framework\TestCase;
 
-class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
+class EntityListDriverDecoratorTest extends TestCase
 {
     /**
      * System under test.
@@ -31,10 +32,10 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->innerDriver = $this->getMock('Doctrine\Common\Persistence\Mapping\Driver\MappingDriver');
+        $this->innerDriver = $this->createMock(MappingDriver::class);
         $this->driver      = new EntityListDriverDecorator($this->innerDriver, array(
             'My\Namespace\Person',
             'My\Namespace\Address'
@@ -44,7 +45,7 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->driver      = null;
         $this->innerDriver = null;
@@ -53,7 +54,7 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 
     public function testImplementsInterface()
     {
-        $this->assertInstanceOf('Doctrine\Common\Persistence\Mapping\Driver\MappingDriver', $this->driver);
+        $this->assertInstanceOf(MappingDriver::class, $this->driver);
     }
 
     public function testGetAllClassNamesReturnsOnlyExposedEntityClasses()
@@ -68,7 +69,7 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $classes = $this->driver->getAllClassNames();
 
-        $this->assertInternalType('array', $classes);
+        $this->assertIsArray($classes);
         $this->assertContains('My\Namespace\Person', $classes);
         $this->assertContains('My\Namespace\Address', $classes);
         $this->assertNotContains('My\Namespace\PhoneNumber', $classes);
@@ -89,7 +90,7 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $classes = $this->driver->getAllClassNames();
 
-        $this->assertInternalType('array', $classes);
+        $this->assertIsArray($classes);
         $this->assertContains('My\Namespace\Person', $classes);
         $this->assertNotContains('My\Namespace\Address', $classes);
     }
@@ -108,7 +109,7 @@ class EntityListDriverDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $classes = $this->driver->getAllClassNames();
 
-        $this->assertInternalType('array', $classes);
+        $this->assertIsArray($classes);
         $this->assertContains('My\Namespace\Person', $classes);
     }
 

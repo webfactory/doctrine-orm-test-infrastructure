@@ -16,23 +16,27 @@
         }
     ],
     "require": {
-        "php": "^5.5.9 | ^7.0.0",
-        "doctrine/orm": "~2.4"
+        "php": ">=7.2",
+        "doctrine/orm": "~2.7"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8",
-        "satooshi/php-coveralls": "~0.6",
-        "squizlabs/php_codesniffer": "~1.0",
-        "phpmd/phpmd": "~1.0",
-        "sebastian/phpcpd": "~2.0",
-        "mayflower/php-codebrowser": "~1.1",
-        "phploc/phploc": "~2.0",
-        "pdepend/pdepend": "~1.1",
-        "athletic/athletic": "^0.1.8"
+        "mayflower/php-codebrowser": "^2.3",
+        "php-coveralls/php-coveralls": "^2.4",
+        "phploc/phploc": "^5.0",
+        "phpstan/phpstan": "^0.12",
+        "phpunit/phpunit": "^8.5",
+        "roave/security-advisories": "dev-master",
+        "sebastian/phpcpd": "^4.1",
+        "squizlabs/php_codesniffer": "^3.3"
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "benchmark": "php -d xdebug.remote_autostart=0 -d xdebug.remote_enable=0 -d xdebug.default_enable=0 vendor/bin/athletic --path benchmarks"
+        "test-coverage": "@php vendor/bin/phpunit --colors=always --coverage-html=build/html-coverage",
+        "sniff": "@php vendor/bin/phpcs",
+        "format": "@php vendor/bin/phpcbf",
+        "phploc": "@php vendor/bin/phploc src > build/phploc.txt",
+        "phpcpd": "@php vendor/bin/phpcpd src tests",
+        "phpstan": "@php -d memory_limit=-1 vendor/bin/phpstan analyse src"
     },
     "autoload": {
         "psr-0": {
@@ -41,8 +45,7 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/",
-            "benchmarks"
+            "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/"
         ]
     },
     "config": {

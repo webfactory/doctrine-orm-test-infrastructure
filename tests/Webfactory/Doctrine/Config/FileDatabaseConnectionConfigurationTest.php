@@ -9,10 +9,11 @@
 
 namespace Webfactory\Doctrine\Config;
 
+use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
 
-class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
+class FileDatabaseConnectionConfigurationTest extends TestCase
 {
     public function testKeepsProvidedFilePath()
     {
@@ -67,7 +68,6 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
 
         $this->assertFileNotExists($file->getPathname());
 
-        $this->setExpectedException(null);
         $configuration->cleanUp();
     }
 
@@ -86,8 +86,9 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
         $configuration = new FileDatabaseConnectionConfiguration();
         $infrastructure = $this->createInfrastructure($configuration);
 
-        $this->setExpectedException(null);
-        $infrastructure->import(new TestEntity());
+        $this->assertNull(
+            $infrastructure->import(new TestEntity())
+        );
     }
 
     public function testDatabaseFileIsCreated()
@@ -112,10 +113,11 @@ class FileDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCas
     {
         $infrastructure = ORMInfrastructure::createOnlyFor(
             array(
-                'Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+                TestEntity::class
             ),
             $configuration
         );
+
         return $infrastructure;
     }
 }

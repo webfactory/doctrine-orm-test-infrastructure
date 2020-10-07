@@ -9,13 +9,14 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Persistence\ObjectManagerDecorator;
+use Doctrine\Persistence\ObjectManagerDecorator;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @deprecated Will be removed in 2.0.
  * @see \Webfactory\Doctrine\ORMTestInfrastructure\MemorizingObjectManagerDecorator
  */
-class MemorizingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
+class MemorizingObjectManagerDecoratorTest extends TestCase
 {
     /**
      * System under test.
@@ -27,24 +28,24 @@ class MemorizingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
     /**
      * The (mocked) inner object manager.
      *
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\Common\Persistence\ObjectManagerDecorator
+     * @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\Persistence\ObjectManagerDecorator
      */
     private $objectManager = null;
 
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->objectManager = $this->getMock(ObjectManagerDecorator::class);
+        $this->objectManager = $this->createMock(ObjectManagerDecorator::class);
         $this->decorator     = new MemorizingObjectManagerDecorator($this->objectManager);
     }
 
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->objectManager = null;
         $this->decorator     = null;
@@ -60,7 +61,7 @@ class MemorizingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $seen = $this->decorator->getSeenEntities();
 
-        $this->assertInternalType('array', $seen);
+        $this->assertIsArray($seen);
         $this->assertContains($first, $seen);
         $this->assertContains($second, $seen);
         $this->assertCount(2, $seen);

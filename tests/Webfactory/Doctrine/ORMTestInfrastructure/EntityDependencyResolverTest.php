@@ -9,6 +9,7 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Inheritance\ClassTableChildWithParentReferenceEntity;
@@ -27,7 +28,7 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWi
 /**
  * Tests the entity resolver.
  */
-class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
+class EntityDependencyResolverTest extends TestCase
 {
     /**
      * Ensures that the resolver is traversable.
@@ -38,7 +39,7 @@ class EntityDependencyResolverTest extends \PHPUnit_Framework_TestCase
             TestEntity::class
         ));
 
-        $this->assertInstanceOf('\Traversable', $resolver);
+        $this->assertInstanceOf(\Traversable::class, $resolver);
     }
 
     /**

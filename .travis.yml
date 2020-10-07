@@ -1,11 +1,9 @@
 language: php
 
 php:
-  - '5.5'
-  - '5.6'
-  - '7.0'
-  - '7.1'
-  - 'hhvm'
+  - '7.2'
+  - '7.3'
+  - '7.4'
 
 before_script:
     - composer self-update
@@ -16,11 +14,7 @@ script:
     - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_script:
-  - php vendor/bin/coveralls
-
-matrix:
-  allow_failures:
-    - php: 'hhvm'
+  - php vendor/bin/php-coveralls
 
 notifications:
   hipchat:
