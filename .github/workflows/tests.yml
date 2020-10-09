@@ -1,0 +1,31 @@
+name: Tests
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php-version: [ '7.2', '7.3', '7.4' ]
+                dependency-version: [ prefer-stable ]
+                include:
+                    - { php-version: 7.2, dependency-version: prefer-lowest }
+
+        name: PHP ${{ matrix.php-version }} - ${{ matrix.dependency-version }}
+
+        steps:
+            -   uses: actions/checkout@v2
+            -   name: Install PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+            -   name: Install dependencies
+                run: composer update --no-interaction --prefer-dist --${{ matrix.dependency-version}} --no-progress --no-suggest
+            -   name: Run test suite
+                run: vendor/bin/phpunit

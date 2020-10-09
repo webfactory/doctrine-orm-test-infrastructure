@@ -17,26 +17,16 @@
     ],
     "require": {
         "php": ">=7.2",
-        "doctrine/orm": "~2.7"
+        "doctrine/annotations": "^1.8",
+        "doctrine/cache": "^1.9.1",
+        "doctrine/common": "^2.11",
+        "doctrine/dbal": "^2.9.3",
+        "doctrine/event-manager": "^1.1",
+        "doctrine/orm": "^2.7",
+        "doctrine/persistence": "^1.3|^2.0"
     },
     "require-dev": {
-        "mayflower/php-codebrowser": "^2.3",
-        "php-coveralls/php-coveralls": "^2.4",
-        "phploc/phploc": "^5.0",
-        "phpstan/phpstan": "^0.12",
-        "phpunit/phpunit": "^8.5",
-        "roave/security-advisories": "dev-master",
-        "sebastian/phpcpd": "^4.1",
-        "squizlabs/php_codesniffer": "^3.3"
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "@php vendor/bin/phpunit --colors=always --coverage-html=build/html-coverage",
-        "sniff": "@php vendor/bin/phpcs",
-        "format": "@php vendor/bin/phpcbf",
-        "phploc": "@php vendor/bin/phploc src > build/phploc.txt",
-        "phpcpd": "@php vendor/bin/phpcpd src tests",
-        "phpstan": "@php -d memory_limit=-1 vendor/bin/phpstan analyse src"
+        "phpunit/phpunit": "^8.5"
     },
     "autoload": {
         "psr-0": {
@@ -49,9 +39,6 @@
         ]
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "php": "7.2.24"
-        }
+        "sort-packages": true
     }
 }
