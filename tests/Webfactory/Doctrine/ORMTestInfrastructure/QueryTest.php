@@ -9,10 +9,12 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * Tests the value object that holds query data.
  */
-class QueryTest extends \PHPUnit_Framework_TestCase
+class QueryTest extends TestCase
 {
     /**
      * System under test.
@@ -24,7 +26,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->query= new Query(
@@ -37,7 +39,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->query = null;
         parent::tearDown();

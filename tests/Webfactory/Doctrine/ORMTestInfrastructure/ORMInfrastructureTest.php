@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
@@ -32,7 +33,7 @@ use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntityWi
 /**
  * Tests the infrastructure.
  */
-class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
+class ORMInfrastructureTest extends TestCase
 {
     /**
      * System under test.
@@ -44,7 +45,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->infrastructure = new ORMInfrastructure(array(
@@ -55,7 +56,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->infrastructure = null;
         parent::tearDown();
@@ -107,7 +108,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
      */
     public function testInfrastructureRejectsNonClassNames()
     {
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         ORMInfrastructure::createOnlyFor(array('NotAClass'));
     }
 
@@ -189,7 +190,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
     {
         $queries = $this->infrastructure->getQueries();
 
-        $this->assertInternalType('array', $queries);
+        $this->assertIsArray($queries);
         $this->assertCount(0, $queries);
     }
 
@@ -204,7 +205,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $queries = $this->infrastructure->getQueries();
 
-        $this->assertInternalType('array', $queries);
+        $this->assertIsArray($queries);
         $this->assertContainsOnly(Query::class, $queries);
     }
 
@@ -219,7 +220,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $queries = $this->infrastructure->getQueries();
 
-        $this->assertInternalType('array', $queries);
+        $this->assertIsArray($queries);
         $this->assertCount(1, $queries);
     }
 
@@ -233,7 +234,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $queries = $this->infrastructure->getQueries();
 
-        $this->assertInternalType('array', $queries);
+        $this->assertIsArray($queries);
         $this->assertCount(0, $queries);
     }
 
@@ -249,7 +250,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $queries = $this->infrastructure->getQueries();
 
-        $this->assertInternalType('array', $queries);
+        $this->assertIsArray($queries);
         $this->assertCount(1, $queries);
     }
 
@@ -320,9 +321,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $entityWithDependency = new TestEntityWithDependency();
 
         // Saving without prepared sub-entity would fail.
-        $this->setExpectedException(null);
         $infrastructure->getEntityManager()->persist($entityWithDependency);
-        $infrastructure->getEntityManager()->flush();
+        $this->assertNull(
+            $infrastructure->getEntityManager()->flush()
+        );
     }
 
     /**
@@ -339,9 +341,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         // Saving will most probably work as no additional table is needed, but the reference
         // detection, which is performed before, might lead to an endless loop.
-        $this->setExpectedException(null);
         $infrastructure->getEntityManager()->persist($entityWithCycle);
-        $infrastructure->getEntityManager()->flush();
+        $this->assertNull(
+            $infrastructure->getEntityManager()->flush()
+        );
     }
 
     /**
@@ -362,9 +365,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $entityWithReferenceChain = new ChainReferenceEntity();
 
         // All tables must be created properly, otherwise it is not possible to store the entity.
-        $this->setExpectedException(null);
         $infrastructure->getEntityManager()->persist($entityWithReferenceChain);
-        $infrastructure->getEntityManager()->flush();
+        $this->assertNull(
+            $infrastructure->getEntityManager()->flush()
+        );
     }
 
     /**
@@ -431,8 +435,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             AnnotatedTestEntity::class
         ));
 
-        $this->setExpectedException(null);
-        $infrastructure->getEntityManager();
+        $this->assertInstanceOf(
+            EntityManager::class,
+            $infrastructure->getEntityManager()
+        );
     }
 
     /**
@@ -475,7 +481,6 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $this->setExpectedException(null);
         ORMInfrastructure::createWithDependenciesFor(
             AnnotatedTestEntityForDependencyDiscovery::class
         );
@@ -500,16 +505,20 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
 
         $infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
 
-        $this->setExpectedException(null);
-        $infrastructure->getEntityManager();
+        $this->assertInstanceOf(
+            EntityManager::class,
+            $infrastructure->getEntityManager()
+        );
     }
 
     public function testCannotRegisterEntityMappingAfterEntityManagerCreation()
     {
         $this->infrastructure->getEntityManager();
 
-        $this->setExpectedException(\LogicException::class);
-        $this->infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
+        $this->expectException(\LogicException::class);
+        $this->assertNull(
+            $this->infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class)
+        );
     }
 
     /**
@@ -524,7 +533,7 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         )));
 
         // The passed configuration is simply invalid, therefore, we expect an exception.
-        $this->setExpectedException('Exception');
+        $this->expectException('Exception');
         $this->infrastructure->getEntityManager();
     }
 
@@ -538,9 +547,10 @@ class ORMInfrastructureTest extends \PHPUnit_Framework_TestCase
         $cascadingPersistingEntity->add(new CascadePersistedEntity());
         $infrastructure->import($cascadingPersistingEntity);
 
-        $this->setExpectedException(null);
         // If this call fails, then there are leftovers in the identity map.
-        $infrastructure->getEntityManager()->flush();
+        $this->assertNull(
+            $infrastructure->getEntityManager()->flush()
+        );
     }
 
     /**

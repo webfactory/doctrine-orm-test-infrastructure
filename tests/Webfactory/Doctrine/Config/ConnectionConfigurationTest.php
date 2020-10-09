@@ -9,7 +9,9 @@
 
 namespace Webfactory\Doctrine\Config;
 
-class ConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ConnectionConfigurationTest extends TestCase
 {
     /**
      * System under test.
@@ -21,7 +23,7 @@ class ConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->connectionConfiguration = new ConnectionConfiguration(array(
@@ -35,7 +37,7 @@ class ConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->connectionConfiguration = null;
         parent::tearDown();
@@ -45,7 +47,7 @@ class ConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
     {
         $params = $this->connectionConfiguration->getConnectionParameters();
 
-        $this->assertInternalType('array', $params);
+        $this->assertIsArray($params);
         $expectedParams = array(
             'driver'   => 'pdo_sqlite',
             'user'     => 'root',

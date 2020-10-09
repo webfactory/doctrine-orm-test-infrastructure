@@ -9,8 +9,8 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\Common\Persistence\ObjectManagerDecorator;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManagerDecorator;
 
 /**
  * Object manager that detaches entities after storing them.

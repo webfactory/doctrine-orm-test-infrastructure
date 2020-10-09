@@ -9,10 +9,14 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\ORM\Configuration;
+use PHPUnit\Framework\TestCase;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
+
 /**
  * Tests the ORM configuration factory.
  */
-class ConfigurationFactoryTest extends \PHPUnit_Framework_TestCase
+class ConfigurationFactoryTest extends TestCase
 {
     /**
      * System under test.
@@ -24,7 +28,7 @@ class ConfigurationFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->factory = new ConfigurationFactory();
@@ -33,7 +37,7 @@ class ConfigurationFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->factory = null;
         parent::tearDown();
@@ -44,9 +48,9 @@ class ConfigurationFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateForReturnsConfiguration()
     {
         $configuration = $this->factory->createFor(array(
-            '\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity'
+            TestEntity::class,
         ));
 
-        $this->assertInstanceOf('\Doctrine\ORM\Configuration', $configuration);
+        $this->assertInstanceOf(Configuration::class, $configuration);
     }
 }

@@ -9,10 +9,11 @@
 
 namespace Webfactory\Doctrine\Config;
 
+use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
 
-class InMemoryDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
+class InMemoryDatabaseConnectionConfigurationTest extends TestCase
 {
     /**
      * Checks if the connection configuration *really* works with the infrastructure.
@@ -21,8 +22,9 @@ class InMemoryDatabaseConnectionConfigurationTest extends \PHPUnit_Framework_Tes
     {
         $configuration = new InMemoryDatabaseConnectionConfiguration();
 
-        $this->setExpectedException(null);
         $infrastructure = ORMInfrastructure::createOnlyFor(TestEntity::class, $configuration);
-        $infrastructure->import(new TestEntity());
+        $this->assertNull(
+            $infrastructure->import(new TestEntity())
+        );
     }
 }

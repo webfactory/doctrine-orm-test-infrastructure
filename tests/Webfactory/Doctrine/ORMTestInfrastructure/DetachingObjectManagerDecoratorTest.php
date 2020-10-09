@@ -9,12 +9,15 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\Persistence\ObjectManagerDecorator;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Tests the object manager decorator that detaches entities after persisting.
  *
  * @deprecated Will be removed in 2.0.
  */
-class DetachingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
+class DetachingObjectManagerDecoratorTest extends TestCase
 {
 
     /**
@@ -27,24 +30,24 @@ class DetachingObjectManagerDecoratorTest extends \PHPUnit_Framework_TestCase
     /**
      * The (mocked) inner object manager.
      *
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\Common\Persistence\ObjectManagerDecorator
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Doctrine\Persistence\ObjectManagerDecorator
      */
     protected $objectManager = null;
 
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->objectManager = $this->getMock('\Doctrine\Common\Persistence\ObjectManagerDecorator');
+        $this->objectManager = $this->createMock(ObjectManagerDecorator::class);
         $this->decorator     = new DetachingObjectManagerDecorator($this->objectManager);
     }
 
     /**
      * Cleans up the test environment.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->objectManager = null;
         $this->decorator     = null;

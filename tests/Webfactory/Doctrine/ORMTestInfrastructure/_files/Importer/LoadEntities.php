@@ -1,5 +1,5 @@
 <?php
 
-/* @var $objectManager \Doctrine\Common\Persistence\ObjectManager */
+/* @var $objectManager \Doctrine\Persistence\ObjectManager */
 $objectManager->persist(new \stdClass());
 $objectManager->persist(new \stdClass());

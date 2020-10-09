@@ -5,10 +5,11 @@ namespace Webfactory\Doctrine\Config;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\TestEntity;
 
-class ExistingConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
+class ExistingConnectionConfigurationTest extends TestCase
 {
     /**
      * @var ExistingConnectionConfiguration
@@ -23,7 +24,7 @@ class ExistingConnectionConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * Initializes the test environment.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
