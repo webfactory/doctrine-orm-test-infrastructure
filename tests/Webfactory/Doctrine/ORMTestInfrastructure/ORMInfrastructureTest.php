@@ -11,10 +11,13 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
+use Webfactory\Doctrine\ORMTestInfrastructure\_files\ORMInfrastructure\Entity\DependencyResolverFixtures;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
@@ -551,6 +554,120 @@ class ORMInfrastructureTest extends TestCase
         $this->assertNull(
             $infrastructure->getEntityManager()->flush()
         );
+    }
+
+    /**
+     * @dataProvider resolverFixtures
+     */
+    public function testSchemaResults(array $classes, callable $validator): void
+    {
+        $infrastructure = ORMInfrastructure::createWithDependenciesFor($classes);
+        $entityManager = $infrastructure->getEntityManager();
+        $schemaTool = new SchemaTool($entityManager);
+
+        $validator($schemaTool->getSchemaFromMetadata($infrastructure->getMetadataForSupportedEntities()));
+    }
+
+    public function resolverFixtures()
+    {
+        yield 'single entity' => [
+            [DependencyResolverFixtures\SingleEntity\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(1, $schema->getTableNames());
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldA'));
+            },
+        ];
+
+        yield 'simple entity hierarchy' => [
+            [DependencyResolverFixtures\TwoEntitiesInheritance\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(1, $schema->getTableNames());
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldA'));
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldB'));
+            },
+        ];
+
+        yield 'entity with mapped superclass as base class' => [
+            [DependencyResolverFixtures\MappedSuperclassInheritance\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(1, $schema->getTableNames());
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldA'));
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldB'));
+            },
+        ];
+
+        yield 'fields from transient base class are present, but class is otherwise ignored' => [
+            [DependencyResolverFixtures\TransientBaseClass\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(1, $schema->getTableNames());
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldA'));
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldB'));
+            },
+        ];
+
+        yield 'with single table inheritance, the table for the base class is present with all fields' => [
+            [DependencyResolverFixtures\SingleTableInheritance\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(1, $schema->getTableNames());
+                self::assertTrue($schema->getTable('BaseEntity')->hasColumn('fieldA'));
+                self::assertTrue($schema->getTable('BaseEntity')->hasColumn('fieldB'));
+            },
+        ];
+
+        yield 'with joined table inheritance, tables for the base and subclass are present with all fields' => [
+            [DependencyResolverFixtures\JoinedTableInheritance\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(2, $schema->getTableNames());
+
+                self::assertCount(3, $schema->getTable('BaseEntity')->getColumns()); // id, class, fieldA
+                self::assertTrue($schema->getTable('BaseEntity')->hasColumn('fieldA'));
+
+                self::assertCount(2, $schema->getTable('Entity')->getColumns()); // id-baseref, fieldB
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldB'));
+            },
+        ];
+
+        yield 'with joined table inheritance, three tables are present along the class hierarchy' => [
+            [DependencyResolverFixtures\JoinedTableInheritanceWithTwoLevels\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(3, $schema->getTableNames());
+
+                self::assertCount(3, $schema->getTable('BaseEntity')->getColumns()); // id, class, fieldA
+                self::assertTrue($schema->getTable('BaseEntity')->hasColumn('fieldA'));
+
+                self::assertCount(2, $schema->getTable('IntermediateEntity')->getColumns()); // id-baseref, fieldB
+                self::assertTrue($schema->getTable('IntermediateEntity')->hasColumn('fieldB'));
+
+                self::assertCount(2, $schema->getTable('Entity')->getColumns()); // id-baseref, fieldC
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldC'));
+            },
+        ];
+
+        yield 'with joined table inheritance, all tables for the complete inheritance tree are present' => [
+            [DependencyResolverFixtures\JoinedTableInheritanceWithTwoSubclasses\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(3, $schema->getTableNames());
+
+                self::assertCount(3, $schema->getTable('BaseEntity')->getColumns()); // id, class, fieldA
+                self::assertTrue($schema->getTable('BaseEntity')->hasColumn('fieldA'));
+
+                self::assertCount(2, $schema->getTable('SecondEntity')->getColumns()); // id-baseref, fieldB
+                self::assertTrue($schema->getTable('SecondEntity')->hasColumn('fieldB'));
+
+                self::assertCount(2, $schema->getTable('Entity')->getColumns()); // id-baseref, fieldC
+                self::assertTrue($schema->getTable('Entity')->hasColumn('fieldC'));
+            },
+        ];
+
+        // If it does not work as expected, this will even throw an exception because the table name is used more than once
+        yield 'in a hierarchy, identical (=conflicting) table names are fine as long as only one class is used' => [
+            [DependencyResolverFixtures\TwoEntitiesInheritanceWithConflictingTableNames\Entity::class],
+            function (Schema $schema) {
+                self::assertCount(1, $schema->getTableNames());
+                self::assertTrue($schema->getTable('some_table')->hasColumn('fieldA'));
+                self::assertTrue($schema->getTable('some_table')->hasColumn('fieldB'));
+            },
+        ];
     }
 
     /**

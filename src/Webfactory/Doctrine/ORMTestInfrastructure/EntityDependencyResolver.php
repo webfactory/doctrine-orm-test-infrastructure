@@ -9,10 +9,11 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Persistence\Mapping\ReflectionService;
-use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\Mapping\ReflectionService;
+use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 
 /**
  * Takes a set of entity classes and resolves to a set that contains all entities
@@ -99,32 +100,49 @@ class EntityDependencyResolver implements \IteratorAggregate
         if (count($entityClasses) === 0) {
             return array();
         }
-        $associatedEntities = array();
+        $associatedEntities = [];
+        $mappingDriver = $config->getMetadataDriverImpl();
+
         foreach ($entityClasses as $entityClass) {
             /* @var $entityClass string */
             $metadata = new ClassMetadata($entityClass);
             $metadata->initializeReflection($this->reflectionService);
-            $config->getMetadataDriverImpl()->loadMetadataForClass($entityClass, $metadata);
+            $mappingDriver->loadMetadataForClass($entityClass, $metadata);
 
             foreach ($metadata->getAssociationNames() as $name) {
                 /* @var $name string */
                 $associatedEntity = $metadata->getAssociationTargetClass($name);
-                $associatedEntities[] = $metadata->fullyQualifiedClassName($associatedEntity);
+                $associatedEntities[$metadata->fullyQualifiedClassName($associatedEntity)] = true;
             }
 
-            if (count($metadata->discriminatorMap) > 0) {
-                $childClasses = array_values($metadata->discriminatorMap);
-                $associatedEntities = array_merge($associatedEntities, $childClasses);
+            if ($metadata->isInheritanceTypeJoined()) {
+                foreach ($metadata->discriminatorMap as $childClass) {
+                    $associatedEntities[$childClass] = true;
+                }
             }
 
             // Add parent classes that are involved in some kind of entity inheritance.
+            $parentClassesTowardsInheritanceBaseTable = [];
             foreach ($this->reflectionService->getParentClasses($entityClass) as $parentClass) {
-                if (!$config->getMetadataDriverImpl()->isTransient($parentClass)) {
-                    $associatedEntities[] = $parentClass;
+                if ($mappingDriver->isTransient($parentClass)) {
+                    continue;
                 }
+
+                $parentClassesTowardsInheritanceBaseTable[] = $parentClass;
+                $metadata = new ClassMetadata($parentClass);
+                $metadata->initializeReflection($this->reflectionService);
+                $mappingDriver->loadMetadataForClass($parentClass, $metadata);
+                if ($metadata->isInheritanceTypeNone()) {
+                    continue;
+                }
+
+                foreach ($parentClassesTowardsInheritanceBaseTable as $class) {
+                    $associatedEntities[$class] = true;
+                }
+                $parentClassesTowardsInheritanceBaseTable = [];
             }
         }
-        return array_unique($associatedEntities);
+        return array_keys($associatedEntities);
     }
 
     /**
@@ -157,5 +175,14 @@ class EntityDependencyResolver implements \IteratorAggregate
                 return !interface_exists($entity);
             }
         );
+    }
+
+    private function fetchMetadata(string $entityClass, MappingDriver $mappingDriver): ClassMetadata
+    {
+        $metadata = new ClassMetadata($entityClass);
+        $metadata->initializeReflection($this->reflectionService);
+        $mappingDriver->loadMetadataForClass($entityClass, $metadata);
+
+        return $metadata;
     }
 }

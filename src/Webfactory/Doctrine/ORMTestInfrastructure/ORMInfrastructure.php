@@ -299,7 +299,7 @@ class ORMInfrastructure
             $this->entityManager = $this->createEntityManager();
             $this->setupResolveTargetListener();
             if ($this->createSchema) {
-                $this->createSchemaForSupportedEntities($this->entityManager);
+                $this->createSchemaForSupportedEntities();
             }
             $this->queryLogger->enabled = $loggerWasEnabled;
         }
@@ -360,24 +360,22 @@ class ORMInfrastructure
 
     /**
      * Creates the schema for the managed entities.
-     *
-     * @param EntityManager $entityManager
      */
-    protected function createSchemaForSupportedEntities(EntityManager $entityManager)
+    protected function createSchemaForSupportedEntities()
     {
-        $metadata   = $this->getMetadataForSupportedEntities($entityManager->getMetadataFactory());
-        $schemaTool = new SchemaTool($entityManager);
+        $metadata   = $this->getMetadataForSupportedEntities();
+        $schemaTool = new SchemaTool($this->entityManager);
         $schemaTool->createSchema($metadata);
     }
 
     /**
      * Returns the metadata for each managed entity.
      *
-     * @param ClassMetadataFactory $metadataFactory
      * @return \Doctrine\Common\Persistence\Mapping\ClassMetadata[]
      */
-    protected function getMetadataForSupportedEntities(ClassMetadataFactory $metadataFactory)
+    public function getMetadataForSupportedEntities()
     {
+        $metadataFactory = $this->getEntityManager()->getMetadataFactory();
         $metadata = array();
         foreach ($this->entityClasses as $class) {
             $metadata[] = $metadataFactory->getMetadataFor($class);

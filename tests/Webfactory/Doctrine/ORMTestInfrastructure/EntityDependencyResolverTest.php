@@ -175,21 +175,6 @@ class EntityDependencyResolverTest extends TestCase
     }
 
     /**
-     * Ensures that a mapped super class is listed in the resolved set.
-     */
-    public function testResolvedSetContainsNameOfMappedSuperClass()
-    {
-        $resolver = new EntityDependencyResolver(array(
-            MappedSuperClassChild::class
-        ));
-
-        $this->assertContainsEntity(
-            MappedSuperClassParentWithReference::class,
-            $resolver
-        );
-    }
-
-    /**
      * Ensures that an entity, that is referenced by a mapped super class, is listed in the resolved set.
      */
     public function testResolvedSetContainsNameOfEntityThatIsReferencedByMappedSuperClass()
