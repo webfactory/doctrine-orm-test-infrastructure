@@ -154,6 +154,11 @@ class ORMInfrastructure
     private $createSchema = true;
 
     /**
+     * @var EventSubscriber[]
+     */
+    private $eventSubscribers;
+
+    /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
      *
@@ -226,6 +231,13 @@ class ORMInfrastructure
         $this->namingStrategy          = new DefaultNamingStrategy();
         $this->configFactory           = new ConfigurationFactory();
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
+
+        $this->eventSubscribers = [$this->resolveTargetListener];
+    }
+
+    public function addEventSubscriber(EventSubscriber $subscriber): void
+    {
+        $this->eventSubscribers[] = $subscriber;
     }
 
     public function disableSchemaCreation()
@@ -297,7 +309,7 @@ class ORMInfrastructure
             $loggerWasEnabled = $this->queryLogger->enabled;
             $this->queryLogger->enabled = false;
             $this->entityManager = $this->createEntityManager();
-            $this->setupResolveTargetListener();
+            $this->setupEventSubscribers();
             if ($this->createSchema) {
                 $this->createSchemaForSupportedEntities();
             }
@@ -464,22 +476,12 @@ class ORMInfrastructure
         );
     }
 
-    /**
-     * Returns the listener that is used to apply entity mappings.
-     *
-     * Registers one if none is configured yet.
-     *
-     * @return ResolveTargetEntityListener
-     */
-    private function setupResolveTargetListener()
+    private function setupEventSubscribers()
     {
         $eventManager = $this->getEventManager();
-        if ($this->resolveTargetListener instanceof EventSubscriber) {
-            // In Doctrine > 2.5 this is a event subscriber.
-            $eventManager->addEventSubscriber($this->resolveTargetListener);
-        } else {
-            // In previous versions the listener must be attached "manually".
-            $eventManager->addEventListener(Events::loadClassMetadata, $this->resolveTargetListener);
+
+        foreach ($this->eventSubscribers as $subscriber) {
+            $eventManager->addEventSubscriber($subscriber);
         }
     }
 
