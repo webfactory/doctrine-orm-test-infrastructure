@@ -59,10 +59,9 @@ class EntityDependencyResolver implements \IteratorAggregate
     /**
      * Allows iterating over the set of resolved entities.
      *
-     * @return \Traversable
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->resolve($this->initialEntitySet));
     }

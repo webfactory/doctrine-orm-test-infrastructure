@@ -12,15 +12,15 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: [ '7.2', '7.3', '7.4' ]
+                php-version: [ '7.2', '7.4', '8.1' ]
                 dependency-version: [ prefer-stable ]
                 include:
-                    - { php-version: 7.2, dependency-version: prefer-lowest }
+                    - { php-version: '7.2', dependency-version: prefer-lowest }
 
         name: PHP ${{ matrix.php-version }} - ${{ matrix.dependency-version }}
 
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
             -   name: Install PHP
                 uses: shivammathur/setup-php@v2
                 with:
