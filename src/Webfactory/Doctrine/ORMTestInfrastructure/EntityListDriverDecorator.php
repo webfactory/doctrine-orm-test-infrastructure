@@ -48,7 +48,7 @@ class EntityListDriverDecorator implements MappingDriver
      *
      * @return array The names of all mapped classes known to this driver.
      */
-    public function getAllClassNames()
+    public function getAllClassNames(): array
     {
         return array_intersect(
             $this->exposedEntityClasses,
@@ -62,7 +62,7 @@ class EntityListDriverDecorator implements MappingDriver
      * @param string $className
      * @param ClassMetadata $metadata
      */
-    public function loadMetadataForClass($className, ClassMetadata $metadata)
+    public function loadMetadataForClass($className, ClassMetadata $metadata): void
     {
         $this->innerDriver->loadMetadataForClass($className, $metadata);
     }
@@ -74,7 +74,7 @@ class EntityListDriverDecorator implements MappingDriver
      * @param string $className
      * @return boolean
      */
-    public function isTransient($className)
+    public function isTransient($className): bool
     {
         return $this->innerDriver->isTransient($className);
     }
