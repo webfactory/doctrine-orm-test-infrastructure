@@ -124,7 +124,8 @@ class EntityListDriverDecoratorTest extends TestCase
     public function testDriverDelegatesIsTransientCall()
     {
         $this->innerDriver->expects($this->once())
-            ->method('isTransient');
+            ->method('isTransient')
+            ->willReturn(false);
 
         $this->driver->isTransient('My\Namespace\Person');
     }
