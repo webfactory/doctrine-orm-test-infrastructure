@@ -49,7 +49,7 @@ class DetachingObjectManagerDecorator extends ObjectManagerDecorator
      *
      * @param object $object
      */
-    public function persist($object)
+    public function persist($object): void
     {
         $this->entitiesToDetach[] = $object;
         $this->wrapped->persist($object);
@@ -58,7 +58,7 @@ class DetachingObjectManagerDecorator extends ObjectManagerDecorator
     /**
      * {@inheritdoc}
      */
-    public function flush()
+    public function flush(): void
     {
         $this->wrapped->flush();
         $this->detachPersistedEntities();
