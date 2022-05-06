@@ -46,7 +46,7 @@ class MemorizingObjectManagerDecorator extends ObjectManagerDecorator
      *
      * @param object $object
      */
-    public function persist($object)
+    public function persist($object): void
     {
         $this->seenEntities[] = $object;
         $this->wrapped->persist($object);
