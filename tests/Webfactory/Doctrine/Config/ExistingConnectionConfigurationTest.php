@@ -45,7 +45,7 @@ class ExistingConnectionConfigurationTest extends TestCase
 
         $infrastructure->import(new TestEntity());
 
-        $this->assertEquals(1, $this->connection->fetchColumn('SELECT COUNT(*) FROM test_entity'));
+        $this->assertEquals(1, $this->connection->fetchOne('SELECT COUNT(*) FROM test_entity'));
     }
 
 }
