@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -159,6 +160,11 @@ class ORMInfrastructure
     private $eventSubscribers;
 
     /**
+     * @var 'annotation'|'attribute'|'xml'|'yaml'
+     */
+    private $driverType;
+
+    /**
      * Creates an infrastructure for the given entity or entities, including all
      * referenced entities.
      *
@@ -231,6 +237,7 @@ class ORMInfrastructure
         $this->namingStrategy          = new DefaultNamingStrategy();
         $this->configFactory           = new ConfigurationFactory();
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
+        $this->driverType              = 'annotation';
 
         $this->eventSubscribers = [$this->resolveTargetListener];
     }
@@ -251,6 +258,14 @@ class ORMInfrastructure
     public function setNamingStrategy(NamingStrategy $namingStrategy): void
     {
         $this->namingStrategy = $namingStrategy;
+    }
+
+    /**
+     * @param 'annotation'|'attribute'|'xml'|'yaml' $driverType
+     */
+    public function setDriverType(string $driverType): void
+    {
+        $this->driverType = $driverType;
     }
 
     /**
@@ -360,14 +375,16 @@ class ORMInfrastructure
      */
     protected function createEntityManager()
     {
-        $config = $this->configFactory->createFor($this->entityClasses);
+        $config = $this->configFactory->createFor($this->entityClasses, $this->driverType);
         $config->setSQLLogger($this->queryLogger);
         $config->setNamingStrategy($this->namingStrategy);
 
-        return EntityManager::create(
-            $this->connectionConfiguration->getConnectionParameters(),
-            $config
-        );
+        $conn = $this->connectionConfiguration->getConnectionParameters();
+        if (is_array($conn)) {
+            $conn = DriverManager::getConnection($conn, $config);
+        }
+
+        return EntityManager::create($conn, $config);
     }
 
     /**

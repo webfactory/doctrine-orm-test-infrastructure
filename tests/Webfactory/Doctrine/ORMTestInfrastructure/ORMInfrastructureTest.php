@@ -14,13 +14,16 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\_files\ORMInfrastructure\Entity\DependencyResolverFixtures;
+use Webfactory\Doctrine\ORMTestInfrastructure\_files\ORMInfrastructure\Entity\TestEntityWithAttribute;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Annotation\AnnotationForTestWithDependencyDiscovery;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AnnotatedTestEntityForDependencyDiscovery;
+use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\AttributedTestEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Cascade\CascadePersistingEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\Cascade\CascadePersistedEntity;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructureTest\ChainReferenceEntity;
@@ -79,6 +82,52 @@ class ORMInfrastructureTest extends TestCase
      * Ensures that getRepository() returns the Doctrine repository that belongs
      * to the given entity class.
      */
+    public function testGetEntityManagerThrowsWhenUsingWrongMappingDriver()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            TestEntityWithAttribute::class
+        ));
+
+        $this->expectException(MappingException::class);
+        $infrastructure->getEntityManager();
+    }
+
+    /**
+     * Ensures that getRepository() returns the Doctrine repository that belongs
+     * to the given entity class.
+     */
+    public function testGetEntityManagerThrowsWhenUsingWrongMappingDriver2()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            TestEntity::class
+        ));
+
+        $infrastructure->setDriverType('attribute');
+
+        $this->expectException(MappingException::class);
+        $infrastructure->getEntityManager();
+    }
+
+    /**
+     * Ensures that getRepository() returns the Doctrine repository that belongs
+     * to the given entity class.
+     */
+    public function testGetEntityManagerThrowsWhenUsingUnknownMappingDriver()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            TestEntityWithAttribute::class
+        ));
+
+        $infrastructure->setDriverType('unknown');
+
+        $this->expectException(\LogicException::class);
+        $infrastructure->getEntityManager();
+    }
+
+    /**
+     * Ensures that getRepository() returns the Doctrine repository that belongs
+     * to the given entity class.
+     */
     public function testGetRepositoryReturnsRepositoryThatBelongsToEntityClass()
     {
         $repository = $this->infrastructure->getRepository(
@@ -99,6 +148,47 @@ class ORMInfrastructureTest extends TestCase
     {
         $entity = new TestEntity();
         $repository = $this->infrastructure->getRepository($entity);
+
+        $this->assertInstanceOf(
+            TestEntityRepository::class,
+            $repository
+        );
+    }
+
+    /**
+     * Ensures that getRepository() returns the Doctrine repository that belongs
+     * to the given entity class.
+     */
+    public function testGetRepositoryReturnsRepositoryThatBelongsToEntityClassWithAttribute()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            TestEntityWithAttribute::class
+        ));
+        $infrastructure->setDriverType('attribute');
+
+        $repository = $infrastructure->getRepository(
+            TestEntityWithAttribute::class
+        );
+
+        $this->assertInstanceOf(
+            TestEntityRepository::class,
+            $repository
+        );
+    }
+
+    /**
+     * Ensures that getRepository() returns the Doctrine repository that belongs
+     * to the given entity object.
+     */
+    public function testGetRepositoryReturnsRepositoryThatBelongsToEntityObjectWithAttribute()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            TestEntityWithAttribute::class
+        ));
+        $infrastructure->setDriverType('attribute');
+
+        $entity = new TestEntityWithAttribute();
+        $repository = $infrastructure->getRepository($entity);
 
         $this->assertInstanceOf(
             TestEntityRepository::class,
@@ -486,6 +576,23 @@ class ORMInfrastructureTest extends TestCase
 
         ORMInfrastructure::createWithDependenciesFor(
             AnnotatedTestEntityForDependencyDiscovery::class
+        );
+    }
+
+    /**
+     * Ensures that entities with non-Doctrine attributes can be used.
+     * @requires php ^8.0
+     */
+    public function testInfrastructureCanUseEntitiesWithNonDoctrineAttributes()
+    {
+        $infrastructure = ORMInfrastructure::createOnlyFor(array(
+            AttributedTestEntity::class
+        ));
+        $infrastructure->setDriverType('attribute');
+
+        $this->assertInstanceOf(
+            EntityManager::class,
+            $infrastructure->getEntityManager()
         );
     }
 

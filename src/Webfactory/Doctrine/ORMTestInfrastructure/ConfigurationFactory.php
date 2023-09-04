@@ -11,10 +11,14 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
+use Doctrine\ORM\Mapping\Driver\XmlDriver;
+use Doctrine\ORM\Mapping\Driver\YamlDriver;
 use Doctrine\ORM\Tools\Setup;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * Creates ORM configurations for a set of entities.
@@ -37,9 +41,10 @@ class ConfigurationFactory
      * Creates the ORM configuration for the given set of entities.
      *
      * @param string[] $entityClasses
+     * @param 'annotation'|'attribute'|'xml'|'yaml' $driverType
      * @return \Doctrine\ORM\Configuration
      */
-    public function createFor(array $entityClasses)
+    public function createFor(array $entityClasses, string $driverType = 'annotation')
     {
         $config = Setup::createConfiguration(
             // Activate development mode.
@@ -47,12 +52,26 @@ class ConfigurationFactory
             // Store proxies in the default temp directory.
             null,
             // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache()
+            DoctrineProvider::wrap(new ArrayAdapter())
         );
-        $driver = new AnnotationDriver(
-            $this->getAnnotationReader(),
-            $this->getDirectoryPathsForClassNames($entityClasses)
-        );
+        $paths = $this->getDirectoryPathsForClassNames($entityClasses);
+        switch ($driverType) {
+            case 'annotation':
+                $driver = new AnnotationDriver($this->getAnnotationReader(),$paths);
+                break;
+            case 'attribute':
+                $driver = new AttributeDriver($paths, true);
+                break;
+            case 'xml':
+                $driver = new XmlDriver($paths, XmlDriver::DEFAULT_FILE_EXTENSION, true);
+                break;
+            case 'yaml':
+                $driver = new YamlDriver($paths);
+                break;
+            default:
+                throw new \LogicException("Unsupported drive type $driverType");
+        }
+
         $driver = new EntityListDriverDecorator($driver, $entityClasses);
         $config->setMetadataDriverImpl($driver);
         return $config;
