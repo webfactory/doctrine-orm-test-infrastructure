@@ -432,7 +432,9 @@ class ORMInfrastructure
      */
     protected function addAnnotationLoaderToRegistry(\Closure $loader)
     {
-        AnnotationRegistry::registerLoader($loader);
+        if (is_callable(['Doctrine\Common\Annotations\AnnotationRegistry', 'registerLoader'])) {
+            AnnotationRegistry::registerLoader($loader);
+        }
     }
 
     /**
@@ -447,6 +449,10 @@ class ORMInfrastructure
      */
     protected function removeAnnotationLoaderFromRegistry(\Closure $loader)
     {
+        if (!is_callable(['Doctrine\Common\Annotations\AnnotationRegistry', 'registerLoader'])) {
+            return;
+        }
+
         $reflection = new \ReflectionClass(AnnotationRegistry::class);
         $annotationLoaderProperty = $reflection->getProperty('loaders');
         $annotationLoaderProperty->setAccessible(true);
