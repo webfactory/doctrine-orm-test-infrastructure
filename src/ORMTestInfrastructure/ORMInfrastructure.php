@@ -167,11 +167,7 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createWithDependenciesFor(
-        $entityClassOrClasses,
-        ConnectionConfiguration $connectionConfiguration = null,
-        MappingDriver $mappingDriver = null,
-    ) {
+    public static function createWithDependenciesFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null) {
         $entityClasses = static::normalizeEntityList($entityClassOrClasses);
         return new static(new EntityDependencyResolver($entityClasses, $mappingDriver), $connectionConfiguration, $mappingDriver);
     }
@@ -186,7 +182,7 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createOnlyFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null,)
+    public static function createOnlyFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null)
     {
         return new static(static::normalizeEntityList($entityClassOrClasses), $connectionConfiguration, $mappingDriver);
     }
