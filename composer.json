@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^7.2|^8.0",
-        "doctrine/annotations": "^1.8",
+        "doctrine/annotations": "^1.8|^2.0",
         "doctrine/cache": "^1.9.1",
         "doctrine/common": "^2.11|^3.0",
         "doctrine/dbal": "^2.12|^3.0",

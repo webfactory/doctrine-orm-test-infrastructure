@@ -397,39 +397,6 @@ class ORMInfrastructureTest extends TestCase
     }
 
     /**
-     * This test checks if a ORMInfrastructure object is immediately destructed when external references are removed.
-     *
-     * This ensures that the cleanup process runs early and the test environment is not polluted with infrastructure
-     * objects hanging in memory until the tests end.
-     * This is not a perfect test as it relies on internal knowledge about the magic of infrastructure. However,
-     * at the moment it is at least a viable solution.
-     */
-    public function testInfrastructureIsImmediatelyDestructed()
-    {
-        $beforeCreation = $this->getNumberOfAnnotationLoaders();
-        $infrastructure = ORMInfrastructure::createOnlyFor(
-            TestEntity::class
-        );
-        $afterCreation = $this->getNumberOfAnnotationLoaders();
-        $this->assertEquals(
-            $beforeCreation + 1,
-            $afterCreation,
-            'This test assumes that each infrastructure add an annotation loader. ' .
-            'It will not work if this prerequisite is not met.'
-        );
-
-        // Remove reference to the infrastructure object.
-        unset($infrastructure);
-
-        $afterDestruction = $this->getNumberOfAnnotationLoaders();
-        $this->assertEquals(
-            $beforeCreation,
-            $afterDestruction,
-            'Expected annotation loader to be immediately removed, which should happen in __destruct().'
-        );
-    }
-
-    /**
      * Ensures that entities with non-Doctrine annotations can be used.
      */
     public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
@@ -441,51 +408,6 @@ class ORMInfrastructureTest extends TestCase
         $this->assertInstanceOf(
             EntityManager::class,
             $infrastructure->getEntityManager()
-        );
-    }
-
-    /**
-     * This test covers a rare edge case.
-     *
-     * Prerequisites of the problem:
-     *
-     * - No custom annotation loader registered (e.g. if no infrastructure has been created yet)
-     * - Infrastructure is created with dependency discovery
-     * - Entity uses a custom annotation
-     * - Annotation class has not been loaded yet
-     *
-     * Observation:
-     *
-     * - Exception stating that the annotation could not be loaded
-     * - Creation of the infrastructure failed
-     *
-     * Reason:
-     *
-     * The dependency resolver scans the provided entities to find connected entities.
-     * That happened early in the infrastructure constructor so that no annotation loader was registered yet.
-     * Therefore, the annotation that is found cannot be loaded.
-     *
-     * @see \Webfactory\Doctrine\ORMTestInfrastructure\EntityDependencyResolver
-     */
-    public function testEntityDependencyDiscoveryWithCustomAnnotationThatWasNotLoadedBefore()
-    {
-        // Destruct the default infrastructure to ensure that its annotation loader is removed.
-        $this->infrastructure = null;
-        $this->assertEquals(
-            0,
-            $this->getNumberOfAnnotationLoaders(),
-            'This test assumes that no custom annotation loaders are registered.'
-        );
-        $this->assertFalse(
-            class_exists(AnnotationForTestWithDependencyDiscovery::class, false),
-            sprintf(
-                'This test assumes that the annotation class "%s" was not loaded before.',
-                AnnotationForTestWithDependencyDiscovery::class
-            )
-        );
-
-        ORMInfrastructure::createWithDependenciesFor(
-            AnnotatedTestEntityForDependencyDiscovery::class
         );
     }
 
