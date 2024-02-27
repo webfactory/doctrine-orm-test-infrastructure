@@ -457,7 +457,13 @@ class ORMInfrastructure
                 unset($activeLoaders[$index]);
             }
         }
-        $annotationLoaderProperty->setValue(array_values($activeLoaders));
+        // Work around this issue https://www.php.net/manual/en/reflectionclass.setstaticpropertyvalue.php#114740
+        // which seems to be fixed as of PHP 7.4.
+        if (PHP_VERSION >= 70400) {
+            $reflection->setStaticPropertyValue('loaders', array_values($activeLoaders));
+        } else {
+            $annotationLoaderProperty->setValue(array_values($activeLoaders));
+        }
     }
 
     /**
