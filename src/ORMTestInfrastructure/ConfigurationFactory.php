@@ -11,9 +11,12 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\PsrCachedReader;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\ORMSetup;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Creates ORM configurations for a set of entities.
@@ -32,6 +35,17 @@ class ConfigurationFactory
      */
     protected static $defaultAnnotationReader = null;
 
+    /** @var ?CacheItemPoolInterface */
+    private static $metadataCache = null;
+
+    /** @var ?MappingDriver */
+    private $mappingDriver;
+
+    public function __construct(MappingDriver $mappingDriver = null)
+    {
+        $this->mappingDriver = $mappingDriver;
+    }
+
     /**
      * Creates the ORM configuration for the given set of entities.
      *
@@ -40,23 +54,36 @@ class ConfigurationFactory
      */
     public function createFor(array $entityClasses)
     {
-        $config = ORMSetup::createConfiguration(true, null, new ArrayCachePool());
+        if (self::$metadataCache === null) {
+            self::$metadataCache = new ArrayCachePool();
+        }
 
-        $driver = new AnnotationDriver(
-            $this->getAnnotationReader(),
-            $this->getDirectoryPathsForClassNames($entityClasses)
-        );
-        $driver = new EntityListDriverDecorator($driver, $entityClasses);
-        $config->setMetadataDriverImpl($driver);
+        $mappingDriver = $this->mappingDriver ?? $this->createDefaultAnnotationsDriver($entityClasses);
+
+        $config = ORMSetup::createConfiguration(true, null, new ArrayCachePool());
+        $config->setMetadataCache(self::$metadataCache);
+        $config->setMetadataDriverImpl(new EntityListDriverDecorator($mappingDriver, $entityClasses));
 
         return $config;
     }
 
     /**
+     * @param list<class-string> $entityClasses
+     *
+     * @return MappingDriver
+     */
+    private function createDefaultAnnotationsDriver(array $entityClasses)
+    {
+        $paths = $this->getDirectoryPathsForClassNames($entityClasses);
+
+        return new AnnotationDriver($this->getAnnotationReader(), $paths);
+    }
+
+    /**
      * Returns a list of file paths for the provided class names.
      *
-     * @param string[] $classNames
-     * @return string[]
+     * @param list<class-string> $classNames
+     * @return list<string>
      */
     protected function getDirectoryPathsForClassNames(array $classNames)
     {
@@ -70,7 +97,7 @@ class ConfigurationFactory
     /**
      * Returns the path to the directory that contains the given class.
      *
-     * @param string $className
+     * @param class-string $className
      * @return string
      */
     protected function getDirectoryPathForClassName($className)
@@ -87,9 +114,7 @@ class ConfigurationFactory
     protected function getAnnotationReader()
     {
         if (static::$defaultAnnotationReader === null) {
-            // Use just the reader as the driver depends on the configured
-            // paths and, therefore, should not be shared.
-            static::$defaultAnnotationReader = ORMSetup::createDefaultAnnotationDriver()->getReader();
+            static::$defaultAnnotationReader = new PsrCachedReader(new AnnotationReader(), new ArrayCachePool());
         }
 
         return static::$defaultAnnotationReader;

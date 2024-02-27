@@ -9,6 +9,7 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Cassandra\Map;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
@@ -49,11 +50,11 @@ class EntityDependencyResolver implements \IteratorAggregate
      *
      * @param string[] $entityClasses
      */
-    public function __construct(array $entityClasses)
+    public function __construct(array $entityClasses, MappingDriver $mappingDriver = null)
     {
         $this->initialEntitySet  = $this->normalizeClassNames($entityClasses);
         $this->reflectionService = new RuntimeReflectionService();
-        $this->configFactory     = new ConfigurationFactory();
+        $this->configFactory     = new ConfigurationFactory($mappingDriver);
     }
 
     /**
