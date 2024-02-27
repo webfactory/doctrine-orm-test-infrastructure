@@ -18,6 +18,8 @@ jobs:
                 dependency-version: [ prefer-stable ]
                 include:
                     - { php-version: '7.2', dependency-version: prefer-lowest }
+                    # PHP 8.1 and prefer-lowest result in doctrine/persistence 2.x being used
+                    - { php-version: '8.1', dependency-version: prefer-lowest }
 
         name: PHP ${{ matrix.php-version }} - ${{ matrix.dependency-version }}
 
