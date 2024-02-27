@@ -591,17 +591,4 @@ class ORMInfrastructureTest extends TestCase
             },
         ];
     }
-
-    /**
-     * Returns the number of currently registered annotation loaders.
-     *
-     * @return integer
-     */
-    private function getNumberOfAnnotationLoaders()
-    {
-        $reflection = new \ReflectionClass(AnnotationRegistry::class);
-        $annotationLoaderProperty = $reflection->getProperty('loaders');
-        $annotationLoaderProperty->setAccessible(true);
-        return count($annotationLoaderProperty->getValue());
-    }
 }
