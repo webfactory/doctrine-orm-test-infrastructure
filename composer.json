@@ -29,17 +29,14 @@
         "phpunit/phpunit": "^8.5.36|^9.6.17"
     },
     "autoload": {
-        "psr-0": {
-            "Webfactory\\Doctrine": "src/"
+        "psr-4": {
+            "Webfactory\\Doctrine\\": "src/"
         }
     },
     "autoload-dev": {
-        "psr-0": {
-            "Webfactory\\Doctrine": "tests/"
-        },
-        "classmap": [
-            "tests/Webfactory/Doctrine/ORMTestInfrastructure/_files/ORMInfrastructure/"
-        ]
+        "psr-4": {
+            "Webfactory\\Doctrine\\Tests\\": "tests/"
+        }
     },
     "config": {
         "sort-packages": true
