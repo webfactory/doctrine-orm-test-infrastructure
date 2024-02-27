@@ -9,12 +9,11 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Cache\Adapter\PHPArray\ArrayCachePool;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\ORMSetup;
 
 /**
  * Creates ORM configurations for a set of entities.
@@ -41,20 +40,15 @@ class ConfigurationFactory
      */
     public function createFor(array $entityClasses)
     {
-        $config = Setup::createConfiguration(
-            // Activate development mode.
-            true,
-            // Store proxies in the default temp directory.
-            null,
-            // Avoid Doctrine auto-detection of cache and use an isolated cache.
-            new ArrayCache()
-        );
+        $config = ORMSetup::createConfiguration(true, null, new ArrayCachePool());
+
         $driver = new AnnotationDriver(
             $this->getAnnotationReader(),
             $this->getDirectoryPathsForClassNames($entityClasses)
         );
         $driver = new EntityListDriverDecorator($driver, $entityClasses);
         $config->setMetadataDriverImpl($driver);
+
         return $config;
     }
 
@@ -93,14 +87,11 @@ class ConfigurationFactory
     protected function getAnnotationReader()
     {
         if (static::$defaultAnnotationReader === null) {
-            $factory = new Configuration();
-            // Use the configuration to create an annotation driver as the configuration
-            // handles loading of default annotations automatically.
-            $driver = $factory->newDefaultAnnotationDriver(array(), false);
             // Use just the reader as the driver depends on the configured
             // paths and, therefore, should not be shared.
-            static::$defaultAnnotationReader = $driver->getReader();
+            static::$defaultAnnotationReader = ORMSetup::createDefaultAnnotationDriver()->getReader();
         }
+
         return static::$defaultAnnotationReader;
     }
 }
