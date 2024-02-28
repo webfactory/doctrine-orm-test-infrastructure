@@ -9,7 +9,6 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Cassandra\Map;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
