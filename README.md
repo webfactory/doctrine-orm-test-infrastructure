@@ -42,59 +42,7 @@ class MyEntityRepositoryTest extends TestCase
            for the MyEntity entity class and and everything reachable from it through
            associations.
         */
-        $this->infrastructure = <?php
-        
-        use Doctrine\ORM\EntityManagerInterface;
-        use Entity\MyEntity;
-        use Entity\MyEntityRepository;
-        use PHPUnit\Framework\TestCase;
-        use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
-        
-        class MyEntityRepositoryTest extends TestCase
-        {
-            private ORMInfrastructure $infrastructure;
-            private MyEntityRepository $repository;
-        
-            protected function setUp(): void
-            {
-                $this->infrastructure = ORMInfrastructure::createWithDependenciesFor(MyEntity::class);
-                $this->repository = $this->infrastructure->getRepository(MyEntity::class);
-            }
-        
-            /**
-             * Example test: Asserts imported fixtures are retrieved with findAll().
-             */
-            public function testFindAllRetrievesFixtures(): void
-            {
-                $myEntityFixture = new MyEntity();
-
-                $this->infrastructure->import($myEntityFixture);
-                $entitiesLoadedFromDatabase = $this->repository->findAll();
-
-                /*
-                    import() will use a dedicated entity manager, so imported entities do not
-                    end up in the identity map. But this also means loading entities from the
-                    database will create _different object instances_.
-
-                    So, this does not hold:
-                */
-                // $this->assertContains($myEntityFixture, $entitiesLoadedFromDatabase);
-
-                // But you can do things like this (you probably want to extract that in a convenient assertion method):
-                $this->assertCount(1, $entitiesLoadedFromDatabase);
-                $entityLoadedFromDatabase = $entitiesLoadedFromDatabase[0];
-                $this->assertEquals($myEntityFixture->getId(), $entityLoadedFromDatabase->getId());
-            }
-
-            /**
-             * Example test for retrieving Doctrine's entity manager.
-             */
-            public function testSomeFancyThingWithEntityManager(): void
-            {
-                $entityManager = $this->infrastructure->getEntityManager();
-                // ...
-            }
-        }
+        $this->infrastructure = ORMInfrastructure::createWithDependenciesFor(MyEntity::class);
         $this->repository = $this->infrastructure->getRepository(MyEntity::class);
     }
 
@@ -104,8 +52,8 @@ class MyEntityRepositoryTest extends TestCase
     public function testFindAllRetrievesFixtures(): void
     {
         $myEntityFixture = new MyEntity();
-        $this->infrastructure->import($myEntityFixture);
 
+        $this->infrastructure->import($myEntityFixture);
         $entitiesLoadedFromDatabase = $this->repository->findAll();
 
         /* 
