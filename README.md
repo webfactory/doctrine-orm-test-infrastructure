@@ -18,6 +18,13 @@ heavyweight [functional tests suggested in the Symfony documentation](http://sym
 In non-application bundles, where functional tests are not possible,
 it is our only way to test repositories and entities.
 
+Installation
+------------
+
+Install via composer (see http://getcomposer.org/):
+
+    composer require --dev webfactory/doctrine-orm-test-infrastructure
+
 Usage
 -----
 
