@@ -49,11 +49,11 @@ class EntityDependencyResolver implements \IteratorAggregate
      *
      * @param string[] $entityClasses
      */
-    public function __construct(array $entityClasses)
+    public function __construct(array $entityClasses, MappingDriver $mappingDriver = null)
     {
         $this->initialEntitySet  = $this->normalizeClassNames($entityClasses);
         $this->reflectionService = new RuntimeReflectionService();
-        $this->configFactory     = new ConfigurationFactory();
+        $this->configFactory     = new ConfigurationFactory($mappingDriver);
     }
 
     /**

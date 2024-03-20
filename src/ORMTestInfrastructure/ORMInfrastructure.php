@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\EventManager;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -166,12 +167,9 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createWithDependenciesFor(
-        $entityClassOrClasses,
-        ConnectionConfiguration $connectionConfiguration = null
-    ) {
+    public static function createWithDependenciesFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null) {
         $entityClasses = static::normalizeEntityList($entityClassOrClasses);
-        return new static(new EntityDependencyResolver($entityClasses), $connectionConfiguration);
+        return new static(new EntityDependencyResolver($entityClasses, $mappingDriver), $connectionConfiguration, $mappingDriver);
     }
 
     /**
@@ -184,9 +182,9 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createOnlyFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null)
+    public static function createOnlyFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null)
     {
-        return new static(static::normalizeEntityList($entityClassOrClasses), $connectionConfiguration);
+        return new static(static::normalizeEntityList($entityClassOrClasses), $connectionConfiguration, $mappingDriver);
     }
 
     /**
@@ -213,7 +211,7 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct($entityClasses, ConnectionConfiguration $connectionConfiguration = null)
+    public function __construct($entityClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null)
     {
         // Register the annotation loader before the dependency discovery process starts (if required).
         // This ensures that the annotation loader is available for the entity resolver that reads the annotations.
@@ -229,7 +227,7 @@ class ORMInfrastructure
         $this->connectionConfiguration = $connectionConfiguration;
         $this->queryLogger             = new DebugStack();
         $this->namingStrategy          = new DefaultNamingStrategy();
-        $this->configFactory           = new ConfigurationFactory();
+        $this->configFactory           = new ConfigurationFactory($mappingDriver);
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
 
         $this->eventSubscribers = [$this->resolveTargetListener];

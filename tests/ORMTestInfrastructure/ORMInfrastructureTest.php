@@ -9,12 +9,16 @@
 
 namespace Webfactory\Doctrine\Tests\ORMTestInfrastructure;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
@@ -32,7 +36,8 @@ use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotatio
 use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntity;
 use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntityRepository;
 use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntityWithDependency;
-
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes\TestEntity as TestEntity_Attributes;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes\TestEntityWithDependency as TestEntityWithDependency_Attributes;
 
 /**
  * Tests the infrastructure.
@@ -55,15 +60,6 @@ class ORMInfrastructureTest extends TestCase
         $this->infrastructure = new ORMInfrastructure(array(
             TestEntity::class
         ));
-    }
-
-    /**
-     * Cleans up the test environment.
-     */
-    protected function tearDown(): void
-    {
-        $this->infrastructure = null;
-        parent::tearDown();
     }
 
     /**
@@ -127,6 +123,26 @@ class ORMInfrastructureTest extends TestCase
     public function testImportAddsEntities()
     {
         $entity = new TestEntity();
+        $repository = $this->infrastructure->getRepository($entity);
+
+        $entities = $repository->findAll();
+        $this->assertCount(0, $entities);
+
+        $this->infrastructure->import($entity);
+
+        $entities = $repository->findAll();
+        $this->assertCount(1, $entities);
+    }
+
+    public function testImportEntityWithAttributeMapping()
+    {
+        if (PHP_VERSION_ID < 80000) {
+            self::markTestSkipped('This test requires PHP 8.0 or greater');
+        }
+
+        $this->infrastructure = new ORMInfrastructure([TestEntity_Attributes::class], null, new AttributeDriver([__DIR__.'/Fixtures/EntityWithAttributes']));
+
+        $entity = new TestEntity_Attributes();
         $repository = $this->infrastructure->getRepository($entity);
 
         $entities = $repository->findAll();
@@ -329,6 +345,30 @@ class ORMInfrastructureTest extends TestCase
         $this->assertNull(
             $infrastructure->getEntityManager()->flush()
         );
+    }
+
+    /**
+     * Ensures that referenced sub-entities are automatically prepared if the infrastructure is
+     * requested to handle such cases.
+     */
+    public function testInfrastructureAutomaticallyPerformsDependencySetupAcrossMappingDrivers()
+    {
+        if (PHP_VERSION_ID < 80000) {
+            self::markTestSkipped('This test requires PHP 8.0 or greater');
+        }
+
+        $mappingDriver = new MappingDriverChain();
+        $mappingDriver->addDriver(new AnnotationDriver(new AnnotationReader(), [__DIR__.'/Fixtures/EntityWithAnnotation']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation');
+        $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityWithAttributes']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes');
+
+        $this->infrastructure = ORMInfrastructure::createWithDependenciesFor([TestEntityWithDependency_Attributes::class], null, $mappingDriver);
+
+        $entityWithDependency = new TestEntityWithDependency_Attributes();
+
+        self::expectNotToPerformAssertions();
+
+        $this->infrastructure->getEntityManager()->persist($entityWithDependency);
+        $this->infrastructure->getEntityManager()->flush();
     }
 
     /**

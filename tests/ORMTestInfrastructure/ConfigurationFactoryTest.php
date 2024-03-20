@@ -36,14 +36,6 @@ class ConfigurationFactoryTest extends TestCase
     }
 
     /**
-     * Cleans up the test environment.
-     */
-    protected function tearDown(): void
-    {
-        $this->factory = null;
-        parent::tearDown();
-    }
-    /**
      * Ensures that createFor() returns an ORM configuration object.
      */
     public function testCreateForReturnsConfiguration()

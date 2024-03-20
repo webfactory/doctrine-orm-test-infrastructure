@@ -40,7 +40,7 @@ class ExistingConnectionConfigurationTest extends TestCase
     public function testWorksWithInfrastructure()
     {
         $infrastructure = ORMInfrastructure::createOnlyFor(
-            [TestEntity::class],
+            array(TestEntity::class),
             $this->connectionConfiguration
         );
 
