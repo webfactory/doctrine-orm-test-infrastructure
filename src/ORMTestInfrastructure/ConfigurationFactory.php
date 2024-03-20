@@ -9,7 +9,6 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Cache\Adapter\PHPArray\ArrayCachePool;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\PsrCachedReader;
 use Doctrine\Common\Annotations\Reader;
@@ -17,6 +16,7 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * Creates ORM configurations for a set of entities.
@@ -55,12 +55,12 @@ class ConfigurationFactory
     public function createFor(array $entityClasses)
     {
         if (self::$metadataCache === null) {
-            self::$metadataCache = new ArrayCachePool();
+            self::$metadataCache = new ArrayAdapter();
         }
 
         $mappingDriver = $this->mappingDriver ?? $this->createDefaultAnnotationsDriver($entityClasses);
 
-        $config = ORMSetup::createConfiguration(true, null, new ArrayCachePool());
+        $config = ORMSetup::createConfiguration(true, null, new ArrayAdapter());
         $config->setMetadataCache(self::$metadataCache);
         $config->setMetadataDriverImpl(new EntityListDriverDecorator($mappingDriver, $entityClasses));
 
@@ -114,7 +114,7 @@ class ConfigurationFactory
     protected function getAnnotationReader()
     {
         if (static::$defaultAnnotationReader === null) {
-            static::$defaultAnnotationReader = new PsrCachedReader(new AnnotationReader(), new ArrayCachePool());
+            static::$defaultAnnotationReader = new PsrCachedReader(new AnnotationReader(), new ArrayAdapter());
         }
 
         return static::$defaultAnnotationReader;
