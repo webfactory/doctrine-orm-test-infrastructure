@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\PsrCachedReader;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Psr\Cache\CacheItemPoolInterface;
@@ -58,7 +59,7 @@ class ConfigurationFactory
             self::$metadataCache = new ArrayAdapter();
         }
 
-        $mappingDriver = $this->mappingDriver ?? $this->createDefaultAnnotationsDriver($entityClasses);
+        $mappingDriver = $this->mappingDriver ?? $this->createDefaultMappingDriver($entityClasses);
 
         $config = ORMSetup::createConfiguration(true, null, new ArrayAdapter());
         $config->setMetadataCache(self::$metadataCache);
@@ -72,11 +73,15 @@ class ConfigurationFactory
      *
      * @return MappingDriver
      */
-    private function createDefaultAnnotationsDriver(array $entityClasses)
+    private function createDefaultMappingDriver(array $entityClasses)
     {
         $paths = $this->getDirectoryPathsForClassNames($entityClasses);
 
-        return new AnnotationDriver($this->getAnnotationReader(), $paths);
+        if (class_exists(AnnotationDriver::class)) {
+            return new AnnotationDriver($this->getAnnotationReader(), $paths);
+        }
+
+        return new AttributeDriver($paths);
     }
 
     /**

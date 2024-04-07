@@ -36,4 +36,9 @@ class ExistingConnectionConfiguration extends ConnectionConfiguration
     {
         return $this->connection;
     }
+
+    public function getConnection(): Connection
+    {
+        return $this->connection;
+    }
 }

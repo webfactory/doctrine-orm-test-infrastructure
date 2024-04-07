@@ -10,6 +10,7 @@
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -23,6 +24,7 @@ use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Common\EventSubscriber;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
+use Webfactory\Doctrine\Config\ExistingConnectionConfiguration;
 
 /**
  * Helper class that creates the database infrastructure for a defined set of entity classes.
@@ -362,10 +364,13 @@ class ORMInfrastructure
         $config->setSQLLogger($this->queryLogger);
         $config->setNamingStrategy($this->namingStrategy);
 
-        return EntityManager::create(
-            $this->connectionConfiguration->getConnectionParameters(),
-            $config
-        );
+        if ($this->connectionConfiguration instanceof ExistingConnectionConfiguration) {
+            $connection = $this->connectionConfiguration->getConnection();
+        } else {
+            $connection = DriverManager::getConnection($this->connectionConfiguration->getConnectionParameters(), $config);
+        }
+
+        return new EntityManager($connection, $config);
     }
 
     /**
@@ -479,7 +484,7 @@ class ORMInfrastructure
     {
         $entityManager = $this->getEntityManager();
 
-        return EntityManager::create(
+        return new EntityManager(
             $entityManager->getConnection(),
             $entityManager->getConfiguration(),
             $this->getEventManager()

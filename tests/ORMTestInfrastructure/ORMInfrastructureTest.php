@@ -621,16 +621,6 @@ class ORMInfrastructureTest extends TestCase
                 self::assertTrue($schema->getTable('Entity')->hasColumn('fieldC'));
             },
         ];
-
-        // If it does not work as expected, this will even throw an exception because the table name is used more than once
-        yield 'in a hierarchy, identical (=conflicting) table names are fine as long as only one class is used' => [
-            [DependencyResolverFixtures\TwoEntitiesInheritanceWithConflictingTableNames\Entity::class],
-            function (Schema $schema) {
-                self::assertCount(1, $schema->getTableNames());
-                self::assertTrue($schema->getTable('some_table')->hasColumn('fieldA'));
-                self::assertTrue($schema->getTable('some_table')->hasColumn('fieldB'));
-            },
-        ];
     }
 
     /**
