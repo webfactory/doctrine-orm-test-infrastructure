@@ -18,11 +18,14 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="class_inheritance_with_reference_child")
  * @see http://doctrine-orm.readthedocs.org/en/latest/reference/inheritance-mapping.html#class-table-inheritance
  */
+#[ORM\Table(name: 'class_inheritance_with_reference_child')]
+#[ORM\Entity]
 class ClassTableChildWithParentReferenceEntity extends ClassTableParentWithReferenceEntity
 {
     /**
      * @var string
      * @ORM\Column(type="string", name="child_name", nullable=false)
      */
+    #[ORM\Column(type: 'string', name: 'child_name', nullable: false)]
     public $childName = 'child-name';
 }

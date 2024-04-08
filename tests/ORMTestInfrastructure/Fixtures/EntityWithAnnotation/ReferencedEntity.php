@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="referenced_entity")
  */
+#[ORM\Table(name: 'referenced_entity')]
+#[ORM\Entity]
 class ReferencedEntity
 {
     /**
@@ -27,5 +29,8 @@ class ReferencedEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 }

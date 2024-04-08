@@ -18,6 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="test_entity_with_dependency")
  */
+#[ORM\Table(name: 'test_entity_with_dependency')]
+#[ORM\Entity]
 class TestEntityWithDependency
 {
     /**
@@ -28,6 +30,9 @@ class TestEntityWithDependency
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
@@ -37,6 +42,8 @@ class TestEntityWithDependency
      * @ORM\OneToOne(targetEntity="ReferencedEntity", cascade={"all"})
      * @ORM\JoinColumn(nullable=false)
      */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(targetEntity: \ReferencedEntity::class, cascade: ['all'])]
     protected $dependency = null;
 
     /**

@@ -59,7 +59,7 @@ class FileDatabaseConnectionConfigurationTest extends TestCase
 
         $configuration->cleanUp();
 
-        $this->assertFileNotExists($file->getPathname());
+        $this->assertFileDoesNotExist($file->getPathname());
     }
 
     public function testCleanUpDoesNothingIfTheDatabaseFileDoesNotExistYet()
@@ -68,7 +68,7 @@ class FileDatabaseConnectionConfigurationTest extends TestCase
         $file = $configuration->getDatabaseFile();
         $this->assertInstanceOf('SplFileInfo', $file);
 
-        $this->assertFileNotExists($file->getPathname());
+        $this->assertFileDoesNotExist($file->getPathname());
 
         $configuration->cleanUp();
     }

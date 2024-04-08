@@ -20,6 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\DiscriminatorColumn(name="class", type="string")
  * @see http://doctrine-orm.readthedocs.org/en/latest/reference/inheritance-mapping.html#class-table-inheritance
  */
+#[ORM\Table(name: 'class_inheritance_parent')]
+#[ORM\Entity]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'class', type: 'string')]
 abstract class ClassTableParentEntity
 {
     /**
@@ -30,5 +34,8 @@ abstract class ClassTableParentEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 }

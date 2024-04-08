@@ -10,7 +10,7 @@
 namespace Webfactory\Doctrine\Tests\ORMTestInfrastructure;
 
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\EntityListDriverDecorator;
@@ -120,7 +120,7 @@ class EntityListDriverDecoratorTest extends TestCase
         $this->innerDriver->expects($this->once())
             ->method('loadMetadataForClass');
 
-        $this->driver->loadMetadataForClass('My\Namespace\Person', new ClassMetadataInfo('My\Namespace\Person'));
+        $this->driver->loadMetadataForClass('My\Namespace\Person', new ClassMetadata('My\Namespace\Person'));
     }
 
     public function testDriverDelegatesIsTransientCall()

@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="vendor/autoload.php">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd" bootstrap="vendor/autoload.php">
     <testsuites>
         <testsuite name="Library Test Suite">
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
-    <!-- Filter for code coverage -->
+    <php>
+        <server name="KERNEL_CLASS" value="Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\TestKernel" />
+        <server name="KERNEL_DIR" value="tests/Fixtures/" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0" />
+        <env name="DOCTRINE_DEPRECATIONS" value="trigger" />
+        <server name="SHELL_VERBOSITY" value="-1" />
+    </php>
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+    </listeners>
 </phpunit>

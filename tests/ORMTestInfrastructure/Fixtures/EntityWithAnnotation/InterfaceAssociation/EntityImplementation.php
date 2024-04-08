@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="entity_implementing_referenced_interface")
  */
+#[ORM\Table(name: 'entity_implementing_referenced_interface')]
+#[ORM\Entity]
 class EntityImplementation implements EntityInterface
 {
     /**
@@ -20,6 +22,9 @@ class EntityImplementation implements EntityInterface
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**

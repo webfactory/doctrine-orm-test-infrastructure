@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="cascade_persisted_entity")
  */
+#[ORM\Table(name: 'cascade_persisted_entity')]
+#[ORM\Entity]
 class CascadePersistedEntity
 {
     /**
@@ -27,11 +29,15 @@ class CascadePersistedEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
      * @var CascadePersistingEntity
      * @ORM\ManyToOne(targetEntity="CascadePersistingEntity")
      */
+    #[ORM\ManyToOne(targetEntity: \CascadePersistingEntity::class)]
     public $parent;
 }

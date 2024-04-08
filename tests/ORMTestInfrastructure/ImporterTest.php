@@ -9,8 +9,8 @@
 
 namespace Webfactory\Doctrine\Tests\ORMTestInfrastructure;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectManager;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\Importer;
@@ -30,7 +30,7 @@ class ImporterTest extends TestCase
     /**
      * The (mocked) entity manager.
      *
-     * @var \Doctrine\ORM\EntityManagerInterface|MockObject
+     * @var \Doctrine\ORM\EntityManager|MockObject
      */
     protected $entityManager = null;
 
@@ -232,7 +232,7 @@ class ImporterTest extends TestCase
      */
     protected function createEntityManager()
     {
-        $mock = $this->createMock(EntityManagerInterface::class);
+        $mock = $this->createMock(EntityManager::class);
         // Simulates the transactional() call on the entity manager.
         $transactional = function ($callback) use ($mock) {
             /* @var $mock \Doctrine\ORM\EntityManagerInterface */
@@ -241,7 +241,7 @@ class ImporterTest extends TestCase
             return $result ?: true;
         };
         $mock->expects($this->any())
-             ->method('transactional')
+             ->method('wrapInTransaction')
              ->will($this->returnCallback($transactional));
         return $mock;
     }

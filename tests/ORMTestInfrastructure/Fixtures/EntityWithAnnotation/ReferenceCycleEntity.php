@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="test_reference_cycle_entity")
  */
+#[ORM\Table(name: 'test_reference_cycle_entity')]
+#[ORM\Entity]
 class ReferenceCycleEntity
 {
     /**
@@ -27,6 +29,9 @@ class ReferenceCycleEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
@@ -36,6 +41,8 @@ class ReferenceCycleEntity
      * @ORM\OneToOne(targetEntity="ReferenceCycleEntity", cascade={"all"})
      * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\OneToOne(targetEntity: \ReferenceCycleEntity::class, cascade: ['all'])]
     protected $referenceCycle = null;
 
     /**
@@ -43,7 +50,7 @@ class ReferenceCycleEntity
      *
      * @param ReferenceCycleEntity|null $entity
      */
-    public function __construct(ReferenceCycleEntity $entity = null)
+    public function __construct(?ReferenceCycleEntity $entity = null)
     {
         $this->referenceCycle = $entity;
     }

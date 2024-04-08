@@ -19,6 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="cascade_persist")
  */
+#[ORM\Table(name: 'cascade_persist')]
+#[ORM\Entity]
 class CascadePersistingEntity
 {
     /**
@@ -29,12 +31,16 @@ class CascadePersistingEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
      * @var Collection
      * @ORM\OneToMany(targetEntity="CascadePersistedEntity", mappedBy="parent", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: \CascadePersistedEntity::class, mappedBy: 'parent', cascade: ['persist'])]
     private $associated;
 
     /**

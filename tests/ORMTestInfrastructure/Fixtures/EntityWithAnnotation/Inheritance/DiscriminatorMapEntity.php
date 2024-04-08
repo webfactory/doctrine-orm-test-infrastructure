@@ -25,6 +25,10 @@ use Doctrine\ORM\Mapping as ORM;
  * })
  * @see http://doctrine-orm.readthedocs.org/en/latest/reference/inheritance-mapping.html#class-table-inheritance
  */
+#[ORM\Entity]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'type', type: 'string')]
+#[ORM\DiscriminatorMap(['parent' => 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\Inheritance\DiscriminatorMapEntity', 'child' => 'DiscriminatorMapChildEntity'])]
 class DiscriminatorMapEntity
 {
     /**
@@ -35,5 +39,8 @@ class DiscriminatorMapEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 }
