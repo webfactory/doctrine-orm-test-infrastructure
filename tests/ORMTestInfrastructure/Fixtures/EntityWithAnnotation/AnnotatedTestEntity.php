@@ -19,6 +19,8 @@ use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\Annotation\Annotati
  * @ORM\Table(name="annotated_test_entity")
  * @AnnotationForSimpleTest
  */
+#[ORM\Table(name: 'annotated_test_entity')]
+#[ORM\Entity]
 class AnnotatedTestEntity
 {
     /**
@@ -29,5 +31,8 @@ class AnnotatedTestEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 }

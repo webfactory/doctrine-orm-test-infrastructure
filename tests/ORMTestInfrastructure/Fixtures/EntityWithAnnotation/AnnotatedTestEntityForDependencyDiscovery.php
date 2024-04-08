@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="test_entity_with_annotation")
  */
+#[ORM\Table(name: 'test_entity_with_annotation')]
+#[ORM\Entity]
 class AnnotatedTestEntityForDependencyDiscovery
 {
     /**
@@ -20,6 +22,9 @@ class AnnotatedTestEntityForDependencyDiscovery
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**

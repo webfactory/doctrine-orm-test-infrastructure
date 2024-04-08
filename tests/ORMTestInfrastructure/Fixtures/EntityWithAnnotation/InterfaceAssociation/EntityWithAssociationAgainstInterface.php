@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="entity_with_interface_association")
  */
+#[ORM\Table(name: 'entity_with_interface_association')]
+#[ORM\Entity]
 class EntityWithAssociationAgainstInterface
 {
     /**
@@ -20,6 +22,9 @@ class EntityWithAssociationAgainstInterface
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
@@ -27,5 +32,7 @@ class EntityWithAssociationAgainstInterface
      * @ORM\ManyToOne(targetEntity="EntityInterface")
      * @ORM\JoinColumn(name="entity_id", referencedColumnName="id")
      */
+    #[ORM\JoinColumn(name: 'entity_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \EntityInterface::class)]
     public $entity = null;
 }

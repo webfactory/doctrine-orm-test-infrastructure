@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="test_chain_reference_entity")
  */
+#[ORM\Table(name: 'test_chain_reference_entity')]
+#[ORM\Entity]
 class ChainReferenceEntity
 {
     /**
@@ -31,6 +33,9 @@ class ChainReferenceEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
@@ -40,6 +45,8 @@ class ChainReferenceEntity
      * @ORM\OneToOne(targetEntity="TestEntityWithDependency", cascade={"all"})
      * @ORM\JoinColumn(nullable=false)
      */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(targetEntity: \TestEntityWithDependency::class, cascade: ['all'])]
     protected $dependency = null;
 
     /**

@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="TestEntityRepository")
  * @ORM\Table(name="test_entity")
  */
+#[ORM\Table(name: 'test_entity')]
+#[ORM\Entity(repositoryClass: \TestEntityRepository::class)]
 class TestEntity
 {
     /**
@@ -27,6 +29,9 @@ class TestEntity
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
@@ -35,5 +40,6 @@ class TestEntity
      * @var string
      * @ORM\Column(type="string", name="name", nullable=true)
      */
+    #[ORM\Column(type: 'string', name: 'name', nullable: true)]
     public $name = null;
 }

@@ -18,6 +18,7 @@ use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotatio
  * @ORM\MappedSuperclass()
  * @see http://doctrine-orm.readthedocs.org/en/latest/reference/inheritance-mapping.html#mapped-superclasses
  */
+#[ORM\MappedSuperclass]
 abstract class MappedSuperClassParentWithReference
 {
     /**
@@ -28,6 +29,9 @@ abstract class MappedSuperClassParentWithReference
      * @ORM\Column(type="integer", name="id")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', name: 'id')]
+    #[ORM\GeneratedValue]
     public $id = null;
 
     /**
@@ -40,6 +44,8 @@ abstract class MappedSuperClassParentWithReference
      * )
      * @ORM\JoinColumn(nullable=false)
      */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(targetEntity: \Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\ReferencedEntity::class, cascade: ['all'])]
     protected $dependency = null;
 
     /**
