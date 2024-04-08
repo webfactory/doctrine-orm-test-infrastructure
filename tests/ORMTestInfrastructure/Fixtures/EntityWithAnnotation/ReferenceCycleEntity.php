@@ -50,7 +50,7 @@ class ReferenceCycleEntity
      *
      * @param ReferenceCycleEntity|null $entity
      */
-    public function __construct(ReferenceCycleEntity $entity = null)
+    public function __construct(?ReferenceCycleEntity $entity = null)
     {
         $this->referenceCycle = $entity;
     }

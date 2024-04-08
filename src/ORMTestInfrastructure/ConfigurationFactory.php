@@ -42,7 +42,7 @@ class ConfigurationFactory
     /** @var ?MappingDriver */
     private $mappingDriver;
 
-    public function __construct(MappingDriver $mappingDriver = null)
+    public function __construct(?MappingDriver $mappingDriver = null)
     {
         $this->mappingDriver = $mappingDriver;
     }

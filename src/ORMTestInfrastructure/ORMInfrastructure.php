@@ -169,7 +169,7 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createWithDependenciesFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null) {
+    public static function createWithDependenciesFor($entityClassOrClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null) {
         $entityClasses = static::normalizeEntityList($entityClassOrClasses);
         return new static(new EntityDependencyResolver($entityClasses, $mappingDriver), $connectionConfiguration, $mappingDriver);
     }
@@ -184,7 +184,7 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @return ORMInfrastructure
      */
-    public static function createOnlyFor($entityClassOrClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null)
+    public static function createOnlyFor($entityClassOrClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null)
     {
         return new static(static::normalizeEntityList($entityClassOrClasses), $connectionConfiguration, $mappingDriver);
     }
@@ -213,7 +213,7 @@ class ORMInfrastructure
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
      * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct($entityClasses, ConnectionConfiguration $connectionConfiguration = null, MappingDriver $mappingDriver = null)
+    public function __construct($entityClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null)
     {
         // Register the annotation loader before the dependency discovery process starts (if required).
         // This ensures that the annotation loader is available for the entity resolver that reads the annotations.
