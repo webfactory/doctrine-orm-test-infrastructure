@@ -14,7 +14,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -358,7 +358,18 @@ class ORMInfrastructureTest extends TestCase
         }
 
         $mappingDriver = new MappingDriverChain();
-        $mappingDriver->addDriver(new AnnotationDriver(new AnnotationReader(), [__DIR__.'/Fixtures/EntityWithAnnotation']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation');
+        /*
+         * When running with ORM 2, we truly have an association between the TestEntityWithDependency_Attributes, which uses attributes
+         * only, and the \Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\ReferencedEntity class which
+         * is configured based on annotations.
+         * On ORM 3, there is no annotations driver, so we have to resort to the attribute-based mappings additionally
+         * included in the "EntityWithAnnotation" directory. Still, this is a mapping across two different drivers.
+         */
+        if (class_exists(AnnotationDriver::class)) {
+            $mappingDriver->addDriver(new AnnotationDriver(new AnnotationReader(), [__DIR__.'/Fixtures/EntityWithAnnotation']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation');
+        } else {
+            $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityWithAnnotation']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation');
+        }
         $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityWithAttributes']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes');
 
         $this->infrastructure = ORMInfrastructure::createWithDependenciesFor([TestEntityWithDependency_Attributes::class], null, $mappingDriver);
@@ -428,7 +439,7 @@ class ORMInfrastructureTest extends TestCase
         ));
 
         $metadata = $infrastructure->getEntityManager()->getMetadataFactory()->getAllMetadata();
-        $entities = array_map(function (ClassMetadataInfo $info) {
+        $entities = array_map(function (ClassMetadata $info) {
             return ltrim($info->name, '\\');
         }, $metadata);
         $this->assertEquals(
