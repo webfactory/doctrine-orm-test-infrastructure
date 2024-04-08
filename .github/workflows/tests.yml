@@ -15,7 +15,6 @@ jobs:
             fail-fast: false
             matrix:
                 php-version: [ '8.1', '8.2', '8.3', '8.4' ]
-                coverage: none
                 dependency-version: [ prefer-stable ]
                 include:
                     - { php-version: '8.1', dependency-version: prefer-lowest }
