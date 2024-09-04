@@ -11,10 +11,10 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Logging\Middleware as LoggingMiddleware;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
@@ -227,7 +227,7 @@ class ORMInfrastructure
         }
         $this->entityClasses           = $entityClasses;
         $this->connectionConfiguration = $connectionConfiguration;
-        $this->queryLogger             = new DebugStack();
+        $this->queryLogger             = new QueryLogger();
         $this->namingStrategy          = new DefaultNamingStrategy();
         $this->configFactory           = new ConfigurationFactory($mappingDriver);
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
@@ -272,13 +272,7 @@ class ORMInfrastructure
      */
     public function getQueries()
     {
-        return array_map(function (array $queryData) {
-            return new Query(
-                $queryData['sql'],
-                (isset($queryData['params']) ? $queryData['params'] : array()),
-                $queryData['executionMS']
-            );
-        }, $this->queryLogger->queries);
+        return $this->queryLogger->getQueries();
     }
 
     /**
@@ -361,7 +355,9 @@ class ORMInfrastructure
     protected function createEntityManager()
     {
         $config = $this->configFactory->createFor($this->entityClasses);
-        $config->setSQLLogger($this->queryLogger);
+        $middlewares = $config->getMiddlewares();
+        $middlewares[] = new LoggingMiddleware($this->queryLogger);
+        $config->setMiddlewares($middlewares);
         $config->setNamingStrategy($this->namingStrategy);
 
         if ($this->connectionConfiguration instanceof ExistingConnectionConfiguration) {

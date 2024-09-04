@@ -11,10 +11,6 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 /**
  * Represents a query that has been executed.
- *
- * This class is designed to be populated by the data that is gathered by the DebugStack logger.
- *
- * @see \Doctrine\DBAL\Logging\DebugStack
  */
 class Query
 {
@@ -33,25 +29,16 @@ class Query
     protected $params = null;
 
     /**
-     * The execution time of the query in seconds.
-     *
-     * @var double
-     */
-    protected $executionTimeInSeconds = null;
-
-    /**
      * Currently not used:
      * - types
      *
      * @param string $sql - sql
      * @param mixed[] $params - params
-     * @param double $executionTimeInSeconds - executionMS
      */
-    public function __construct($sql, array $params, $executionTimeInSeconds)
+    public function __construct($sql, array $params)
     {
         $this->sql = $sql;
         $this->params = $params;
-        $this->executionTimeInSeconds = $executionTimeInSeconds;
     }
 
     /**
@@ -72,16 +59,6 @@ class Query
     public function getParams()
     {
         return $this->params;
-    }
-
-    /**
-     * Returns the execution time of the query in seconds.
-     *
-     * @return double
-     */
-    public function getExecutionTimeInSeconds()
-    {
-        return $this->executionTimeInSeconds;
     }
 
     /**
