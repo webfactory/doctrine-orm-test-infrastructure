@@ -16,19 +16,20 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
-        "doctrine/annotations": "^1.8|^2.0",
-        "doctrine/common": "^2.11|^3.0",
+        "php": ">= 8.0",
+        "doctrine/annotations": "^1.13|^2.0",
+        "doctrine/common": "^3.0",
         "doctrine/dbal": "^3.2",
-        "doctrine/event-manager": "^1.1|^2.0",
+        "doctrine/event-manager": "^1.2|^2.0",
         "doctrine/orm": "^2.14|^3.0",
-        "doctrine/persistence": "^2.0|^3.0",
-        "symfony/cache": "^5.0|^6.0|^7.0"
+        "doctrine/persistence": "^2.4|^3.0",
+        "psr/log": "^2.0|^3.0",
+        "symfony/cache": "^5.4|^6.0|^7.0"
     },
     "require-dev": {
         "doctrine/collections": "^1.6.8|^2.2.1",
         "phpunit/phpunit": "^9.6.19",
-        "symfony/error-handler": "^5.0|^6.0|^7.0",
+        "symfony/error-handler": "^5.4|^6.0|^7.0",
         "symfony/phpunit-bridge": ">= 7.0"
     },
     "autoload": {
