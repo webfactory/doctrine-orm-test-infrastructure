@@ -118,57 +118,6 @@ need local changes.
 
 Happy testing!
 
-## Changelog ##
-
-### 1.5.0 -> 1.5.1 ###
-
-- Clear entity manager after import to avoid problems with entities detected by cascade
-  operations [(#23)](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/23)
-- Use separate entity managers for imports to avoid interference between import and test
-  phase [(#2)](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/2)
-- Deprecated internal class ``\Webfactory\Doctrine\ORMTestInfrastructure\MemorizingObjectManagerDecorator`` as it is not needed anymore: there are no
-  more selective ``detach()`` calls`after imports
-
-### 1.4.6 -> 1.5.0 ###
-
-- Introduced ``ConnectionConfiguration`` to explicitly define the type of database
-  connection [(#15)](https://github.com/webfactory/doctrine-orm-test-infrastructure/pull/15)
-- Added support for simple SQLite file databases via ``FileDatabaseConnectionConfiguration``; useful when data must persist for some time, but the
-  connection is reset, e.g. in Symfony's [Functional Tests](http://symfony.com/doc/current/testing.html#functional-tests)
-
-Create file-backed database:
-
-    $configuration = new FileDatabaseConnectionConfiguration();
-    $infrastructure = ORMInfrastructure::createOnlyFor(
-        MyEntity::class,
-        $configuration
-    );
-    // Used database file:
-    echo $configuration->getDatabaseFile();
-
-### 1.4.5 -> 1.4.6 ###
-
-- Ignore associations against interfaces when detecting dependencies via ``ORMInfrastructure::createWithDependenciesFor`` to avoid errors
-- Exposed event manager and created helper method to be able to register entity mappings
-
-Register entity type mapping:
-
-    $infrastructure->registerEntityMapping(EntityInterface::class, EntityImplementation::class);
-
-Do not rely on this "feature" if you don't have to. Might be restructured in future versions.
-
-### 1.4.4 -> 1.4.5 ###
-
-- Fixed bug [#20](https://github.com/webfactory/doctrine-orm-test-infrastructure/issues/20): Entities might have been imported twice in case of
-  bidirectional cascade
-- Deprecated class ``Webfactory\Doctrine\ORMTestInfrastructure\DetachingObjectManagerDecorator`` (will be removed in next major release)
-
-### 1.4.3 -> 1.4.4 ###
-
-- Improved garbage collection
-- Dropped support for PHP < 5.5
-- Officially support PHP 7
-
 Known Issues
 ------------
 
