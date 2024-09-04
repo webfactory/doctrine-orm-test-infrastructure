@@ -64,6 +64,8 @@ class QueryTest extends TestCase
 
     /**
      * Ensures that the correct execution time is returned.
+     *
+     * @group legacy
      */
     public function testGetExecutionTimeInSecondsReturnsCorrectValue()
     {
