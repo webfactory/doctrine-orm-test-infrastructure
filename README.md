@@ -92,7 +92,7 @@ class MyEntityRepositoryTest extends TestCase
 Migrating to attribute-based mapping configuration
 --------------------------------------------------
 
-The `ORMInfrastructure::createWithDependenciesFor()` and ``ORMInfrastructure::createOnlyFor()` methods by default
+The `ORMInfrastructure::createWithDependenciesFor()` and `ORMInfrastructure::createOnlyFor()` methods by default
 assume that the Doctrine ORM mapping is provided through annotations. This has been deprecated in Doctrine ORM 2.x
 and is no longer be supported in ORM 3.0.
 

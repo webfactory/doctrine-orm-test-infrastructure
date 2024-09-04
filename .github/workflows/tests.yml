@@ -32,5 +32,7 @@ jobs:
                     coverage: none
             -   name: Install dependencies
                 run: composer update --no-interaction --prefer-dist --${{ matrix.dependency-version}} --no-progress --no-suggest
+            -   name: Allow self-deprecation notices when testing against ORM 2.0
+                run: composer show | egrep -q 'doctrine/orm\s+2' && echo "SYMFONY_DEPRECATIONS_HELPER=max[self]=9999" >> "$GITHUB_ENV" || true
             -   name: Run test suite
                 run: vendor/bin/phpunit
