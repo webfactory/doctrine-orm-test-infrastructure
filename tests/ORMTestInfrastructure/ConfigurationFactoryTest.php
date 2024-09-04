@@ -12,7 +12,7 @@ namespace Webfactory\Doctrine\Tests\ORMTestInfrastructure;
 use Doctrine\ORM\Configuration;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\ORMTestInfrastructure\ConfigurationFactory;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\TestEntity;
 
 /**
  * Tests the ORM configuration factory.

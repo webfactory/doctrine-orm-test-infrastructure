@@ -12,7 +12,7 @@ namespace Webfactory\Doctrine\Tests\Config;
 use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\InMemoryDatabaseConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\TestEntity;
 
 class InMemoryDatabaseConnectionConfigurationTest extends TestCase
 {
