@@ -9,13 +9,10 @@
 
 namespace Webfactory\Doctrine\Tests\ORMTestInfrastructure;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
@@ -23,21 +20,20 @@ use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
 use Webfactory\Doctrine\ORMTestInfrastructure\Query;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\AnnotatedTestEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\Cascade\CascadePersistedEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\Cascade\CascadePersistingEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\ChainReferenceEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\DependencyResolverFixtures;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\InterfaceAssociation\EntityImplementation;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\InterfaceAssociation\EntityInterface;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\InterfaceAssociation\EntityWithAssociationAgainstInterface;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\ReferenceCycleEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\ReferencedEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntity;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntityRepository;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntityWithDependency;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes\TestEntity as TestEntity_Attributes;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes\TestEntityWithDependency as TestEntityWithDependency_Attributes;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace2\TestEntity as TestEntity_Namespace2;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace2\TestEntityWithDependency as TestEntityWithDependency_Attributes;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\Cascade\CascadePersistedEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\Cascade\CascadePersistingEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\ChainReferenceEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\DependencyResolverFixtures;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\InterfaceAssociation\EntityImplementation;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\InterfaceAssociation\EntityInterface;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\InterfaceAssociation\EntityWithAssociationAgainstInterface;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\ReferenceCycleEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\ReferencedEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\TestEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\TestEntityRepository;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\TestEntityWithDependency;
 
 /**
  * Tests the infrastructure.
@@ -140,9 +136,9 @@ class ORMInfrastructureTest extends TestCase
             self::markTestSkipped('This test requires PHP 8.0 or greater');
         }
 
-        $this->infrastructure = new ORMInfrastructure([TestEntity_Attributes::class], null, new AttributeDriver([__DIR__.'/Fixtures/EntityWithAttributes']));
+        $this->infrastructure = new ORMInfrastructure([TestEntity_Namespace2::class], null, new AttributeDriver([__DIR__.'/Fixtures/EntityNamespace2']));
 
-        $entity = new TestEntity_Attributes();
+        $entity = new TestEntity_Namespace2();
         $repository = $this->infrastructure->getRepository($entity);
 
         $entities = $repository->findAll();
@@ -353,24 +349,9 @@ class ORMInfrastructureTest extends TestCase
      */
     public function testInfrastructureAutomaticallyPerformsDependencySetupAcrossMappingDrivers()
     {
-        if (PHP_VERSION_ID < 80000) {
-            self::markTestSkipped('This test requires PHP 8.0 or greater');
-        }
-
         $mappingDriver = new MappingDriverChain();
-        /*
-         * When running with ORM 2, we truly have an association between the TestEntityWithDependency_Attributes, which uses attributes
-         * only, and the \Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\ReferencedEntity class which
-         * is configured based on annotations.
-         * On ORM 3, there is no annotations driver, so we have to resort to the attribute-based mappings additionally
-         * included in the "EntityWithAnnotation" directory. Still, this is a mapping across two different drivers.
-         */
-        if (class_exists(AnnotationDriver::class)) {
-            $mappingDriver->addDriver(new AnnotationDriver(new AnnotationReader(), [__DIR__.'/Fixtures/EntityWithAnnotation']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation');
-        } else {
-            $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityWithAnnotation']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation');
-        }
-        $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityWithAttributes']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAttributes');
+        $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityNamespace1']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1');
+        $mappingDriver->addDriver(new AttributeDriver([__DIR__.'/Fixtures/EntityNamespace2']), 'Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace2');
 
         $this->infrastructure = ORMInfrastructure::createWithDependenciesFor([TestEntityWithDependency_Attributes::class], null, $mappingDriver);
 
@@ -445,21 +426,6 @@ class ORMInfrastructureTest extends TestCase
         $this->assertEquals(
             array(TestEntity::class),
             $entities
-        );
-    }
-
-    /**
-     * Ensures that entities with non-Doctrine annotations can be used.
-     */
-    public function testInfrastructureCanUseEntitiesWithNonDoctrineAnnotations()
-    {
-        $infrastructure = ORMInfrastructure::createOnlyFor(array(
-            AnnotatedTestEntity::class
-        ));
-
-        $this->assertInstanceOf(
-            EntityManager::class,
-            $infrastructure->getEntityManager()
         );
     }
 
@@ -632,18 +598,5 @@ class ORMInfrastructureTest extends TestCase
                 self::assertTrue($schema->getTable('Entity')->hasColumn('fieldC'));
             },
         ];
-    }
-
-    /**
-     * Returns the number of currently registered annotation loaders.
-     *
-     * @return integer
-     */
-    private function getNumberOfAnnotationLoaders()
-    {
-        $reflection = new \ReflectionClass(AnnotationRegistry::class);
-        $annotationLoaderProperty = $reflection->getProperty('loaders');
-        $annotationLoaderProperty->setAccessible(true);
-        return count($annotationLoaderProperty->getValue());
     }
 }
