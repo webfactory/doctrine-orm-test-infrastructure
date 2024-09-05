@@ -33,25 +33,16 @@ class Query
     protected $params = null;
 
     /**
-     * The execution time of the query in seconds.
-     *
-     * @var double
-     */
-    protected $executionTimeInSeconds = null;
-
-    /**
      * Currently not used:
      * - types
      *
      * @param string $sql - sql
      * @param mixed[] $params - params
-     * @param double $executionTimeInSeconds - executionMS
      */
-    public function __construct($sql, array $params, $executionTimeInSeconds)
+    public function __construct($sql, array $params)
     {
         $this->sql = $sql;
         $this->params = $params;
-        $this->executionTimeInSeconds = $executionTimeInSeconds;
     }
 
     /**
@@ -72,18 +63,6 @@ class Query
     public function getParams()
     {
         return $this->params;
-    }
-
-    /**
-     * Returns the execution time of the query in seconds.
-     *
-     * @return double
-     */
-    public function getExecutionTimeInSeconds()
-    {
-        trigger_deprecation('webfactory/doctrine-orm-test-infrastructure', '1.16', 'The %s method has been deprecated without a replacement and will be removed in 2.0');
-
-        return $this->executionTimeInSeconds;
     }
 
     /**

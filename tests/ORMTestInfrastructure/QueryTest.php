@@ -32,8 +32,7 @@ class QueryTest extends TestCase
         parent::setUp();
         $this->query= new Query(
             'SELECT * FROM user WHERE id = ?',
-            array(42),
-            0.012
+            array(42)
         );
     }
 
@@ -60,16 +59,6 @@ class QueryTest extends TestCase
     public function testGetParamsReturnsCorrectValue()
     {
         $this->assertEquals(array(42), $this->query->getParams());
-    }
-
-    /**
-     * Ensures that the correct execution time is returned.
-     *
-     * @group legacy
-     */
-    public function testGetExecutionTimeInSecondsReturnsCorrectValue()
-    {
-        $this->assertEquals(0.012, $this->query->getExecutionTimeInSeconds());
     }
 
     /**
