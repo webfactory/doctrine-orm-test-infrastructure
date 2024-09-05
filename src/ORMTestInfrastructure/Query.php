@@ -11,10 +11,6 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 /**
  * Represents a query that has been executed.
- *
- * This class is designed to be populated by the data that is gathered by the DebugStack logger.
- *
- * @see \Doctrine\DBAL\Logging\DebugStack
  */
 class Query
 {
