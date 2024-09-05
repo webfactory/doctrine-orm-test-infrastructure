@@ -9,6 +9,8 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
+use Doctrine\Deprecations\Deprecation;
+
 /**
  * Represents a query that has been executed.
  *
@@ -81,7 +83,7 @@ class Query
      */
     public function getExecutionTimeInSeconds()
     {
-        trigger_deprecation('webfactory/doctrine-orm-test-infrastructure', '1.16', 'The %s method has been deprecated without a replacement and will be removed in 2.0');
+        Deprecation::trigger('webfactory/doctrine-orm-test-infrastructure', 'https://github.com/webfactory/doctrine-orm-test-infrastructure/pull/52', 'The %s method has been deprecated without a replacement in 1.16 and will be removed in 2.0', __METHOD__);
 
         return $this->executionTimeInSeconds;
     }
