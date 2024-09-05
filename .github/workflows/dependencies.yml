@@ -1,0 +1,36 @@
+name: AllDependenciesDeclared
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+
+env:
+    PHP_VERSION: 8.4
+
+jobs:
+    composer-require-checker:
+        name: Check missing composer requirements
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Configure PHP version
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ env.PHP_VERSION }}
+                    coverage: none
+                    tools: composer:v2
+            -   uses: actions/checkout@v4
+            -   name: Cache Composer Dependencies
+                uses: actions/cache@v4
+                with:
+                    path: vendor/
+                    key: composer-${{ env.PHP_VERSION }}-${{ hashFiles('composer.*') }}
+                    restore-keys: |
+                        composer-${{ env.PHP_VERSION }}-${{ github.ref }}
+                        composer-${{ env.PHP_VERSION }}-
+            -   run: |
+                    composer update --no-interaction --no-scripts --no-progress
+                    composer show
+            -   name: ComposerRequireChecker
+                uses: docker://ghcr.io/webfactory/composer-require-checker:4.12.0
