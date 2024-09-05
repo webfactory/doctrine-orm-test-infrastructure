@@ -160,12 +160,10 @@ class Importer
      */
     protected function importFromCallback($callback)
     {
-        $import = function (ObjectManager $objectManager) use ($callback) {
-            $decorator = new MemorizingObjectManagerDecorator($objectManager);
-            call_user_func($callback, $decorator);
-            return $decorator->getSeenEntities();
-        };
-        $this->entityManager->wrapInTransaction($import);
+        $this->entityManager->wrapInTransaction(function (ObjectManager $objectManager) use ($callback) {
+            call_user_func($callback, $objectManager);
+        });
+
         // Clear the entity manager to ensure that there are no leftovers in the identity map.
         $this->entityManager->clear();
     }

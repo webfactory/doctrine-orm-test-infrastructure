@@ -74,22 +74,6 @@ use Webfactory\Doctrine\Config\ExistingConnectionConfiguration;
 class ORMInfrastructure
 {
     /**
-     * The connection parameters that are used per default.
-     *
-     * Possible parameters are documented at
-     * {@link http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html}.
-     *
-     * @var array(string=>mixed)
-     * @deprecated To be removed in 2.0. Pass ConnectionConfiguration during construction to change the connection.
-     */
-    protected $defaultConnectionParams = array(
-        'driver'   => 'pdo_sqlite',
-        'user'     => 'root',
-        'password' => '',
-        'memory'   => true
-    );
-
-    /**
      * List of entity classes that are managed by this infrastructure.
      *
      * @var string[]
@@ -119,13 +103,7 @@ class ORMInfrastructure
      */
     protected $namingStrategy = null;
 
-    /**
-     * Factory that is used to create ORM configurations.
-     *
-     * @var ConfigurationFactory
-     * @deprecated To be removed in 2.0. Only used once and can be degraded to a local variable.
-     */
-    protected $configFactory = null;
+    private readonly ?MappingDriver $mappingDriver;
 
     /**
      * Listener that is used to resolve entity mappings.
@@ -203,21 +181,25 @@ class ORMInfrastructure
      *
      * @param string[]|\Traversable $entityClasses
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
-     * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct($entityClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null)
+    private function __construct($entityClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null)
     {
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
         if ($connectionConfiguration === null) {
-            $connectionConfiguration = new ConnectionConfiguration($this->defaultConnectionParams);
+            $connectionConfiguration = new ConnectionConfiguration([
+                'driver' => 'pdo_sqlite',
+                'user' => 'root',
+                'password' => '',
+                'memory' => true,
+            ]);
         }
         $this->entityClasses           = $entityClasses;
         $this->connectionConfiguration = $connectionConfiguration;
         $this->queryLogger             = new DebugStack();
         $this->namingStrategy          = new DefaultNamingStrategy();
-        $this->configFactory           = new ConfigurationFactory($mappingDriver);
+        $this->mappingDriver           = $mappingDriver;
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
 
         $this->eventSubscribers = [$this->resolveTargetListener];
@@ -348,7 +330,8 @@ class ORMInfrastructure
      */
     protected function createEntityManager()
     {
-        $config = $this->configFactory->createFor($this->entityClasses);
+        $configFactory = new ConfigurationFactory($this->mappingDriver);
+        $config = $configFactory->createFor($this->entityClasses);
         $config->setSQLLogger($this->queryLogger);
         $config->setNamingStrategy($this->namingStrategy);
 

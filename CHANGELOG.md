@@ -5,6 +5,9 @@ This changelog tracks deprecations and changes breaking backwards compatibility.
 # Version 2.0
 
 - The `ORMInfrastructure::create*()` methods by default read ORM mapping configuration through PHP attributes; annotations support has been removed in https://github.com/webfactory/doctrine-orm-test-infrastructure/pull/55/. You can, however, still create an instance of the `AnnotationDriver` mapping driver yourself (when using ORM 2.0) and pass it into these methods.
+- `\Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure::__construct()` is now a private method. Use the `::create*` methods to instantiate the `ORMInfrastructure`.
+- The `\Webfactory\Doctrine\ORMTestInfrastructure\Query::getExecutionTimeInSeconds()` method has been removed.
+- The `DetachingObjectManagerDecorator` and `MemorizingObjectManagerDecorator` classes have been removed.
 
 # Version 1.16
 

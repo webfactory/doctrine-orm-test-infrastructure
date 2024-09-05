@@ -53,9 +53,9 @@ class ORMInfrastructureTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->infrastructure = new ORMInfrastructure(array(
+        $this->infrastructure = ORMInfrastructure::createOnlyFor([
             TestEntity::class
-        ));
+        ]);
     }
 
     /**
@@ -136,7 +136,7 @@ class ORMInfrastructureTest extends TestCase
             self::markTestSkipped('This test requires PHP 8.0 or greater');
         }
 
-        $this->infrastructure = new ORMInfrastructure([TestEntity_Namespace2::class], null, new AttributeDriver([__DIR__.'/Fixtures/EntityNamespace2']));
+        $this->infrastructure = ORMInfrastructure::createOnlyFor([TestEntity_Namespace2::class], null, new AttributeDriver([__DIR__.'/Fixtures/EntityNamespace2']));
 
         $entity = new TestEntity_Namespace2();
         $repository = $this->infrastructure->getRepository($entity);
@@ -187,9 +187,9 @@ class ORMInfrastructureTest extends TestCase
     public function testDifferentInfrastructureInstancesUseSeparatedDatabases()
     {
         $entity = new TestEntity();
-        $anotherInfrastructure = new ORMInfrastructure(array(
+        $anotherInfrastructure = ORMInfrastructure::createOnlyFor([
             TestEntity::class
-        ));
+        ]);
         $repository = $anotherInfrastructure->getRepository($entity);
 
         $this->infrastructure->import($entity);
@@ -469,11 +469,11 @@ class ORMInfrastructureTest extends TestCase
      */
     public function testUsesMoreSpecificConnectionConfiguration()
     {
-        $this->infrastructure = new ORMInfrastructure(array(
+        $this->infrastructure = ORMInfrastructure::createOnlyFor([
             TestEntity::class
-        ), new ConnectionConfiguration(array(
+        ], new ConnectionConfiguration([
             'invalid' => 'configuration'
-        )));
+        ]));
 
         // The passed configuration is simply invalid, therefore, we expect an exception.
         $this->expectException('Exception');
