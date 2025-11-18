@@ -9,7 +9,6 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Deprecations\Deprecation;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
