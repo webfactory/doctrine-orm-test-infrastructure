@@ -14,15 +14,11 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['7.4', '8.1', '8.2', '8.3', '8.4' ]
+                php-version: ['8.1', '8.2', '8.3', '8.4']
                 dependency-version: [ prefer-stable ]
                 include:
-                    - { php-version: '7.4', dependency-version: prefer-lowest }
-                    # PHP 8.1 and prefer-lowest result in doctrine/persistence 2.x being used
                     - { php-version: '8.1', dependency-version: prefer-lowest }
-
         name: PHP ${{ matrix.php-version }} - ${{ matrix.dependency-version }}
-
         steps:
             -   uses: actions/checkout@v4
             -   name: Install PHP
@@ -31,8 +27,6 @@ jobs:
                     php-version: ${{ matrix.php-version }}
                     coverage: none
             -   name: Install dependencies
-                run: composer update --no-interaction --prefer-dist --${{ matrix.dependency-version}} --no-progress --no-suggest
-            -   name: Allow self-deprecation notices when testing against ORM 2.0
-                run: composer show | egrep -q 'doctrine/orm\s+2' && echo "SYMFONY_DEPRECATIONS_HELPER=max[self]=9999" >> "$GITHUB_ENV" || true
+                run: composer update --no-interaction --no-progress --no-suggest --no-scripts --ansi --${{ matrix.dependency-version}}
             -   name: Run test suite
                 run: vendor/bin/phpunit
