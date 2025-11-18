@@ -11,10 +11,9 @@ namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Logging\Middleware as LoggingMiddleware;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
@@ -75,22 +74,6 @@ use Webfactory\Doctrine\Config\ExistingConnectionConfiguration;
 class ORMInfrastructure
 {
     /**
-     * The connection parameters that are used per default.
-     *
-     * Possible parameters are documented at
-     * {@link http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html}.
-     *
-     * @var array(string=>mixed)
-     * @deprecated To be removed in 2.0. Pass ConnectionConfiguration during construction to change the connection.
-     */
-    protected $defaultConnectionParams = array(
-        'driver'   => 'pdo_sqlite',
-        'user'     => 'root',
-        'password' => '',
-        'memory'   => true
-    );
-
-    /**
      * List of entity classes that are managed by this infrastructure.
      *
      * @var string[]
@@ -120,20 +103,7 @@ class ORMInfrastructure
      */
     protected $namingStrategy = null;
 
-    /**
-     * Callback that is used to load non-Doctrine annotations.
-     *
-     * @var \Closure
-     */
-    protected $annotationLoader = null;
-
-    /**
-     * Factory that is used to create ORM configurations.
-     *
-     * @var ConfigurationFactory
-     * @deprecated To be removed in 2.0. Only used once and can be degraded to a local variable.
-     */
-    protected $configFactory = null;
+    private readonly ?MappingDriver $mappingDriver;
 
     /**
      * Listener that is used to resolve entity mappings.
@@ -211,25 +181,25 @@ class ORMInfrastructure
      *
      * @param string[]|\Traversable $entityClasses
      * @param ConnectionConfiguration|null $connectionConfiguration Optional, specific database connection information.
-     * @deprecated Use one of the create*For() factory methods.
      */
-    public function __construct($entityClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null)
+    private function __construct($entityClasses, ?ConnectionConfiguration $connectionConfiguration = null, ?MappingDriver $mappingDriver = null)
     {
-        // Register the annotation loader before the dependency discovery process starts (if required).
-        // This ensures that the annotation loader is available for the entity resolver that reads the annotations.
-        $this->annotationLoader = $this->createAnnotationLoader();
-        $this->addAnnotationLoaderToRegistry($this->annotationLoader);
         if ($entityClasses instanceof \Traversable) {
             $entityClasses = iterator_to_array($entityClasses);
         }
         if ($connectionConfiguration === null) {
-            $connectionConfiguration = new ConnectionConfiguration($this->defaultConnectionParams);
+            $connectionConfiguration = new ConnectionConfiguration([
+                'driver' => 'pdo_sqlite',
+                'user' => 'root',
+                'password' => '',
+                'memory' => true,
+            ]);
         }
         $this->entityClasses           = $entityClasses;
         $this->connectionConfiguration = $connectionConfiguration;
-        $this->queryLogger             = new DebugStack();
+        $this->queryLogger             = new QueryLogger();
         $this->namingStrategy          = new DefaultNamingStrategy();
-        $this->configFactory           = new ConfigurationFactory($mappingDriver);
+        $this->mappingDriver           = $mappingDriver;
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
 
         $this->eventSubscribers = [$this->resolveTargetListener];
@@ -272,13 +242,7 @@ class ORMInfrastructure
      */
     public function getQueries()
     {
-        return array_map(function (array $queryData) {
-            return new Query(
-                $queryData['sql'],
-                (isset($queryData['params']) ? $queryData['params'] : array()),
-                $queryData['executionMS']
-            );
-        }, $this->queryLogger->queries);
+        return $this->queryLogger->getQueries();
     }
 
     /**
@@ -360,8 +324,11 @@ class ORMInfrastructure
      */
     protected function createEntityManager()
     {
-        $config = $this->configFactory->createFor($this->entityClasses);
-        $config->setSQLLogger($this->queryLogger);
+        $configFactory = new ConfigurationFactory($this->mappingDriver);
+        $config = $configFactory->createFor($this->entityClasses);
+        $middlewares = $config->getMiddlewares();
+        $middlewares[] = new LoggingMiddleware($this->queryLogger);
+        $config->setMiddlewares($middlewares);
         $config->setNamingStrategy($this->namingStrategy);
 
         if ($this->connectionConfiguration instanceof ExistingConnectionConfiguration) {
@@ -396,83 +363,6 @@ class ORMInfrastructure
             $metadata[] = $metadataFactory->getMetadataFor($class);
         }
         return $metadata;
-    }
-
-    /**
-     * Restores the state of the annotation registry.
-     */
-    public function __destruct()
-    {
-        $this->removeAnnotationLoaderFromRegistry($this->annotationLoader);
-    }
-
-    /**
-     * Creates an annotation loader.
-     *
-     * The loader uses class_exists() to trigger the configured class loader.
-     * This ensures that all loadable annotation classes can be used and avoid
-     * dealing with annotation class white lists.
-     *
-     * @return \Closure
-     */
-    protected function createAnnotationLoader()
-    {
-        $loader = function ($annotationClass) {
-            return class_exists($annotationClass, true);
-        };
-        // Starting with PHP 5.4, the object context is bound to created closures. The context is not needed
-        // in the function above and as we will store the function in an attribute, this would create a
-        // circular reference between object and function. That would delay the garbage collection and
-        // the cleanup that happens in __destruct.
-        // To avoid these issues, we simply remove the context from the lambda function.
-        return $loader->bindTo(null);
-    }
-
-    /**
-     * Adds a custom annotation loader to Doctrine's AnnotationRegistry.
-     *
-     * @param \Closure $loader
-     */
-    protected function addAnnotationLoaderToRegistry(\Closure $loader)
-    {
-        if (is_callable(['Doctrine\Common\Annotations\AnnotationRegistry', 'registerLoader'])) {
-            AnnotationRegistry::registerLoader($loader);
-        }
-    }
-
-    /**
-     * Removes the loader that has been added to Doctrine's AnnotationRegistry.
-     *
-     * This requires some ugly reflection as the registry data is static and the loaders
-     * are not publicly accessible.
-     * Loaders are compared by identity, therefore, this will only work correctly with
-     * \Closure instances.
-     *
-     * @param \Closure $loader The loader that will be removed.
-     */
-    protected function removeAnnotationLoaderFromRegistry(\Closure $loader)
-    {
-        if (!is_callable(['Doctrine\Common\Annotations\AnnotationRegistry', 'registerLoader'])) {
-            return;
-        }
-
-        $reflection = new \ReflectionClass(AnnotationRegistry::class);
-        $annotationLoaderProperty = $reflection->getProperty('loaders');
-        $annotationLoaderProperty->setAccessible(true);
-        $activeLoaders = $annotationLoaderProperty->getValue();
-        foreach ($activeLoaders as $index => $activeLoader) {
-            /* @var $loader callable */
-            if ($activeLoader === $loader) {
-                unset($activeLoaders[$index]);
-            }
-        }
-        // Work around this issue https://www.php.net/manual/en/reflectionclass.setstaticpropertyvalue.php#114740
-        // which seems to be fixed as of PHP 7.4.
-        if (PHP_VERSION >= 70400) {
-            $reflection->setStaticPropertyValue('loaders', array_values($activeLoaders));
-        } else {
-            $annotationLoaderProperty->setValue(array_values($activeLoaders));
-        }
     }
 
     /**

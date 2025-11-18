@@ -89,12 +89,11 @@ class MyEntityRepositoryTest extends TestCase
 }
 ```
 
-Migrating to attribute-based mapping configuration
---------------------------------------------------
+Migrating to attribute-based mapping configuration (with version 1.x)
+---------------------------------------------------------------------
 
-The `ORMInfrastructure::createWithDependenciesFor()` and `ORMInfrastructure::createOnlyFor()` methods by default
-assume that the Doctrine ORM mapping is provided through annotations. This has been deprecated in Doctrine ORM 2.x
-and is no longer be supported in ORM 3.0.
+In versions 1.x of this library, the `ORMInfrastructure::createWithDependenciesFor()` and `ORMInfrastructure::createOnlyFor()` methods
+by default assume that the Doctrine ORM mapping is provided through annotations. Annotations-based configuration is no supported anymore in ORM 3.0.
 
 To allow for a seamless transition towards attribute-based or other types of mapping, a mapping driver can be passed
 when creating instances of the `ORMInfrastructure`.
@@ -105,6 +104,8 @@ where `$paths` is an array of directory paths where your entity classes are stor
 For hybrid (annotations and attributes) mapping configurations, you can use `\Doctrine\Persistence\Mapping\Driver\MappingDriverChain`.
 Multiple mapping drivers can be registered on the driver chain by providing namespace prefixes. For every namespace prefix,
 only one mapping driver can be used.
+
+Starting in version 2.0.0, attributes-based mapping will be the default.
 
 Testing the library itself
 --------------------------

@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\Config\FileDatabaseConnectionConfiguration;
 use Webfactory\Doctrine\ORMTestInfrastructure\ORMInfrastructure;
-use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityWithAnnotation\TestEntity;
+use Webfactory\Doctrine\Tests\ORMTestInfrastructure\Fixtures\EntityNamespace1\TestEntity;
 
 class FileDatabaseConnectionConfigurationTest extends TestCase
 {

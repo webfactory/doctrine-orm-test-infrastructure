@@ -9,11 +9,7 @@
 
 namespace Webfactory\Doctrine\ORMTestInfrastructure;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\PsrCachedReader;
-use Doctrine\Common\Annotations\Reader;
 use Doctrine\Deprecations\Deprecation;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
@@ -27,16 +23,6 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
  */
 class ConfigurationFactory
 {
-    /**
-     * Shared annotation reader or null, if not created yet.
-     *
-     * A shared reader is used for performance reasons. As annotations cannot
-     * change during a test run, it is save to use a shared reader.
-     *
-     * @var Reader|null
-     */
-    protected static $defaultAnnotationReader = null;
-
     /** @var ?CacheItemPoolInterface */
     private static $metadataCache = null;
 
@@ -78,15 +64,6 @@ class ConfigurationFactory
     {
         $paths = $this->getDirectoryPathsForClassNames($entityClasses);
 
-        if (class_exists(AnnotationDriver::class)) {
-            Deprecation::trigger(
-                'webfactory/doctrine-orm-test-infrastructure',
-                'https://github.com/webfactory/doctrine-orm-test-infrastructure/pull/54',
-                'Since the AnnotationDriver has been removed in ORM 3.0, using annotation-based mapping as the default has been deprecated in 1.16. In 2.0, attribute-based configuration will be the new default. Either upgrade doctrine/orm to >=3.0 or pass a mapping driver when calling `ORMInfrastructure::create*()` methods to make this notice go away.'
-            );
-            return new AnnotationDriver($this->getAnnotationReader(), $paths);
-        }
-
         return new AttributeDriver($paths);
     }
 
@@ -115,19 +92,5 @@ class ConfigurationFactory
     {
         $info = new \ReflectionClass($className);
         return dirname($info->getFileName());
-    }
-
-    /**
-     * Returns the default annotation reader and creates it if necessary.
-     *
-     * @return Reader|AnnotationReader
-     */
-    protected function getAnnotationReader()
-    {
-        if (static::$defaultAnnotationReader === null) {
-            static::$defaultAnnotationReader = new PsrCachedReader(new AnnotationReader(), new ArrayAdapter());
-        }
-
-        return static::$defaultAnnotationReader;
     }
 }
