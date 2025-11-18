@@ -508,7 +508,7 @@ class ORMInfrastructureTest extends TestCase
         $validator($schemaTool->getSchemaFromMetadata($infrastructure->getMetadataForSupportedEntities()));
     }
 
-    public function resolverFixtures()
+    public static function resolverFixtures()
     {
         yield 'single entity' => [
             [DependencyResolverFixtures\SingleEntity\Entity::class],
