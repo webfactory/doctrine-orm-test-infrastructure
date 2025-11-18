@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd" bootstrap="tests/bootstrap.php">
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    displayDetailsOnAllIssues="true"
+>
+    <source ignoreSuppressionOfDeprecations="true">
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
     <testsuites>
         <testsuite name="Library Test Suite">
             <directory>tests/</directory>
@@ -8,11 +19,7 @@
     <php>
         <server name="KERNEL_CLASS" value="Webfactory\Bundle\PolyglotBundle\Tests\Fixtures\TestKernel" />
         <server name="KERNEL_DIR" value="tests/Fixtures/" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0" />
         <env name="DOCTRINE_DEPRECATIONS" value="trigger" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-    </listeners>
 </phpunit>
