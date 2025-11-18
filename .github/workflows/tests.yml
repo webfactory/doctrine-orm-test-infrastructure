@@ -33,5 +33,7 @@ jobs:
                 if: matrix.orm-version != ''
             -   name: Install dependencies
                 run: composer update --no-interaction --no-progress --no-suggest --no-scripts --ansi --${{ matrix.dependency-version}}
+            -   name: Display installed dependencies
+                run: composer show
             -   name: Run test suite
                 run: vendor/bin/phpunit
