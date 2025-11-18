@@ -14,11 +14,13 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['8.1', '8.2', '8.3', '8.4']
-                dependency-version: [ prefer-stable ]
                 include:
-                    - { php-version: '8.1', dependency-version: prefer-lowest }
-        name: PHP ${{ matrix.php-version }} - ${{ matrix.dependency-version }}
+                    - { php-version: 8.1, orm-version: '', dependency-version: prefer-lowest }
+                    - { php-version: 8.3, orm-version: '^2.20', dependency-version: prefer-stable }
+                    - { php-version: 8.3, orm-version: '^3.0', dependency-version: prefer-stable }
+                    - { php-version: 8.4, orm-version: '^2.20', dependency-version: prefer-stable }
+                    - { php-version: 8.4, orm-version: '^3.0', dependency-version: prefer-stable }
+        name: PHPUnit (PHP ${{matrix.php-version}}, Doctrine ORM version lock ${{ matrix.orm-version || 'none' }}, ${{ matrix.dependency-version }})
         steps:
             -   uses: actions/checkout@v4
             -   name: Install PHP
@@ -26,7 +28,12 @@ jobs:
                 with:
                     php-version: ${{ matrix.php-version }}
                     coverage: none
+            -   name: Lock Doctrine ORM version
+                run: composer require --no-interaction --no-progress --no-suggest --no-scripts --ansi --no-update doctrine/orm '${{ matrix.orm-version }}'
+                if: matrix.orm-version != ''
             -   name: Install dependencies
                 run: composer update --no-interaction --no-progress --no-suggest --no-scripts --ansi --${{ matrix.dependency-version}}
+            -   name: Display installed dependencies
+                run: composer show
             -   name: Run test suite
                 run: vendor/bin/phpunit
