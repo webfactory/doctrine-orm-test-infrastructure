@@ -1,6 +1,16 @@
 doctrine-orm-test-infrastructure
 ================================
 
+⚠️ This library is not receiving active maintenance anymore and is likely to be abandoned in the near future.
+
+There have been major changes in the current Doctrine DBAL 3.x releases that make it increasingly hard to maintain
+helper classes that create a working ORM configuration "out of nothing". At the same time, we have been using 
+the functionality provided here only to limited extent in our own projects. Most of the time, Symfony functional 
+tests together with Zenstruck Foundry and testing against the real MySQL schema instead of an in-memory SQLite schema
+created ad hoc turned out to be good enough.
+
+---
+
 ![Tests](https://github.com/webfactory/doctrine-orm-test-infrastructure/workflows/Tests/badge.svg)
 
 This library provides some infrastructure for tests of Doctrine ORM entities, featuring:
