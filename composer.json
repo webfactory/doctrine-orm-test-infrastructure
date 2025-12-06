@@ -27,7 +27,8 @@
     },
     "require-dev": {
         "doctrine/collections": "^1.6.8|^2.2.1",
-        "phpunit/phpunit": "^10.5.58"
+        "phpunit/phpunit": "^10.5.58",
+        "symfony/var-exporter": "^6.4|^7.3"
     },
     "autoload": {
         "psr-4": {
