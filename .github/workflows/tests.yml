@@ -22,7 +22,7 @@ jobs:
                     - { php-version: 8.4, orm-version: '^3.0', dependency-version: prefer-stable }
         name: PHPUnit (PHP ${{matrix.php-version}}, Doctrine ORM version lock ${{ matrix.orm-version || 'none' }}, ${{ matrix.dependency-version }})
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v6
             -   name: Install PHP
                 uses: shivammathur/setup-php@v2
                 with:
