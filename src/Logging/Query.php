@@ -7,58 +7,42 @@
  * file that was distributed with this source code.
  */
 
-namespace Webfactory\Doctrine\ORMTestInfrastructure;
+namespace Webfactory\Doctrine\Logging;
 
 /**
  * Represents a query that has been executed.
  */
 class Query
 {
-    /**
-     * The SQL query.
-     *
-     * @var string
-     */
-    protected $sql = null;
-
-    /**
-     * The assigned parameters.
-     *
-     * @var mixed[]
-     */
-    protected $params = null;
-
-    /**
-     * Currently not used:
-     * - types
-     *
-     * @param string $sql - sql
-     * @param mixed[] $params - params
-     */
-    public function __construct($sql, array $params)
-    {
-        $this->sql = $sql;
-        $this->params = $params;
+    public function __construct(
+        protected readonly string $sql,
+        protected readonly array $params,
+        protected readonly float $executionTimeInSeconds,
+    ) {
     }
 
     /**
      * Returns the SQL of the query.
-     *
-     * @return string
      */
-    public function getSql()
+    public function getSql(): string
     {
         return $this->sql;
     }
 
     /**
      * Returns a list of parameters that have been assigned to the statement.
-     *
-     * @return mixed[]
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
+    }
+
+    /**
+     * Returns the execution time of the query in seconds.
+     */
+    public function getExecutionTimeInSeconds(): float
+    {
+        return $this->executionTimeInSeconds;
     }
 
     /**

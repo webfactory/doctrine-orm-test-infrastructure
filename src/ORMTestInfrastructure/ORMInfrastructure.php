@@ -15,15 +15,14 @@ use Doctrine\DBAL\Logging\Middleware as LoggingMiddleware;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\DefaultNamingStrategy;
 use Doctrine\ORM\Mapping\NamingStrategy;
 use Doctrine\ORM\Tools\ResolveTargetEntityListener;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\Common\EventSubscriber;
 use Webfactory\Doctrine\Config\ConnectionConfiguration;
 use Webfactory\Doctrine\Config\ExistingConnectionConfiguration;
+use Webfactory\Doctrine\Logging\Middleware;
+use Webfactory\Doctrine\Logging\Query;
 
 /**
  * Helper class that creates the database infrastructure for a defined set of entity classes.
@@ -92,7 +91,7 @@ class ORMInfrastructure
     /**
      * The query logger that is used.
      *
-     * @var DebugStack
+     * @var Middleware
      */
     protected $queryLogger = null;
 
@@ -197,7 +196,7 @@ class ORMInfrastructure
         }
         $this->entityClasses           = $entityClasses;
         $this->connectionConfiguration = $connectionConfiguration;
-        $this->queryLogger             = new QueryLogger();
+        $this->queryLogger             = new Middleware();
         $this->namingStrategy          = new DefaultNamingStrategy();
         $this->mappingDriver           = $mappingDriver;
         $this->resolveTargetListener   = new ResolveTargetEntityListener();
@@ -255,11 +254,11 @@ class ORMInfrastructure
      */
     public function import($dataSource)
     {
-        $loggerWasEnabled = $this->queryLogger->enabled;
-        $this->queryLogger->enabled = false;
+        $loggerWasEnabled = $this->queryLogger->isEnabled();
+        $this->queryLogger->setEnabled(false);
         $importer = new Importer($this->copyEntityManager());
         $importer->import($dataSource);
-        $this->queryLogger->enabled = $loggerWasEnabled;
+        $this->queryLogger->setEnabled($loggerWasEnabled);
     }
 
     /**
@@ -270,14 +269,14 @@ class ORMInfrastructure
     public function getEntityManager()
     {
         if ($this->entityManager === null) {
-            $loggerWasEnabled = $this->queryLogger->enabled;
-            $this->queryLogger->enabled = false;
+            $loggerWasEnabled = $this->queryLogger->isEnabled();
+            $this->queryLogger->setEnabled(false);
             $this->entityManager = $this->createEntityManager();
             $this->setupEventSubscribers();
             if ($this->createSchema) {
                 $this->createSchemaForSupportedEntities();
             }
-            $this->queryLogger->enabled = $loggerWasEnabled;
+            $this->queryLogger->setEnabled($loggerWasEnabled);
         }
         return $this->entityManager;
     }
